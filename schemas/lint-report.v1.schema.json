@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/logitsolutionsai/selfclone/schemas/lint-report.v1.schema.json",
+  "title": "selfclone lint report, version 1",
+  "description": "Offsets are UTF-16 code units into the decoded file (after any byte order mark); line and column are 1-based, column in UTF-16 code units. Findings are sorted by path, startOffset and ruleId.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "status",
+    "mode",
+    "filesScanned",
+    "filesSkipped",
+    "profileId",
+    "policy",
+    "findings",
+    "warnings",
+    "exitCode"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "status": {
+      "enum": [
+        "clean",
+        "advisory",
+        "failed"
+      ]
+    },
+    "mode": {
+      "enum": [
+        "advisory",
+        "enforce"
+      ]
+    },
+    "filesScanned": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "filesSkipped": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "profileId": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9a-f]{20}$"
+    },
+    "policy": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 120
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/finding"
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "exitCode": {
+      "enum": [
+        0,
+        1
+      ]
+    }
+  },
+  "$defs": {
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ruleId",
+        "kind",
+        "severity",
+        "path",
+        "line",
+        "column",
+        "startOffset",
+        "endOffset",
+        "message",
+        "suggestion",
+        "confidence",
+        "hard"
+      ],
+      "properties": {
+        "ruleId": {
+          "type": "string",
+          "pattern": "^(?:style/)?[a-z0-9][a-z0-9-]{0,63}$"
+        },
+        "kind": {
+          "enum": [
+            "policy",
+            "style"
+          ]
+        },
+        "severity": {
+          "enum": [
+            "error",
+            "warning",
+            "note"
+          ]
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "column": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "startOffset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "endOffset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "suggestion": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence": {
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ]
+        },
+        "hard": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

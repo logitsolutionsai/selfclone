@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: legit-docs-lint
+context:
+  scaffold_script: scaffold.sh

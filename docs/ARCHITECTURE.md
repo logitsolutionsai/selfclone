@@ -57,7 +57,17 @@ flowchart LR
 | `face/lib/detect.js` | in-browser detection, live checks, crop, the clip collector and the video bake |
 | `face/lib/runtime.js` | avatar renderer, animation, speech and audio |
 | `face/avatar.html`, `face/enrol.html`, `face/bake.html` | page templates |
-| `templates/` | clone skill templates |
+| `templates/` | clone skill templates; `templates/maintainer-kit/` for `kit init`; the synthetic example profile |
+| `src/cli-next.mjs`, `src/errors.mjs` | the Voice CI and Voice Passport commands, their help, structured errors and exit codes |
+| `src/consent.mjs` | the consent ledger with scopes and revocation |
+| `src/schema.mjs` | a dependency-free JSON Schema validator for `schemas/`, canonical JSON and safe JSON parsing |
+| `src/profile/` | channel mapping and the private voice profile (training split only, shrinkage for thin channels) |
+| `src/lint/` | the Markdown segmenter, the bounded glob matcher, the policy loader, the lint engine and SARIF output |
+| `src/passport/` | the allowlisted public projection, the offline HTML and SVG renderers and the optional PNG |
+| `src/kit/` | kit init and check, and the voice delta |
+| `src/drift/` | the conversation-level bootstrap over two date windows |
+| `schemas/` | JSON Schemas for the profile, the policy, the passport and the lint report |
+| `evals/` | behaviour eval cases for `claude plugin eval` |
 
 ## Records And Turns
 

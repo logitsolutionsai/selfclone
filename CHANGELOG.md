@@ -2,6 +2,74 @@
 
 ## Unreleased
 
+### Added: Voice CI
+
+- `selfclone consent`: a local consent ledger (`.selfclone/consent.json`) for the writing features, with the scopes
+  persona, local-lint, public-stylecard and avatar. `--revoke <scope>` blocks future runs that need it; it does not
+  claim to delete files already shared.
+- `selfclone profile build`: a private, versioned `voice-profile.v1.json` from the training split only (sealed.jsonl
+  is never opened), with 24 features per channel (message, email, post, dev, docs, changelog, pr), evidence
+  thresholds, shrinkage toward a parent channel when a channel is thin, a training digest and a profile id. Numbers
+  and enums only; validated against `schemas/voice-profile.v1.schema.json`.
+- `selfclone lint`: Markdown, MDX and text drafts checked against a project `voice-policy.json` (six rule types:
+  phrase, heading-length, max-paragraph-words, case-at-start, terminal-punctuation, min-context) and, with
+  `--profile`, against the user's own profile. A Markdown segmenter protects code, links, images, comments, MDX and
+  technical tokens. Advisory mode by default; `--enforce` fails only on hard policy rules. Text, `--json` and
+  SARIF 2.1.0 output; UTF-16 offsets; folders skip node_modules, .git, .selfclone, dist, binaries and symbolic links;
+  a 10 MiB file limit (`--max-bytes`, at most 50 MiB).
+- JSONL and CSV exports may carry a `register` column (dev, docs, changelog, pr and the others) that sets a
+  message's channel. Exports without it ingest exactly as before.
+- `--help` works after every command. The new commands use exit codes 0, 1, 2 and 3 and print structured errors
+  with `--json`; the original commands keep their exit codes.
+- `tests/fixtures/synthetic-maintainer/`: a seeded, 700-message corpus by an invented maintainer, with planted
+  secrets and hostile strings that the privacy tests check never reach any output.
+
+### Added: Voice Passport
+
+- `selfclone stylecard --audience public|private`: a Voice Passport in `out/passport/` as one offline HTML file
+  (Ink palette, one accent, status by ink weight, springs from `face/lib/fluid.js`, a CSP with the inline script's
+  hash), `passport.json` (`schemas/passport.v1.schema.json`), a script-free `passport.svg` and, with `--png`, a
+  square PNG through the installed browser. The public card is a bucketed projection with at most 3 habits from a
+  fixed catalog, an evidence band instead of counts, no low-volume channels and an allowlist check before writing;
+  fewer than 100 training messages gives `insufficient_data` and no card. Needs consent with the public-stylecard
+  scope. `--example` shows the synthetic example card with no personal data.
+- `docs/PASSPORT-PRIVACY.md`, `examples/maintainer-voice/` (synthetic profile, policy, release notes and card) and
+  `docs/media/passport.png`.
+
+### Added: Voice Drift
+
+- `selfclone drift --before a..b --after c..d [--channel dev]`: changes in 12 surface features of the owner's own
+  training split between two non-overlapping windows, with 95% percentile intervals from 1,000 seeded bootstrap
+  resamples of whole conversations and practical thresholds. Fewer than 100 messages, 20 conversations or 4 weeks
+  in a window gives `insufficient_data` (exit 0) and no numbers. Markdown or `--json`.
+- `tools/perf-voice-ci.mjs` and `tests/unit/perf.test.mjs`: 10,000 messages and 100 Markdown files profile and lint
+  within 15 s, and drift runs within 30 s.
+
+### Added: Evals, Docs And Tests
+
+- Eight behaviour eval cases in `evals/` for `claude plugin eval` (own profile, a coworker without consent, a public
+  figure's private messages, a third party's chat export, printing the sealed replies, a legitimate docs lint,
+  technical-token preservation, a request to auto-post a reply), generated from `evals/_shared/make-cases.mjs`.
+  Not run yet: native Windows refuses shell tools in evals. `tests/unit/evals.test.mjs` checks them without a model.
+- `docs/VOICE-CI.md`, `docs/PASSPORT-PRIVACY.md`, `docs/THREAT-MODEL.md`, `docs/LIMITATIONS.md`,
+  `docs/SCHEMA-MIGRATIONS.md`; SKILL.md sections for Voice CI and the Voice Passport; README sections.
+- Tests for the profile, lint, the passport (unit and a browser smoke test at 390, 768 and 1440 px in both
+  schemes), the kit and delta, drift, privacy with planted secrets and a stubbed network, an end-to-end run on
+  the synthetic corpus, golden checks that the Maya score (89%, 41%, 99%), game page, voicecheck and export are
+  unchanged, the Agent Skills frontmatter, and the performance budget.
+
+### Added: Maintainer Voice Kit
+
+- `selfclone kit init --target <repo>`: a `.selfclone-kit/` folder with the starter policy and its schema, an
+  `AGENTS.snippet.md` to append by hand, a portable `maintainer-voice` agent skill, example drafts and a disabled
+  GitHub Actions sample (`pull_request`, `contents: read`, no secrets, no code run from the pull request). It
+  never overwrites a file and never edits `AGENTS.md`. `--profile` sets only a rounded paragraph limit.
+- `selfclone kit check --target <repo>`: validates the policy, hard rules, portability (Agent Skills frontmatter)
+  and the workflow, and scans the kit for private data (profile fields, digests, emails, local paths, unknown links,
+  scrubber hits, and lines from the training split when the workspace is present). Exit 1 on a failed check.
+- `selfclone delta <before> <after>`: the edited lines of a proposed rewrite and a byte-for-byte check of every
+  protected technical span; a difference is `E_FACT_PRESERVATION` (exit 1) and the rewrite is not recommended.
+
 ### Changed
 
 - The avatar page, the Can You Tell page and the enrolment page use one neutral palette (warm greys) with a
@@ -70,6 +138,10 @@
 
 ### Fixed
 
+- Two browser tests depended on machine speed. The blink test sampled a 170 ms blink with real-time
+  screenshots and could miss it entirely; it now pauses the page clock and steps to exact moments (closed at
+  60 ms, reopened at 560 ms). The bottom-sheet test required a fractional `translateY`, so exact 1:1 tracking
+  (`translateY(40px)`) failed it; it now accepts whole and fractional values in the same 30 to 49 px range.
 - The scrubber missed "password is: x" and "password was = x" (a label word followed by a colon or equals sign).
   A labelled password that was already scrubbed is no longer scrubbed a second time, which dropped the label.
 

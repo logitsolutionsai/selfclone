@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; script-src 'sha256-OTjAfVVP1H/tpnnFIJXVmOlx9PAwsaMQ/IrJucKlS+E='; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="data:,">
+<title>Voice Passport</title>
+<style>
+:root {
+  --bg: #f7f7f5; --surface: #ffffff; --surface-2: #f0f0ed; --line: #e3e3df; --line-strong: #c9c9c3;
+  --ink: #111110; --ink-2: #3a3a37; --muted: #6f6f69; --faint: #a3a39c;
+  --accent: #0065fd; --accent-press: #0654c8; --accent-soft: rgba(0,101,253,.10);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e0e0d; --surface: #171716; --surface-2: #1f1f1d; --line: #2b2b29; --line-strong: #3d3d3a;
+    --ink: #f4f4f2; --ink-2: #d6d6d2; --muted: #9a9a94; --faint: #6a6a65;
+    --accent: #5b9cff; --accent-press: #3f86ff; --accent-soft: rgba(91,156,255,.14);
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); }
+body { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; padding: max(24px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom)); }
+main { max-width: 640px; margin: 0 auto; }
+.eyebrow { font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 4px; }
+h1 { font-size: 1.75rem; line-height: 1.2; letter-spacing: -0.01em; margin: 0 0 6px; }
+.lede { color: var(--ink-2); margin: 0 0 24px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 24px; }
+.card-head { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; }
+.card h2 { font-size: 1.375rem; line-height: 1.25; margin: 0; }
+.disclaimer { color: var(--ink-2); margin: 8px 0 16px; font-size: .9375rem; }
+.chip { display: inline-block; border-radius: 999px; padding: 2px 10px; font-size: .8125rem; line-height: 1.5; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.l3 { background: var(--ink); color: var(--bg); }
+.l2 { border: 1.5px solid var(--ink); color: var(--ink); padding: 0.5px 8.5px; }
+.l1 { background: var(--surface-2); color: var(--muted); }
+.l0 { border: 1px dashed var(--line-strong); color: var(--muted); padding: 1px 9px; }
+h3 { font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 24px 0 8px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; }
+ul.registers, ul.habits, ul.notes { list-style: none; margin: 0; padding: 0; }
+ul.registers li { display: grid; grid-template-columns: 1fr auto; align-content: start; gap: 2px 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+ul.registers li:first-child { border-top: 0; }
+.reg-name { font-weight: 600; }
+.traits { grid-column: 1 / -1; color: var(--muted); font-size: .875rem; }
+ul.registers .chip { align-self: start; justify-self: end; }
+ul.habits li, ul.notes li { padding: 4px 0 4px 18px; position: relative; color: var(--ink-2); }
+ul.habits li::before, ul.notes li::before { content: ""; position: absolute; left: 2px; top: 13px; width: 6px; height: 6px; border-radius: 50%; background: var(--ink); }
+ul.notes li::before { background: transparent; border: 1.5px solid var(--muted); }
+.digest { margin: 24px 0 0; color: var(--muted); font-size: .8125rem; overflow-wrap: anywhere; }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .8125rem; background: var(--surface-2); border-radius: 4px; padding: 1px 4px; }
+.empty { border: 1px dashed var(--line-strong); border-radius: 10px; padding: 16px; color: var(--muted); }
+.more { margin-top: 24px; }
+.toggle { font: inherit; font-weight: 600; color: var(--accent); background: transparent; border: 1px solid var(--line-strong); border-radius: 6px; padding: 8px 14px; cursor: pointer; transition: background-color .15s; }
+.toggle:hover { background: var(--accent-soft); }
+.toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.disclosure { overflow: hidden; height: 0; }
+.disclosure > div { padding-top: 12px; }
+.disclosure p { color: var(--ink-2); margin: 12px 0 0; }
+footer { margin-top: 32px; color: var(--muted); font-size: .8125rem; }
+html.png-mode body { padding: 0; background: var(--bg); }
+html.png-mode main { max-width: none; }
+html.png-mode .top, html.png-mode .more, html.png-mode footer { display: none; }
+html.png-mode .card { width: 600px; height: 600px; overflow: hidden; border-radius: 0; border: 0; padding: 28px; font-size: 14px; }
+html.png-mode .card h2 { font-size: 1.25rem; }
+html.png-mode .disclaimer { margin: 6px 0 12px; font-size: .875rem; }
+html.png-mode h3 { margin: 16px 0 4px; }
+html.png-mode ul.registers { display: grid; grid-template-columns: 1fr 1fr; column-gap: 16px; }
+html.png-mode ul.registers li { padding: 7px 0; gap: 0 8px; }
+html.png-mode ul.registers li:nth-child(2) { border-top: 0; }
+html.png-mode .reg-name { font-size: .875rem; }
+html.png-mode .traits { font-size: .6875rem; }
+html.png-mode .chip { font-size: .6875rem; }
+html.png-mode ul.habits li { padding: 2px 0 2px 16px; font-size: .875rem; }
+html.png-mode ul.habits li::before { top: 10px; }
+html.png-mode .digest { margin-top: 14px; font-size: .6875rem; }
+@media (min-width: 1200px) { main { max-width: 720px; } }
+</style>
+</head>
+<body>
+<main>
+<header class="top"><p class="eyebrow">selfclone</p><h1>Voice Passport</h1><p class="lede">Coarse writing tendencies measured on this computer from the writer's own opted-in exports. Surface style only.</p></header>
+<section class="card" id="card" aria-labelledby="card-title" data-audience="public" data-status="ok">
+<div class="card-head"><h2 id="card-title">My writing style</h2><span class="chip l2" data-privacy="public">Public card · no message text</span></div>
+<p class="disclaimer">AI-derived writing-style summary; not identity proof.</p>
+<div class="meta"><span class="chip l1" data-evidence="500+">500 or more messages</span><span class="chip l1">7 of 7 registers</span></div>
+<h3>Registers</h3>
+<ul class="registers"><li data-register="message" data-coverage="supported"><span class="reg-name">Chat</span><span class="chip l2">Well covered</span><span class="traits">very short · mostly lowercase · light punctuation</span></li><li data-register="email" data-coverage="partial"><span class="reg-name">Email</span><span class="chip l1">Partly covered</span><span class="traits">short-to-medium · capitalised · light punctuation</span></li><li data-register="post" data-coverage="partial"><span class="reg-name">Posts</span><span class="chip l1">Partly covered</span><span class="traits">short-to-medium · capitalised · full punctuation</span></li><li data-register="dev" data-coverage="supported"><span class="reg-name">Developer discussion</span><span class="chip l2">Well covered</span><span class="traits">short-to-medium · mostly lowercase · light punctuation</span></li><li data-register="docs" data-coverage="partial"><span class="reg-name">Documentation</span><span class="chip l1">Partly covered</span><span class="traits">short · capitalised · full punctuation</span></li><li data-register="changelog" data-coverage="partial"><span class="reg-name">Changelogs</span><span class="chip l1">Partly covered</span><span class="traits">short · capitalised · full punctuation</span></li><li data-register="pr" data-coverage="partial"><span class="reg-name">Pull requests</span><span class="chip l1">Partly covered</span><span class="traits">short · capitalised · full punctuation</span></li></ul>
+<h3>Habits</h3>
+<ul class="habits"><li>Usually concise in developer discussions</li><li>Uses direct questions sparingly</li><li>Rarely uses exclamation marks</li></ul>
+<p class="digest">Projection digest <code>sha256:5acc918d3042ac57924bd674cf0f8bf4eca4075be6e5cddb5e549c8b007beeed</code></p>
+</section>
+
+<section class="more">
+<button class="toggle" id="what-toggle" type="button" aria-expanded="false" aria-controls="what-body">What this card leaves out</button>
+<div class="disclosure" id="what-body" hidden><div><ul class="notes"><li>No message text</li><li>No names, email addresses or links from your writing</li><li>No writing samples or rare phrases</li><li>No exact message counts</li><li>Rounded and bucketed tendencies only</li></ul><p>Every value is rounded into a few buckets, channels with little evidence are left out, and the habits come from a fixed list of phrases with fixed thresholds. These are heuristics against casual leaks, not a formal anonymity guarantee, and the card is not proof of who wrote anything.</p></div></div>
+</section>
+<footer>Made with selfclone 0.1.0. One offline file: it loads nothing and sends nothing.</footer>
+</main>
+<script>/* fluid.js: interruptible springs and pointer helpers for offline pages. No dependencies, about 2 KB minified.
+ * Inline a copy into each generated page. Springs use Apple's response/damping model:
+ *   response = period of the undamped spring in seconds; damping = damping ratio (1 = no bounce, 0.8 = slight bounce).
+ *   Move or reposition: damping 1, response 0.4. Drawer or sheet: damping 0.8, response 0.3. Press: damping 1, response 0.18.
+ * Every spring keeps its live value and velocity, so a new target retargets from where it is now (interruptible).
+ * Under prefers-reduced-motion every spring jumps straight to its target.
+ */
+var Fluid = (function () {
+  'use strict';
+  var mq = typeof matchMedia === 'function' ? matchMedia('(prefers-reduced-motion: reduce)') : null;
+  function reduce() { return !!(mq && mq.matches); }
+
+  function spring(opts) {
+    opts = opts || {};
+    var x = opts.value || 0, v = 0, target = x, raf = 0, last = 0, k = 0, c = 0;
+    var onUpdate = opts.onUpdate, onRest = opts.onRest, eps = opts.epsilon || 0.001;
+    var response = opts.response || 0.4, damping = opts.damping == null ? 1 : opts.damping;
+    function params(r, d) { k = Math.pow((2 * Math.PI) / r, 2); c = (4 * Math.PI * d) / r; }
+    params(response, damping);
+    function emit() { if (onUpdate) onUpdate(x, v); }
+    function settle() { x = target; v = 0; raf = 0; emit(); if (onRest) onRest(x); }
+    function step(t) {
+      var dt = (t - last) / 1000;
+      if (!(dt > 0)) dt = 1 / 60; // the first frame's timestamp can be earlier than the call to to()
+      if (dt > 0.064) dt = 0.064;
+      last = t;
+      var n = Math.max(1, Math.ceil(dt * 240)), h = dt / n;
+      for (var i = 0; i < n; i++) { var a = -k * (x - target) - c * v; v += a * h; x += v * h; }
+      if (Math.abs(x - target) < eps && Math.abs(v) < eps * 10) return settle();
+      emit();
+      raf = requestAnimationFrame(step);
+    }
+    var api = {
+      get value() { return x; },
+      get velocity() { return v; },
+      get target() { return target; },
+      /** Animate to t. opts.velocity hands off a release velocity (units per second). */
+      to: function (t, o) {
+        o = o || {};
+        target = t;
+        if (o.velocity != null) v = o.velocity;
+        if (o.response || o.damping != null) params(o.response || response, o.damping == null ? damping : o.damping);
+        if (reduce()) { cancelAnimationFrame(raf); settle(); return api; }
+        if (!raf) { last = performance.now(); raf = requestAnimationFrame(step); }
+        return api;
+      },
+      /** Jump without animating (direct manipulation: the finger owns the value). */
+      set: function (val) { cancelAnimationFrame(raf); raf = 0; x = target = val; v = 0; emit(); return api; },
+      stop: function () { cancelAnimationFrame(raf); raf = 0; return api; },
+    };
+    return api;
+  }
+
+  /** Velocity over the last 100 ms of samples, in units per second. */
+  function velocityTracker() {
+    var s = [];
+    return {
+      add: function (p, t) { t = t == null ? performance.now() : t; s.push([p, t]); while (s.length > 2 && t - s[0][1] > 100) s.shift(); },
+      get: function () { if (s.length < 2) return 0; var a = s[0], b = s[s.length - 1]; return b[1] > a[1] ? (b[0] - a[0]) / ((b[1] - a[1]) / 1000) : 0; },
+      reset: function () { s.length = 0; },
+    };
+  }
+
+  /** Where a flick comes to rest under exponential decay (deceleration rate per millisecond, 0.998 = normal). */
+  function project(velocity, rate) { rate = rate || 0.998; return ((velocity / 1000) * rate) / (1 - rate); }
+
+  /** Resistance past an edge: overshoot in px, dimension = track length in px. Returns the drawn overshoot. */
+  function rubber(overshoot, dimension, coeff) {
+    coeff = coeff || 0.55;
+    var sign = overshoot < 0 ? -1 : 1, o = Math.abs(overshoot);
+    return sign * (1 - 1 / ((o * coeff) / dimension + 1)) * dimension;
+  }
+
+  /** Press feedback on pointer-down. Scales el with a spring; a move of more than 10 px cancels the press. */
+  function pressable(el, o) {
+    o = o || {};
+    var down = o.scale || 0.97, start = null, sp = spring({ value: 1, response: 0.18, damping: 1, onUpdate: function (s) {
+      el.style.transform = s === 1 ? '' : 'scale(' + s.toFixed(4) + ')';
+    } });
+    function release() { start = null; sp.to(1, { response: 0.3, damping: 0.8 }); }
+    el.addEventListener('pointerdown', function (e) { if (e.button > 0) return; start = [e.clientX, e.clientY]; sp.to(down, { response: 0.18, damping: 1 }); });
+    el.addEventListener('pointermove', function (e) { if (start && Math.hypot(e.clientX - start[0], e.clientY - start[1]) > 10) release(); });
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (n) { el.addEventListener(n, function () { if (start) release(); }); });
+    return sp;
+  }
+
+  return { spring: spring, velocityTracker: velocityTracker, project: project, rubber: rubber, pressable: pressable, reduce: reduce };
+})();
+if (typeof module !== 'undefined') module.exports = Fluid;
+
+
+(function () {
+  var btn = document.getElementById('what-toggle');
+  var body = document.getElementById('what-body');
+  var inner = body.firstElementChild;
+  var open = false;
+  Fluid.pressable(btn);
+  var h = Fluid.spring({ value: 0, response: 0.35, damping: 1, epsilon: 0.5, onUpdate: function (x) {
+    body.style.height = Math.max(0, x) + 'px';
+    inner.style.opacity = String(Math.min(1, Math.max(0, x / (inner.offsetHeight || 1))));
+  }, onRest: function (x) { if (!open) body.hidden = true; else body.style.height = 'auto'; } });
+  btn.addEventListener('click', function () {
+    open = !open;
+    btn.setAttribute('aria-expanded', String(open));
+    if (open) body.hidden = false;
+    var target = open ? inner.offsetHeight : 0;
+    if (Fluid.reduce()) { body.style.height = open ? 'auto' : '0px'; inner.style.opacity = '1'; if (!open) body.hidden = true; return; }
+    if (body.style.height === 'auto') h.set(inner.offsetHeight);
+    h.to(target);
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="650" viewBox="0 0 600 650" font-family="system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif" role="img" aria-label="Voice Passport: My writing style">
+<rect width="600" height="650" fill="#ffffff"/>
+<text x="32" y="56" font-size="24" font-weight="600" fill="#111110">My writing style</text>
+<text x="32" y="84" font-size="14" fill="#3a3a37">AI-derived writing-style summary; not identity proof.</text>
+<rect x="32" y="98" width="228.8" height="24" rx="12" fill="none" stroke="#111110" stroke-width="1.5"/><text x="42" y="115" font-size="13" fill="#111110">Public card · no message text</text>
+<text x="32" y="154" font-size="12" font-weight="600" letter-spacing="0.7" fill="#6f6f69">REGISTERS · 500 OR MORE MESSAGES</text>
+<text x="32" y="198" font-size="15" font-weight="600" fill="#111110">Chat</text><text x="568" y="198" font-size="13" text-anchor="end" fill="#6f6f69">Well covered</text>
+<text x="32" y="215" font-size="13" fill="#6f6f69">very short · mostly lowercase · light punctuation</text>
+<text x="32" y="244" font-size="15" font-weight="600" fill="#111110">Email</text><text x="568" y="244" font-size="13" text-anchor="end" fill="#6f6f69">Partly covered</text>
+<text x="32" y="261" font-size="13" fill="#6f6f69">short-to-medium · capitalised · light punctuation</text>
+<text x="32" y="290" font-size="15" font-weight="600" fill="#111110">Posts</text><text x="568" y="290" font-size="13" text-anchor="end" fill="#6f6f69">Partly covered</text>
+<text x="32" y="307" font-size="13" fill="#6f6f69">short-to-medium · capitalised · full punctuation</text>
+<text x="32" y="336" font-size="15" font-weight="600" fill="#111110">Developer discussion</text><text x="568" y="336" font-size="13" text-anchor="end" fill="#6f6f69">Well covered</text>
+<text x="32" y="353" font-size="13" fill="#6f6f69">short-to-medium · mostly lowercase · light punctuation</text>
+<text x="32" y="382" font-size="15" font-weight="600" fill="#111110">Documentation</text><text x="568" y="382" font-size="13" text-anchor="end" fill="#6f6f69">Partly covered</text>
+<text x="32" y="399" font-size="13" fill="#6f6f69">short · capitalised · full punctuation</text>
+<text x="32" y="428" font-size="15" font-weight="600" fill="#111110">Changelogs</text><text x="568" y="428" font-size="13" text-anchor="end" fill="#6f6f69">Partly covered</text>
+<text x="32" y="445" font-size="13" fill="#6f6f69">short · capitalised · full punctuation</text>
+<text x="32" y="474" font-size="15" font-weight="600" fill="#111110">Pull requests</text><text x="568" y="474" font-size="13" text-anchor="end" fill="#6f6f69">Partly covered</text>
+<text x="32" y="491" font-size="13" fill="#6f6f69">short · capitalised · full punctuation</text>
+<text x="32" y="522" font-size="12" font-weight="600" letter-spacing="0.7" fill="#6f6f69">HABITS</text>
+<circle cx="36" cy="541" r="3" fill="#111110"/><text x="48" y="546" font-size="14" fill="#3a3a37">Usually concise in developer discussions</text>
+<circle cx="36" cy="565" r="3" fill="#111110"/><text x="48" y="570" font-size="14" fill="#3a3a37">Uses direct questions sparingly</text>
+<circle cx="36" cy="589" r="3" fill="#111110"/><text x="48" y="594" font-size="14" fill="#3a3a37">Rarely uses exclamation marks</text>
+<text x="32" y="626" font-size="11" fill="#6f6f69" font-family="ui-monospace, Menlo, Consolas, monospace">sha256:5acc918d3042ac57924bd674cf0f8bf4eca4075be6e5cddb5e549c8b007beeed</text>
+</svg>

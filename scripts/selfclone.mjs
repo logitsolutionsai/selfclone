@@ -11,6 +11,8 @@ import { buildPack } from '../src/pack.mjs';
 import { score, reportMarkdown, parseReplies } from '../src/score.mjs';
 import { buildRounds, gameHtml } from '../src/game.mjs';
 import { voicecheck, voicecheckText, KINDS } from '../src/voicecheck.mjs';
+import { runNext, NEXT_COMMANDS } from '../src/cli-next.mjs';
+import { errorJson } from '../src/errors.mjs';
 
 // Paths are stored relative to the working folder, so workspace files never record a user's home or drive path.
 const relPath = (x) => path.relative(process.cwd(), path.resolve(x)).split(path.sep).join('/') || '.';
@@ -45,6 +47,21 @@ Usage:
                                                        AI CLONE on every frame, for screen recordings
   selfclone status                                     Show what is in .selfclone/
 
+Voice CI and Voice Passport (each has --help and --json):
+  selfclone consent --grant "<statement>" --scope local-lint,public-stylecard
+                                                       Record consent for the writing features (or --revoke)
+  selfclone profile build                              Private voice-profile.v1.json from the training split only
+  selfclone lint <files|folders> [--profile f] [--policy f] [--enforce] [--format text|json|sarif]
+                                                       Check Markdown and text drafts against a project policy
+                                                       and your own profile; code and links are protected
+  selfclone stylecard --audience public|private [--out out/passport] [--png]
+                                                       Voice Passport: a coarse, shareable style card, no message text
+  selfclone kit init --target <repo> | selfclone kit check --target <repo>
+                                                       Maintainer Voice Kit in .selfclone-kit/, never overwriting
+  selfclone delta <before> <after>                     Edited lines and a byte-for-byte check of technical tokens
+  selfclone drift --before a..b --after c..d [--channel dev]
+                                                       How your own writing changed between two date windows
+
 Options for every command: --dir <folder> (default .selfclone, or SELFCLONE_DIR)
 Docs: https://github.com/logitsolutionsai/selfclone`;
 
@@ -71,9 +88,21 @@ async function main(argv) {
   const [cmd, ...rest0] = argv;
   // -o is the usual short form of --out (selfclone video -o talk.webm).
   const rest = rest0.map((a) => (a === '-o' ? '--out' : a));
-  const args = parseArgs(rest, { multi: ['me'], booleans: ['no-scrub', 'no-open', 'strict', 'json', 'all'] });
+  const args = parseArgs(rest, { multi: ['me'], booleans: ['no-scrub', 'no-open', 'strict', 'json', 'all', 'enforce', 'png', 'help', 'example'] });
   const dir = workDir(args);
   const p = (f) => path.join(dir, f);
+
+  if (NEXT_COMMANDS.includes(cmd)) return runNext(cmd, args, dir);
+  if (args.help && cmd && !['help', '--help', '-h'].includes(cmd)) {
+    // Help for one of the original commands: its lines from the full usage.
+    const lines = HELP().split('\n');
+    const at = lines.findIndex((l) => l.trimStart().startsWith(`selfclone ${cmd}`));
+    if (at < 0) throw new Error(`Unknown command "${cmd}". Run selfclone help.`);
+    let end = at + 1;
+    while (end < lines.length && /^ {6,}/.test(lines[end]) && !lines[end].trimStart().startsWith('selfclone ')) end++;
+    out(['Usage:', ...lines.slice(at, end), '', 'Options for every command: --dir <folder> (default .selfclone, or SELFCLONE_DIR)'].join('\n'));
+    return;
+  }
 
   switch (cmd) {
     case undefined:
@@ -326,6 +355,15 @@ async function main(argv) {
 }
 
 main(process.argv.slice(2)).catch((err) => {
+  if (err && err.exitCode != null) {
+    // Structured errors from the newer commands: JSON on stdout with --json, else a message and a fix.
+    const argv = process.argv.slice(2);
+    const fi = argv.indexOf('--format');
+    const wantsJson = argv.includes('--json') || (fi >= 0 && /^(?:json|sarif)$/.test(argv[fi + 1] || '')) || argv.some((a) => /^--format=(?:json|sarif)$/.test(a));
+    if (wantsJson) process.stdout.write(JSON.stringify(errorJson(err), null, 2) + '\n');
+    else process.stderr.write(`selfclone: ${err.message}\n${err.remedy ? `  Fix: ${err.remedy}\n` : ''}`);
+    process.exit(err.exitCode);
+  }
   process.stderr.write(`selfclone: ${err.message}\n`);
   process.exit(1);
 });

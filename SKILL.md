@@ -1,6 +1,6 @@
 ---
 name: selfclone
-description: Clone a person's writing voice and way of thinking from their own chat exports into a persona skill, optionally give it a talking face from a 10-second clip or one selfie, and measure how close it gets with a deterministic style score that no language model grades. Use when the user says "clone me", "distill myself", "make a persona of me", "make a skill that writes like me", "give my clone a face", "make my clone talk", "test my clone", "how close is my clone", "does this sound like me", "check this draft against my voice" or "export my clone to ChatGPT", or brings WhatsApp, Telegram, Slack, Discord, Instagram, Messenger, LinkedIn, iMessage, Reddit, Google Chat, X, email, Word, blog or notes exports to build a persona. Only for the user themself or a person who gave written consent; never public figures' private data, never minors.
+description: Clone a person's writing voice and way of thinking from their own chat exports into a persona skill, optionally give it a talking face from a 10-second clip or one selfie, and measure how close it gets with a deterministic style score that no language model grades. Use when the user says "clone me", "distill myself", "make a persona of me", "make a skill that writes like me", "give my clone a face", "make my clone talk", "test my clone", "how close is my clone", "does this sound like me", "check this draft against my voice" or "export my clone to ChatGPT", or brings WhatsApp, Telegram, Slack, Discord, Instagram, Messenger, LinkedIn, iMessage, Reddit, Google Chat, X, email, Word, blog or notes exports to build a persona. Only for the user themself or a person who gave written consent; never public figures' private data, never minors. Also for Voice CI and the Voice Passport: "lint this changelog in my voice", "make my style card", "set up a voice kit for this repo".
 ---
 
 # selfclone
@@ -251,6 +251,51 @@ has 3."). Revise against the list and check again; stop at 80% or more, or after
 honestly, including the confidence. Never over-tune into a caricature: fix what the list says, keep what the
 text has to say, and do not cram every signature phrase or bit of shorthand into one text. The score measures
 surface style only.
+
+## Voice CI: Docs, Changelogs And Pull Requests
+
+Use this when the user wants a draft (a changelog, release notes, a README edit, a PR description, an issue or
+review reply) checked against their own writing and the project's rules. Interfaces and fields: `docs/VOICE-CI.md`.
+
+```bash
+SC consent --grant "This is my own writing. <Full Name>" --scope local-lint   # once; the Ground Rules apply
+SC profile build                         # .selfclone/voice-profile.v1.json, from the training split only
+SC lint CHANGELOG.md --channel changelog --profile        # add --json for data
+SC lint docs/ --policy .selfclone-kit/voice-policy.json --enforce --format sarif --out voice.sarif
+```
+
+- Consent first: the profile is only for the user's own writing, or writing whose author gave written consent.
+  If `profile build` exits 2 with E_CONSENT, ask; do not grant consent on someone else's behalf.
+- Write drafts and proposed edits as local files and show them for review. Do not edit the repository's docs,
+  post comments, open PRs or send anything unless the user asks for that specific action.
+- Keep every protected token exactly: code, links, file paths, versions, issue references, numbers in commands.
+- Style advice is a note from the user's own profile. It never fails a run, it is silent under 40 words, and it
+  measures surface style only. Fix what it says without turning the text into a caricature, at most 2 rounds.
+- Never describe a lint result as proof of who wrote a text.
+- After rewriting existing text, run `SC delta before.md after.md`. If it reports E_FACT_PRESERVATION, restore the
+  changed tokens and do not propose the rewrite until it passes.
+- For a repository: `SC kit init --target .` then `SC kit check --target .`. The kit never overwrites files and never
+  edits `AGENTS.md`; offer the user `.selfclone-kit/AGENTS.snippet.md` to append themselves. The workflow sample
+  stays disabled until the user installs it.
+- `SC drift --before <from>..<to> --after <from>..<to> [--channel dev]` compares two periods of the user's own
+  writing. Only for the owner's own corpus: never to monitor, rank or identify other people. Report
+  `insufficient_data` as it is, call the result exploratory, and infer nothing about beliefs or personality.
+
+## Voice Passport
+
+```bash
+SC stylecard --audience public --example          # the synthetic example: no personal data needed
+SC consent --grant "This is my own writing. <Full Name>" --scope public-stylecard
+SC stylecard --audience public --png              # out/passport/: passport.html, .json, .svg, .png
+SC stylecard --audience private                   # finer, exact counts; for this computer only
+```
+
+- Ask before making a public card, and only from the user's own writing. Never make one for another person.
+- The public card holds bucketed tendencies and catalog phrases only. Do not add anything to it, and do not
+  describe it as identity proof, a human score or a measure of how convincing a clone is.
+- Do not upload or post it. Tell the user where the files are; sharing is their choice.
+- With too little data the command writes `passport.json` with `insufficient_data` and no card. Say so; do not
+  invent numbers. Privacy details: `docs/PASSPORT-PRIVACY.md`.
 
 ## Hand-Off
 

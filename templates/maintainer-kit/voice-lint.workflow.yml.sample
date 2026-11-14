@@ -1,0 +1,40 @@
+# Starter workflow for the Maintainer Voice Kit. It is disabled: GitHub only runs workflow files in
+# .github/workflows/ with a .yml extension. To install it, review it, then copy it to
+# .github/workflows/voice-lint.yml yourself.
+#
+# Safety notes:
+# - Triggered by pull_request (never pull_request_target), so it runs without secrets and with a
+#   read-only token for pull requests from forks.
+# - permissions: contents: read only.
+# - The pull request's files are only read as data by the lint. No script from the pull request is run:
+#   selfclone itself is checked out separately, from a pinned commit you choose.
+name: voice-lint
+on:
+  pull_request:
+    paths: ['**/*.md', '**/*.mdx', '.selfclone-kit/voice-policy.json']
+permissions:
+  contents: read
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the pull request (data only)
+        uses: actions/checkout@v4
+        with:
+          path: pr
+          persist-credentials: false
+      - name: Check out selfclone at a pinned commit
+        uses: actions/checkout@v4
+        with:
+          repository: logitsolutionsai/selfclone
+          ref: REPLACE_WITH_A_COMMIT_SHA
+          path: tool
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Lint Markdown against the project policy (advisory)
+        run: node tool/scripts/selfclone.mjs lint pr --root pr --policy pr/.selfclone-kit/voice-policy.json --format sarif --out voice.sarif
+      # To fail the check on hard rules, add --enforce above.
+      # To show results in the Security tab, upload voice.sarif with github/codeql-action/upload-sarif.
+      # That step needs "security-events: write", so add it only after reviewing the permission.

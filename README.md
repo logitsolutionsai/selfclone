@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="#install">Install</a> · <a href="#before-and-after">Before And After</a> · <a href="#where-to-use-your-clone">Where To Use It</a> · <a href="#how-it-works">How It Works</a> · <a href="#proof">Proof</a> · <a href="#limits">Limits</a>
+  <a href="#install">Install</a> · <a href="#voice-ci">Voice CI</a> · <a href="#voice-passport">Voice Passport</a> · <a href="#before-and-after">Before And After</a> · <a href="#where-to-use-your-clone">Where To Use It</a> · <a href="#how-it-works">How It Works</a> · <a href="#proof">Proof</a> · <a href="#limits">Limits</a>
 </p>
 
 <p align="center">
@@ -46,6 +46,86 @@ Clone https://github.com/logitsolutionsai/selfclone into ~/.claude/skills/selfcl
 ```
 
 You need Node 20 or newer. The only dependency is `playwright-core`, for `selfclone bake`; it uses the Chrome, Edge or Chromium you have and downloads no browser. A plain skill install, Codex, Cursor and the command line on its own are in [Works With](#works-with).
+
+## Voice CI
+
+Lint a changelog, a README or a pull request description against your own writing habits and a project's rules, on your own computer, with no model running. Two kinds of finding:
+
+- **Project policy** from a hand-edited `voice-policy.json` with six rule types (phrases, heading length, paragraph length, case at start, final punctuation, minimum context). Only rules marked `hard` can fail a run, and only with `--enforce`.
+- **Advice from your own profile**, built from the training split of your own opted-in exports. It says where a draft drifts from how you write in that channel, and it never fails a run.
+
+Code, links, file paths, versions, issue references and other technical tokens are protected: no rule flags them and no suggestion touches them. Output is text, JSON or SARIF 2.1.0 for code scanning. This is a style check, not a prose linter replacement, not an AI-text detector and not an authorship check.
+
+A synthetic demonstration from [`examples/maintainer-voice/`](examples/maintainer-voice): a generic release note, linted against the invented maintainer Sam Rivera's profile and the starter policy (the "Suggestion" lines are left out here):
+
+```markdown
+# Release 2.4.0
+
+We are thrilled to announce this amazing release! This update is guaranteed to make your workflow faster and more reliable than ever before; it brings a host of exciting improvements, ...
+
+- improved the command line tool
+- Fixed `--dir` handling on Windows (#412)
+```
+
+```text
+$ selfclone lint release-note-before.md --channel changelog --profile voice-profile.v1.json --policy voice-policy.json
+release-note-before.md:3:1  note  This paragraph has 54 words; in your changelogs, one rarely runs past 12 (90th percentile).  [style/longer-than-usual]
+release-note-before.md:3:34  warning  Hype word  [no-hype]
+release-note-before.md:3:49  note  You rarely use exclamation marks in your changelogs (0% of messages); this paragraph has one.  [style/exclamation]
+release-note-before.md:3:66  warning  Avoid unverified absolute claims  [no-absolute-promises]
+release-note-before.md:3:140  note  You almost never use semicolons in your changelogs; this paragraph has one.  [style/semicolon]
+release-note-before.md:5:3  warning  Start list items with a capital letter  [list-items-capital]
+release-note-before.md:5:3  note  You start 100% of your changelogs with a capital; this list item starts lowercase.  [style/lowercase-start]
+release-note-before.md:5:32  note  End list items with a full stop  [list-items-full-stop]
+
+1 file scanned, 8 findings (0 from hard rules). Mode: advisory. Exit 0.
+```
+
+The rewrite, written for this demonstration in the maintainer's style (synthetic, like everything in the example). `--dir` and `#412` are kept exactly:
+
+```markdown
+# Release 2.4.0
+
+Fixes path handling on Windows. No configuration changes are needed to upgrade.
+
+- Improved error messages in the command line tool.
+- Fixed `--dir` handling on Windows (#412).
+```
+
+```text
+$ selfclone lint release-note-after.md --channel changelog --profile voice-profile.v1.json --policy voice-policy.json
+warning: release-note-after.md: 25 words of prose, fewer than 40, so no style advice is given (too short to judge).
+1 file scanned, 0 findings (0 from hard rules). Mode: advisory. Exit 0.
+```
+
+The whole demonstration (ingest, profile, card, lint, delta) runs in a temporary folder with `node examples/maintainer-voice/demo.mjs`; its real output is in [`demo-output.txt`](examples/maintainer-voice/demo-output.txt). The similarity is surface style only. `selfclone delta release-note-before.md release-note-after.md` confirms the rewrite kept every protected token; a rewrite that changes `#412` or `--dir` gets `E_FACT_PRESERVATION` and is not recommended.
+
+For a whole project, `selfclone kit init --target .` adds a `.selfclone-kit/` folder without overwriting anything: the starter policy, a proposed `AGENTS.md` section (appended by a person, never by the tool), a portable agent skill, example drafts and a disabled GitHub Actions sample that runs on `pull_request` with read-only permissions. `selfclone kit check` validates it, including that it holds no private data. `selfclone drift --before 2026-01-01..2026-04-30 --after 2026-05-01..2026-08-31 --channel dev` shows how your own writing changed between two periods, with bootstrap intervals over whole conversations, and reports `insufficient_data` rather than numbers when a period is thin. Policy fields, offsets, modes, exit codes, the kit, the delta and drift: [docs/VOICE-CI.md](docs/VOICE-CI.md).
+
+```bash
+selfclone consent --grant "This is my own writing. Your Name" --scope local-lint
+selfclone profile build                       # .selfclone/voice-profile.v1.json, training split only
+selfclone lint CHANGELOG.md --channel changelog --profile
+selfclone lint docs/ --policy .selfclone-kit/voice-policy.json --enforce --format sarif --out voice.sarif
+```
+
+## Voice Passport
+
+A shareable card of how you write, with none of your writing in it: which registers you write in (chat, email, posts, developer discussion, docs, changelogs, pull requests), a rough length, casing and punctuation for each, and up to three habits from a fixed list. Evidence is shown as a band, never a count. One offline HTML file, a JSON file, a script-free SVG and, with `--png`, a square PNG.
+
+<p align="center">
+  <img src="docs/media/passport.png" width="420" alt="A Voice Passport for the invented maintainer in the synthetic example: seven registers with length, casing and punctuation buckets, three habits, the line AI-derived writing-style summary; not identity proof, and a projection digest.">
+</p>
+
+*The card above is from the synthetic example profile. See it without any data of your own: `selfclone stylecard --audience public --example`.*
+
+```bash
+selfclone consent --grant "This is my own writing. Your Name" --scope public-stylecard
+selfclone stylecard --audience public --png          # out/passport/: passport.html, .json, .svg, .png
+selfclone stylecard --audience private               # finer numbers, for your computer only
+```
+
+The public card is built only from rounded, bucketed numbers, and every string on it comes from a fixed list; a last check refuses to write a card holding anything else. Channels with thin evidence are left out, and with fewer than 100 training messages there is no card at all. It is a summary of surface habits, not proof of identity, and these protections are heuristics, not a formal anonymity guarantee. Nothing is uploaded. Details: [docs/PASSPORT-PRIVACY.md](docs/PASSPORT-PRIVACY.md).
 
 ## Before And After
 
@@ -143,6 +223,10 @@ The Maya example, from its [report](examples/maya/workspace/report.md) on 20 sea
 | Her real held-out replies (the ceiling) | 98.6% | 95% | 5% | 30% | 80% |
 | Clone | 88.5% | 95% | 5% | 60% | 100% |
 | Bare model | 41.4% | 0% | 100% | 5% | 0% |
+
+**Voice CI and the passport are tested on a synthetic maintainer.** `tests/fixtures/synthetic-maintainer/` holds 700 messages by an invented open-source maintainer across seven channels, with a planted API key, token, address, password, OAuth URL, third party's name, hidden HTML, image beacon, zero-width characters and prompt injection. With scrubbing turned off, the tests check that none of them reaches the profile, a lint report, SARIF, a passport or the kit.
+
+**The agent behaviour is written as evals, not yet run.** Eight cases in [evals/](evals/) for `claude plugin eval` cover the user's own profile, a coworker without consent, a public figure's leaked messages, a friend's chat export, a request to print the sealed replies, a legitimate docs lint, a rewrite that must keep its technical tokens, and a request to post a reply on GitHub. They grade the commands run, the files left behind and the reply. They were written on Windows, where `claude plugin eval` refuses runs that grant a shell tool, so no results are published yet; `tests/unit/evals.test.mjs` checks every case loads, every scaffold builds its state and every file and trace grader passes on a right action and fails on a wrong one.
 
 In this example the word distance did not separate the clone from the bare model at all; the surface features did. The formulas, the calibration evidence and the tests that keep the scorer honest (the same author scores near the top, a different author low) are in [docs/SCORING.md](docs/SCORING.md).
 
@@ -268,6 +352,7 @@ Read [`ETHICS.md`](ETHICS.md) for the full rules.
 - **It can be gamed.** A clone that copies your habits mechanically can score high and still read badly. Read the replies.
 - **Other languages, partly.** The character-level features work for any script, but the function-word list is English, and its fallback (your most frequent words) also picks up topic words.
 - **The face is one frame warped in 2D.** It is not photoreal, head turns are capped, and exported videos always carry the burned-in label; the details are in [The Face](#the-face).
+- **Voice CI and the passport measure surface style too.** Lint advice, the Voice Passport and drift count the same habits; they are not an AI-text detector, an authorship check or proof of identity, and the passport's privacy protections are heuristics, not a formal anonymity guarantee. More in [docs/LIMITATIONS.md](docs/LIMITATIONS.md) and [docs/THREAT-MODEL.md](docs/THREAT-MODEL.md).
 - **Browsers.** The avatar is tested in Chrome, with both the WebGL renderer and the Canvas2D fallback. It uses only standard WebGL, Canvas2D and Web Audio, so other current browsers should work, but they are not in the test suite.
 
 ## Supported Exports

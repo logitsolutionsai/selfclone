@@ -34,8 +34,11 @@ after(async () => {
 });
 
 /** Open the avatar from a fake origin with every other request blocked. */
-async function openOffline(query = '') {
+async function openOffline(query = '', opts = {}) {
   const page = await browser.newPage({ viewport: { width: 560, height: 820 } });
+  // A controllable page clock (time still flows until a test pauses it), for animations that must be sampled
+  // at exact moments rather than at whatever speed screenshots happen to run.
+  if (opts.clock) await page.clock.install({ time: 0 });
   const problems = [];
   const blocked = [];
   page.on('console', (m) => {
@@ -231,7 +234,8 @@ test('under 600 px About is a bottom sheet: a flick down on the grab bar closes 
       await sleep(60);
     }
     const followed = await page.evaluate(() => document.getElementById('info').style.transform);
-    assert.match(followed, /translateY\((3\d|4\d)\./, `the sheet tracks the pointer (${followed})`);
+    // 1:1 tracking of a 40 px drag gives a whole number (translateY(40px)); a frame mid-update can give a fraction.
+    assert.match(followed, /translateY\((3\d|4\d)(\.\d+)?px\)/, `the sheet tracks the pointer (${followed})`);
     await sleep(200);
     await page.mouse.up();
     await page.waitForFunction(() => Math.abs(document.getElementById('info').getBoundingClientRect().bottom - innerHeight) < 1, null, { timeout: 3000 });
@@ -324,29 +328,23 @@ test('Canvas2D fallback renders and animates', async (t) => {
 });
 
 test('blink changes the eye region and then reopens', async (t) => {
-  const { page } = await openOffline('?idle=0&blink=0&tts=0');
+  // The blink lasts about 170 ms (50 ms closing, 30 ms closed, 90 ms reopening). Sampling it with real-time
+  // screenshots made this test depend on how fast the machine renders a screenshot, so the page clock is paused
+  // and stepped to exact moments instead: fully closed at 60 ms, long reopened at 560 ms.
+  const { page } = await openOffline('?idle=0&blink=0&tts=0', { clock: true });
   try {
+    await page.clock.pauseAt(5000);
+    await page.clock.runFor(100);
     const reg = await page.evaluate(() => window.selfclone.regions());
     const e0 = reg.eyes[0];
     const e1 = reg.eyes[1];
     const box = { x: e0.x, y: Math.min(e0.y, e1.y) - 6, width: e1.x + e1.width - e0.x, height: Math.max(e0.height, e1.height) + 12 };
     const open = await shot(page, box, 'evidence-eyes-open.png');
-    // A blink lasts under 200 ms, about as long as two or three screenshots, so sample it back to back
-    // from the moment it starts and keep the most closed frame, instead of one shot after a fixed sleep.
     await page.evaluate(() => window.selfclone.blink());
-    let d = 0;
-    let closedBuf = null;
-    const t0 = Date.now();
-    while (Date.now() - t0 < 400) {
-      const buf = await page.screenshot({ clip: box });
-      const dd = meanDiff(open, decodePng(buf));
-      if (dd > d) {
-        d = dd;
-        closedBuf = buf;
-      }
-    }
-    if (closedBuf) fs.writeFileSync(path.join(OUT, 'evidence-eyes-blink.png'), closedBuf);
-    await sleep(500);
+    await page.clock.runFor(60);
+    const closed = await shot(page, box, 'evidence-eyes-blink.png');
+    const d = meanDiff(open, closed);
+    await page.clock.runFor(500);
     const reopened = await shot(page, box);
     const back = meanDiff(open, reopened);
     t.diagnostic(`blink diff ${d.toFixed(2)}, after ${back.toFixed(2)}`);

@@ -5,3 +5,6 @@ tests/output/
 *.log
 .DS_Store
 Thumbs.db
+
+# launch videos made with /brag (kept out of the repo)
+brag-output*/

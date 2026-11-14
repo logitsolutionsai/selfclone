@@ -1,0 +1,330 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/logitsolutionsai/selfclone/schemas/passport.v1.schema.json",
+  "title": "selfclone Voice Passport, version 1",
+  "description": "A coarse, bucketed presentation of writing tendencies. The public form has no message text, names, links, samples, fingerprint vectors or exact counts, and at most 3 habits from a fixed catalog. Not identity proof.",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "kind",
+        "audience",
+        "generatedBy",
+        "disclaimer",
+        "title",
+        "evidenceBand",
+        "status",
+        "registers",
+        "habits",
+        "privacy",
+        "projectionDigest"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": 1
+        },
+        "kind": {
+          "const": "selfclone-voice-passport"
+        },
+        "generatedBy": {
+          "type": "string",
+          "pattern": "^selfclone/[0-9]+.[0-9]+.[0-9]+$"
+        },
+        "disclaimer": {
+          "const": "AI-derived writing-style summary; not identity proof."
+        },
+        "title": {
+          "const": "My writing style"
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "evidenceBand": {
+          "enum": [
+            "<100",
+            "100–499",
+            "500+"
+          ]
+        },
+        "status": {
+          "enum": [
+            "ok",
+            "insufficient_data"
+          ]
+        },
+        "registers": {
+          "type": "array",
+          "maxItems": 7,
+          "items": {
+            "$ref": "#/$defs/register"
+          }
+        },
+        "privacy": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 8
+        },
+        "projectionDigest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "audience": {
+          "const": "public"
+        },
+        "habits": {
+          "type": "array",
+          "maxItems": 3,
+          "items": {
+            "type": "string",
+            "maxLength": 80
+          }
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "kind",
+        "audience",
+        "generatedBy",
+        "disclaimer",
+        "title",
+        "evidenceBand",
+        "status",
+        "registers",
+        "habits",
+        "privacy",
+        "projectionDigest",
+        "details"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": 1
+        },
+        "kind": {
+          "const": "selfclone-voice-passport"
+        },
+        "generatedBy": {
+          "type": "string",
+          "pattern": "^selfclone/[0-9]+.[0-9]+.[0-9]+$"
+        },
+        "disclaimer": {
+          "const": "AI-derived writing-style summary; not identity proof."
+        },
+        "title": {
+          "const": "My writing style"
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "evidenceBand": {
+          "enum": [
+            "<100",
+            "100–499",
+            "500+"
+          ]
+        },
+        "status": {
+          "enum": [
+            "ok",
+            "insufficient_data"
+          ]
+        },
+        "registers": {
+          "type": "array",
+          "maxItems": 7,
+          "items": {
+            "$ref": "#/$defs/register"
+          }
+        },
+        "privacy": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 8
+        },
+        "projectionDigest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "audience": {
+          "const": "private"
+        },
+        "habits": {
+          "type": "array",
+          "maxItems": 32,
+          "items": {
+            "type": "string",
+            "maxLength": 80
+          }
+        },
+        "details": {
+          "$ref": "#/$defs/details"
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "register": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "label",
+        "coverage",
+        "length",
+        "casing",
+        "punctuation"
+      ],
+      "properties": {
+        "id": {
+          "enum": [
+            "message",
+            "email",
+            "post",
+            "dev",
+            "docs",
+            "changelog",
+            "pr"
+          ]
+        },
+        "label": {
+          "type": "string",
+          "maxLength": 40
+        },
+        "coverage": {
+          "enum": [
+            "supported",
+            "partial",
+            "limited"
+          ]
+        },
+        "length": {
+          "enum": [
+            "very short",
+            "short",
+            "short-to-medium",
+            "medium",
+            "long"
+          ]
+        },
+        "casing": {
+          "enum": [
+            "mostly lowercase",
+            "mixed",
+            "capitalised"
+          ]
+        },
+        "punctuation": {
+          "enum": [
+            "light",
+            "moderate",
+            "full"
+          ]
+        }
+      }
+    },
+    "details": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "trainMessages",
+        "channels"
+      ],
+      "properties": {
+        "trainMessages": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "channels": {
+          "type": "object",
+          "propertyNames": {
+            "enum": [
+              "message",
+              "email",
+              "post",
+              "dev",
+              "docs",
+              "changelog",
+              "pr"
+            ]
+          },
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "messageCount",
+              "threadCount",
+              "confidence",
+              "fallback",
+              "medianWords",
+              "lowercaseStartRate",
+              "endPunctRate",
+              "questionMsgRate",
+              "emojiMsgRate"
+            ],
+            "properties": {
+              "messageCount": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "threadCount": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "confidence": {
+                "enum": [
+                  "high",
+                  "medium",
+                  "low"
+                ]
+              },
+              "fallback": {
+                "enum": [
+                  null,
+                  "global",
+                  "dev"
+                ]
+              },
+              "medianWords": {
+                "type": "number",
+                "minimum": 0
+              },
+              "lowercaseStartRate": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "endPunctRate": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "questionMsgRate": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "emojiMsgRate": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

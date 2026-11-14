@@ -1,0 +1,486 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/logitsolutionsai/selfclone/schemas/voice-policy.v1.schema.json",
+  "title": "selfclone project writing policy, version 1",
+  "description": "A hand-edited rules file with no personal data. Data only: no code, no shell, no regular expressions, no remote configuration.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "name",
+    "rules"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "schemaVersion": {
+      "const": 1
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 500
+    },
+    "defaultMode": {
+      "enum": [
+        "advisory",
+        "enforce"
+      ]
+    },
+    "scopes": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "glob",
+          "channel"
+        ],
+        "properties": {
+          "glob": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "pattern": "^[A-Za-z0-9._\\-/*?@+ ]+$"
+          },
+          "channel": {
+            "enum": [
+              "message",
+              "email",
+              "post",
+              "dev",
+              "docs",
+              "changelog",
+              "pr"
+            ]
+          }
+        }
+      }
+    },
+    "rules": {
+      "type": "array",
+      "maxItems": 200,
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "type",
+              "mode",
+              "message",
+              "pattern"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"
+              },
+              "message": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              },
+              "suggestion": {
+                "type": "string",
+                "maxLength": 300
+              },
+              "severity": {
+                "enum": [
+                  "error",
+                  "warning",
+                  "note"
+                ]
+              },
+              "channels": {
+                "type": "array",
+                "items": {
+                  "enum": [
+                    "message",
+                    "email",
+                    "post",
+                    "dev",
+                    "docs",
+                    "changelog",
+                    "pr"
+                  ]
+                },
+                "uniqueItems": true,
+                "maxItems": 7
+              },
+              "type": {
+                "const": "phrase"
+              },
+              "mode": {
+                "enum": [
+                  "advisory",
+                  "hard"
+                ]
+              },
+              "pattern": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "^[^\\n\\r]+$"
+              },
+              "match": {
+                "enum": [
+                  "word",
+                  "substring"
+                ]
+              },
+              "caseSensitive": {
+                "type": "boolean"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "type",
+              "mode",
+              "message",
+              "maxChars"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"
+              },
+              "message": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              },
+              "suggestion": {
+                "type": "string",
+                "maxLength": 300
+              },
+              "severity": {
+                "enum": [
+                  "error",
+                  "warning",
+                  "note"
+                ]
+              },
+              "channels": {
+                "type": "array",
+                "items": {
+                  "enum": [
+                    "message",
+                    "email",
+                    "post",
+                    "dev",
+                    "docs",
+                    "changelog",
+                    "pr"
+                  ]
+                },
+                "uniqueItems": true,
+                "maxItems": 7
+              },
+              "type": {
+                "const": "heading-length"
+              },
+              "mode": {
+                "enum": [
+                  "advisory",
+                  "hard"
+                ]
+              },
+              "maxChars": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "type",
+              "mode",
+              "message",
+              "maxWords"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"
+              },
+              "message": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              },
+              "suggestion": {
+                "type": "string",
+                "maxLength": 300
+              },
+              "severity": {
+                "enum": [
+                  "error",
+                  "warning",
+                  "note"
+                ]
+              },
+              "channels": {
+                "type": "array",
+                "items": {
+                  "enum": [
+                    "message",
+                    "email",
+                    "post",
+                    "dev",
+                    "docs",
+                    "changelog",
+                    "pr"
+                  ]
+                },
+                "uniqueItems": true,
+                "maxItems": 7
+              },
+              "type": {
+                "const": "max-paragraph-words"
+              },
+              "mode": {
+                "enum": [
+                  "advisory",
+                  "hard"
+                ]
+              },
+              "maxWords": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100000
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "type",
+              "mode",
+              "message",
+              "case"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"
+              },
+              "message": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              },
+              "suggestion": {
+                "type": "string",
+                "maxLength": 300
+              },
+              "severity": {
+                "enum": [
+                  "error",
+                  "warning",
+                  "note"
+                ]
+              },
+              "channels": {
+                "type": "array",
+                "items": {
+                  "enum": [
+                    "message",
+                    "email",
+                    "post",
+                    "dev",
+                    "docs",
+                    "changelog",
+                    "pr"
+                  ]
+                },
+                "uniqueItems": true,
+                "maxItems": 7
+              },
+              "type": {
+                "const": "case-at-start"
+              },
+              "mode": {
+                "enum": [
+                  "advisory",
+                  "hard"
+                ]
+              },
+              "case": {
+                "enum": [
+                  "upper",
+                  "lower"
+                ]
+              },
+              "target": {
+                "enum": [
+                  "headings",
+                  "paragraphs",
+                  "list-items"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "type",
+              "mode",
+              "message",
+              "require"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"
+              },
+              "message": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              },
+              "suggestion": {
+                "type": "string",
+                "maxLength": 300
+              },
+              "severity": {
+                "enum": [
+                  "error",
+                  "warning",
+                  "note"
+                ]
+              },
+              "channels": {
+                "type": "array",
+                "items": {
+                  "enum": [
+                    "message",
+                    "email",
+                    "post",
+                    "dev",
+                    "docs",
+                    "changelog",
+                    "pr"
+                  ]
+                },
+                "uniqueItems": true,
+                "maxItems": 7
+              },
+              "type": {
+                "const": "terminal-punctuation"
+              },
+              "mode": {
+                "enum": [
+                  "advisory",
+                  "hard"
+                ]
+              },
+              "require": {
+                "type": "boolean"
+              },
+              "target": {
+                "enum": [
+                  "headings",
+                  "paragraphs",
+                  "list-items"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "type",
+              "mode",
+              "message",
+              "minWords"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"
+              },
+              "message": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              },
+              "suggestion": {
+                "type": "string",
+                "maxLength": 300
+              },
+              "severity": {
+                "enum": [
+                  "error",
+                  "warning",
+                  "note"
+                ]
+              },
+              "channels": {
+                "type": "array",
+                "items": {
+                  "enum": [
+                    "message",
+                    "email",
+                    "post",
+                    "dev",
+                    "docs",
+                    "changelog",
+                    "pr"
+                  ]
+                },
+                "uniqueItems": true,
+                "maxItems": 7
+              },
+              "type": {
+                "const": "min-context"
+              },
+              "mode": {
+                "enum": [
+                  "advisory"
+                ]
+              },
+              "minWords": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100000
+              }
+            }
+          }
+        ]
+      }
+    },
+    "ignore": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200,
+        "pattern": "^[A-Za-z0-9._\\-/*?@+ ]+$"
+      }
+    }
+  }
+}

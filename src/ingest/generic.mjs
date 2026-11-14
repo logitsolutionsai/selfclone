@@ -95,7 +95,11 @@ const FIELD = {
   ts: ['ts', 'timestamp', 'date', 'time', 'datetime', 'created_at', 'sent_at'],
   thread: ['thread', 'conversation', 'chat', 'channel', 'thread_id', 'conversation_id', 'chat_id'],
   context: ['context', 'prompt', 'in_reply_to_text', 'reply_to_text'],
+  // Optional: which kind of writing a row is (message, email, post, dev, docs, changelog, pr).
+  register: ['register', 'writing_channel'],
 };
+
+const REGISTERS = new Set(['message', 'email', 'post', 'dev', 'docs', 'changelog', 'pr']);
 
 function pick(obj, keys) {
   const lower = Object.fromEntries(Object.entries(obj).map(([k, v]) => [k.toLowerCase(), v]));
@@ -117,7 +121,9 @@ export function rowsToMessages(rows, { thread = 'generic' } = {}) {
     const text = pick(r, FIELD.text);
     if (text == null || !String(text).trim()) continue;
     const ctx = pick(r, FIELD.context);
+    const register = String(pick(r, FIELD.register) ?? '').trim().toLowerCase();
     out.push({
+      ...(REGISTERS.has(register) ? { register } : {}),
       ts: toIso(pick(r, FIELD.ts)),
       author: String(pick(r, FIELD.author) ?? ''),
       text: String(text).trim(),

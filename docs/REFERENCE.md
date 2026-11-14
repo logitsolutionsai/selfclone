@@ -42,6 +42,15 @@ node scripts/selfclone.mjs video --audio my-voice.wav -o presenter.webm   # labe
 | `say "text"` or `say --audio <file>` | Makes the open avatar speak |
 | `video --audio <file> [-o out.webm\|out.mp4] [--avatar file] [--size 480] [--shape circle\|square] [--background transparent\|#hex] [--max-minutes 10]` | Renders the avatar lip-synced to your own recorded voice as a video, with an "AI CLONE" label burned into every frame, provenance tags and a `.provenance.json` sidecar. Refuses without a valid consent record or without audio |
 | `status` | Shows what is in `.selfclone/` |
+| `consent [--grant "<statement>" --scope <scopes>] [--revoke <scope>]` | The consent ledger for the writing features (`.selfclone/consent.json`); scopes `persona`, `local-lint`, `public-stylecard`, `avatar` |
+| `profile build [--out file] [--consent "<statement>"]` | The private `voice-profile.v1.json` from the training split only |
+| `lint <files|folders> [--channel c] [--profile [file]] [--policy file] [--enforce] [--format text|json|sarif] [--out file] [--max-bytes n] [--root dir]` | Voice CI for Markdown, MDX and text ([VOICE-CI.md](VOICE-CI.md)) |
+| `stylecard --audience public|private [--out dir] [--profile file] [--display-name "<name>"] [--png] [--example]` | The Voice Passport ([PASSPORT-PRIVACY.md](PASSPORT-PRIVACY.md)) |
+| `kit init --target <repo> [--profile [file]]`, `kit check --target <repo>` | The Maintainer Voice Kit in `.selfclone-kit/` |
+| `delta <before> <after>` | Edited lines and the byte-for-byte check of protected tokens (`E_FACT_PRESERVATION`) |
+| `drift --before a..b --after c..d [--channel c] [--seed s] [--out file]` | Surface-style change between two windows of your own training split |
+
+The Voice CI and Voice Passport commands all take `--help` and `--json`, and use exit codes 0 (success or advisory), 1 (a hard policy rule broken in enforce mode, a failed kit check, or `E_FACT_PRESERVATION`), 2 (invalid arguments, schema, missing consent or missing profile) and 3 (an IO or environment error). With `--json`, an error is `{"schemaVersion": 1, "error": {"code", "message", "remedy"}, "exitCode"}`. The original commands keep their exit codes.
 
 Every command takes `--dir <folder>` for the workspace (default `.selfclone`, or `SELFCLONE_DIR`).
 

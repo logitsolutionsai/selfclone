@@ -1,0 +1,308 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/logitsolutionsai/selfclone/schemas/voice-profile.v1.schema.json",
+  "title": "selfclone private voice profile, version 1",
+  "description": "Built from the training split only. Numbers and enums only: no message text, sender ids, URLs or file paths. Private: keep it in .selfclone/.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "profileId",
+    "createdBy",
+    "source",
+    "channels",
+    "global",
+    "extractorVersion",
+    "scorerVersion"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "profileId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{20}$"
+    },
+    "createdBy": {
+      "type": "string",
+      "pattern": "^selfclone/[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "trainingDigest",
+        "trainMessages",
+        "sealedMessagesRead",
+        "consentRecordId"
+      ],
+      "properties": {
+        "trainingDigest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "trainMessages": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "sealedMessagesRead": {
+          "const": false
+        },
+        "consentRecordId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^consent-[0-9a-f]{12}$"
+        }
+      }
+    },
+    "channels": {
+      "type": "object",
+      "propertyNames": {
+        "enum": [
+          "message",
+          "email",
+          "post",
+          "dev",
+          "docs",
+          "changelog",
+          "pr"
+        ]
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/channel"
+      }
+    },
+    "global": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "messageCount",
+        "threadCount",
+        "features"
+      ],
+      "properties": {
+        "messageCount": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "threadCount": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "features": {
+          "$ref": "#/$defs/features"
+        }
+      }
+    },
+    "extractorVersion": {
+      "const": "1"
+    },
+    "scorerVersion": {
+      "type": "string",
+      "pattern": "^[0-9]+$"
+    }
+  },
+  "$defs": {
+    "channel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "messageCount",
+        "threadCount",
+        "confidence",
+        "fallback",
+        "shrinkWeight",
+        "features"
+      ],
+      "properties": {
+        "messageCount": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "threadCount": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "confidence": {
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ]
+        },
+        "fallback": {
+          "enum": [
+            null,
+            "global",
+            "dev"
+          ]
+        },
+        "shrinkWeight": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "features": {
+          "$ref": "#/$defs/features"
+        }
+      }
+    },
+    "features": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "medianWords",
+        "p90Words",
+        "sentenceWords",
+        "wordLength",
+        "periodPer1k",
+        "commaPer1k",
+        "exclamationPer1k",
+        "questionPer1k",
+        "ellipsisPer1k",
+        "dashPer1k",
+        "semicolonPer1k",
+        "colonPer1k",
+        "emojiPer1k",
+        "emojiMsgRate",
+        "lowercaseStartRate",
+        "allCapsWordRate",
+        "contractionRate",
+        "apostropheDropRate",
+        "questionMsgRate",
+        "exclamationMsgRate",
+        "multiLineRate",
+        "endPunctRate",
+        "laughMsgRate",
+        "uppercaseRatio"
+      ],
+      "properties": {
+        "medianWords": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "p90Words": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "sentenceWords": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "wordLength": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "periodPer1k": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "commaPer1k": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "exclamationPer1k": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "questionPer1k": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "ellipsisPer1k": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "dashPer1k": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "semicolonPer1k": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "colonPer1k": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "emojiPer1k": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "emojiMsgRate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "lowercaseStartRate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "allCapsWordRate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "contractionRate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "apostropheDropRate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "questionMsgRate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "exclamationMsgRate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "multiLineRate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "endPunctRate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "laughMsgRate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "uppercaseRatio": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    }
+  }
+}

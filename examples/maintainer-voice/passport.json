@@ -1,0 +1,81 @@
+{
+  "audience": "public",
+  "disclaimer": "AI-derived writing-style summary; not identity proof.",
+  "evidenceBand": "500+",
+  "generatedBy": "selfclone/0.1.0",
+  "habits": [
+    "Usually concise in developer discussions",
+    "Uses direct questions sparingly",
+    "Rarely uses exclamation marks"
+  ],
+  "kind": "selfclone-voice-passport",
+  "privacy": [
+    "No message text",
+    "No names, email addresses or links from your writing",
+    "No writing samples or rare phrases",
+    "No exact message counts",
+    "Rounded and bucketed tendencies only"
+  ],
+  "projectionDigest": "sha256:5acc918d3042ac57924bd674cf0f8bf4eca4075be6e5cddb5e549c8b007beeed",
+  "registers": [
+    {
+      "casing": "mostly lowercase",
+      "coverage": "supported",
+      "id": "message",
+      "label": "Chat",
+      "length": "very short",
+      "punctuation": "light"
+    },
+    {
+      "casing": "capitalised",
+      "coverage": "partial",
+      "id": "email",
+      "label": "Email",
+      "length": "short-to-medium",
+      "punctuation": "light"
+    },
+    {
+      "casing": "capitalised",
+      "coverage": "partial",
+      "id": "post",
+      "label": "Posts",
+      "length": "short-to-medium",
+      "punctuation": "full"
+    },
+    {
+      "casing": "mostly lowercase",
+      "coverage": "supported",
+      "id": "dev",
+      "label": "Developer discussion",
+      "length": "short-to-medium",
+      "punctuation": "light"
+    },
+    {
+      "casing": "capitalised",
+      "coverage": "partial",
+      "id": "docs",
+      "label": "Documentation",
+      "length": "short",
+      "punctuation": "full"
+    },
+    {
+      "casing": "capitalised",
+      "coverage": "partial",
+      "id": "changelog",
+      "label": "Changelogs",
+      "length": "short",
+      "punctuation": "full"
+    },
+    {
+      "casing": "capitalised",
+      "coverage": "partial",
+      "id": "pr",
+      "label": "Pull requests",
+      "length": "short",
+      "punctuation": "full"
+    }
+  ],
+  "schemaVersion": 1,
+  "status": "ok",
+  "title": "My writing style"
+}

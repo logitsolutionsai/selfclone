@@ -1,0 +1,56 @@
+$ selfclone ingest export.jsonl --me "Sam Rivera"
+Ingested 700 of your messages into .selfclone
+  jsonl: 700 yours, 550 from others, 550 with context
+  scrubbed: API_KEY 2, PASSWORD 1, TOKEN_URL 1
+Sealed 105 context-reply pairs (105 messages) out of 541 eligible; 595 messages left for training.
+Next: selfclone fingerprint
+
+$ selfclone consent --grant "This is my own writing. Sam Rivera" --scope local-lint,public-stylecard
+Recorded consent consent-c24308e0e484 for local-lint, public-stylecard in .selfclone/consent.json.
+
+$ selfclone profile build
+Built voice profile eb1e66d4bcdb71f754ad from 595 training messages (sealed set not read): .selfclone/voice-profile.v1.json
+  message     121 messages,   33 conversations, confidence high
+  email        36 messages,   12 conversations, confidence medium
+  post         40 messages,   10 conversations, confidence medium
+  dev         229 messages,   76 conversations, confidence high
+  docs         60 messages,   16 conversations, confidence medium
+  changelog    50 messages,   10 conversations, confidence medium
+  pr           59 messages,   20 conversations, confidence medium
+Private: keep it in .selfclone/. Next: selfclone lint <file> --profile .selfclone/voice-profile.v1.json
+
+$ selfclone stylecard --audience public
+Wrote public Voice Passport to out/passport/: passport.json, passport.html, passport.svg
+  7 registers, 3 habits, evidence 500+, digest sha256:5acc918d3042...
+  Nothing was uploaded. It holds no message text; it is not proof of identity.
+
+$ selfclone lint release-note-before.md --channel changelog --profile --policy voice-policy.json
+release-note-before.md:3:1  note  This paragraph has 54 words; in your changelogs, one rarely runs past 12 (90th percentile).  [style/longer-than-usual]
+    Suggestion: Split it or cut it down. Keep code, links and numbers as they are.
+release-note-before.md:3:34  warning  Hype word  [no-hype]
+    Suggestion: Say what changed and why it matters
+release-note-before.md:3:49  note  You rarely use exclamation marks in your changelogs (0% of messages); this paragraph has one.  [style/exclamation]
+    Suggestion: Use a full stop unless the emphasis is needed.
+release-note-before.md:3:66  warning  Avoid unverified absolute claims  [no-absolute-promises]
+    Suggestion: Say what was tested instead
+release-note-before.md:3:140  note  You almost never use semicolons in your changelogs; this paragraph has one.  [style/semicolon]
+    Suggestion: Split the sentence, or use a comma.
+release-note-before.md:5:3  warning  Start list items with a capital letter  [list-items-capital]
+release-note-before.md:5:3  note  You start 100% of your changelogs with a capital; this list item starts lowercase.  [style/lowercase-start]
+    Suggestion: Capitalise the first word.
+release-note-before.md:5:32  note  End list items with a full stop  [list-items-full-stop]
+
+1 file scanned, 8 findings (0 from hard rules). Mode: advisory. Exit 0.
+Style advice comes from your own voice profile; it never fails a run. Surface style only.
+
+$ selfclone delta release-note-before.md release-note-after.md
+Voice delta: release-note-before.md -> release-note-after.md
+-    3: We are thrilled to announce this amazing release! This update is guaranteed to make your workflow faster and more reliable than ever before; it brings a host of exciting improvements, performance enhancements and bug fixes that our community has been asking for, and we cannot wait for you to try them all out today.
++    3: Fixes path handling on Windows. No configuration changes are needed to upgrade.
+-    5: - improved the command line tool
+-    6: - Fixed `--dir` handling on Windows (#412)
++    5: - Improved error messages in the command line tool.
++    6: - Fixed `--dir` handling on Windows (#412).
+Protected tokens: 3 before, 3 after.
+OK: every protected token is unchanged. Checks technical tokens byte for byte, not every claim. Read the edited lines too. Nothing was applied.
+

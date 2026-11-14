@@ -158,7 +158,7 @@
     },
     {
       "feature": "dashPer1k",
-      "label": "Dashes per 1k chars",
+      "label": "Dashes ( - , –, —) per 1k chars",
       "youMean": 0,
       "youSpread": 0.25,
       "real": 0,
@@ -326,7 +326,7 @@
     },
     {
       "feature": "laughMsgRate",
-      "label": "Messages with laughter (lol, haha)",
+      "label": "Messages with laughter (lol, haha, ahah, jaja, kkkk)",
       "youMean": 0.2673,
       "youSpread": 0.0814,
       "real": 0.3,
@@ -435,5 +435,9 @@
       "z": 1.98
     }
   ],
-  "warnings": []
+  "warnings": [],
+  "inputs": {
+    "clone": "examples/maya/workspace/clone-replies.json",
+    "bare": "examples/maya/workspace/bare-replies.json"
+  }
 }

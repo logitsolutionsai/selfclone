@@ -20,7 +20,7 @@ z is how many of your natural spreads the clone sits from your average. Rows mar
 
 | Feature | You (mean) | Your real replies | Clone | Clone z | Bare | Bare z | Flag |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Messages with laughter (lol, haha) | 26.7% | 30% | 60% | 4.09 | 5% | -2.67 | drift |
+| Messages with laughter (lol, haha, ahah, jaja, kkkk) | 26.7% | 30% | 60% | 4.09 | 5% | -2.67 | drift |
 | Multi-line messages | 69.3% | 80% | 100% | 3.47 | 0% | -7.82 | drift |
 | Periods per 1k chars | 1.72 | 2.56 | 0 | -2.23 | 18.01 | 21.19 | drift |
 | Words per sentence | 7.4 | 6.85 | 6.41 | -1.73 | 7.47 | 0.12 |  |
@@ -42,7 +42,7 @@ z is how many of your natural spreads the clone sits from your average. Rows mar
 | ALL-CAPS words | 0.4% | 0.7% | 0.3% | -0.09 | 0% | -0.4 |  |
 | Uppercase share of letters | 0.4% | 0.4% | 0.3% | -0.09 | 3.8% | 3.46 |  |
 | Ellipses per 1k chars | 0 | 0 | 0 | 0 | 0.5 | 2 |  |
-| Dashes per 1k chars | 0 | 0 | 0 | 0 | 0 | 0 |  |
+| Dashes ( - , –, —) per 1k chars | 0 | 0 | 0 | 0 | 0 | 0 |  |
 | Semicolons per 1k chars | 0 | 0 | 0 | 0 | 0 | 0 |  |
 | Contractions without apostrophe | 100% | 100% | 100% | 0 | 0% | -100 |  |
 | Messages with a link | 0% | 0% | 0% | 0 | 0% | 0 |  |

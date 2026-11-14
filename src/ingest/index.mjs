@@ -292,7 +292,7 @@ export function buildRecords(units, { me, scrubText = true } = {}) {
         usedIds.add(id);
         if (!turn) turn = `t-${sha1(key).slice(0, 10)}`;
         if (ctxText) st.withContext++;
-        records.push({ id, ts: m.ts || null, source: fmt, author: m.author, text, context: ctxText, turn, thread });
+        records.push({ id, ts: m.ts || null, source: fmt, author: m.author, text, context: ctxText, turn, thread, ...(m.register ? { register: m.register } : {}) });
         lastMineTs = Number.isNaN(tsMs) ? lastMineTs : tsMs;
       }
     }

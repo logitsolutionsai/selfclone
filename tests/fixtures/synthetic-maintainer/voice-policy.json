@@ -1,0 +1,16 @@
+{
+  "$schema": "./schemas/voice-policy.v1.schema.json",
+  "schemaVersion": 1,
+  "name": "Maintainer docs style",
+  "defaultMode": "advisory",
+  "scopes": [{ "glob": "docs/**/*.md", "channel": "docs" }, { "glob": "docs/*.mdx", "channel": "docs" }, { "glob": "CHANGELOG.md", "channel": "changelog" }],
+  "rules": [
+    { "id": "no-absolute-promises", "type": "phrase", "pattern": "guaranteed", "mode": "advisory", "message": "Avoid unverified absolute claims", "suggestion": "Say what was tested instead" },
+    { "id": "max-heading-length", "type": "heading-length", "maxChars": 88, "mode": "hard", "message": "Heading is too long", "suggestion": "Shorten heading without changing its meaning" },
+    { "id": "paragraph-length", "type": "max-paragraph-words", "maxWords": 60, "mode": "advisory", "message": "Paragraph is long" },
+    { "id": "list-capital", "type": "case-at-start", "case": "upper", "target": "list-items", "mode": "advisory", "message": "Start list items with a capital letter" },
+    { "id": "list-full-stop", "type": "terminal-punctuation", "require": true, "target": "list-items", "mode": "advisory", "severity": "note", "message": "End list items with punctuation" },
+    { "id": "enough-context", "type": "min-context", "minWords": 20, "mode": "advisory", "message": "Give readers enough context" }
+  ],
+  "ignore": ["vendor/**", "node_modules/**"]
+}

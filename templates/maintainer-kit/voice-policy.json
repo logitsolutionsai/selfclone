@@ -1,0 +1,26 @@
+{
+  "$schema": "./schemas/voice-policy.v1.schema.json",
+  "schemaVersion": 1,
+  "name": "Maintainer writing style",
+  "description": "Starter rules for docs, changelogs and pull request text. Edit freely; only hard rules can fail a run, and only in enforce mode.",
+  "defaultMode": "advisory",
+  "scopes": [
+    { "glob": "CHANGELOG.md", "channel": "changelog" },
+    { "glob": "**/CHANGELOG.md", "channel": "changelog" },
+    { "glob": ".github/**/*.md", "channel": "pr" },
+    { "glob": "docs/**/*.md", "channel": "docs" },
+    { "glob": "docs/**/*.mdx", "channel": "docs" },
+    { "glob": "README.md", "channel": "docs" }
+  ],
+  "rules": [
+    { "id": "no-absolute-promises", "type": "phrase", "pattern": "guaranteed", "mode": "advisory", "message": "Avoid unverified absolute claims", "suggestion": "Say what was tested instead" },
+    { "id": "no-hype", "type": "phrase", "pattern": "amazing", "mode": "advisory", "message": "Hype word", "suggestion": "Say what changed and why it matters" },
+    { "id": "max-heading-length", "type": "heading-length", "maxChars": 88, "mode": "hard", "message": "Heading is too long", "suggestion": "Shorten the heading without changing its meaning" },
+    { "id": "short-paragraphs", "type": "max-paragraph-words", "maxWords": 80, "mode": "advisory", "message": "Paragraph is long", "suggestion": "Split it into shorter paragraphs or a list" },
+    { "id": "list-items-capital", "type": "case-at-start", "case": "upper", "target": "list-items", "mode": "advisory", "message": "Start list items with a capital letter" },
+    { "id": "list-items-full-stop", "type": "terminal-punctuation", "require": true, "target": "list-items", "mode": "advisory", "severity": "note", "message": "End list items with a full stop" },
+    { "id": "no-heading-full-stop", "type": "terminal-punctuation", "require": false, "target": "headings", "mode": "hard", "message": "Headings take no full stop" },
+    { "id": "enough-context", "type": "min-context", "minWords": 12, "mode": "advisory", "message": "Give readers enough context" }
+  ],
+  "ignore": ["vendor/**", "node_modules/**", "dist/**", ".selfclone/**"]
+}
