@@ -1,0 +1,31 @@
+{
+  "version": "0.1.0",
+  "name": "Maya Okafor",
+  "me": [
+    "Maya Okafor"
+  ],
+  "inputs": [
+    "exports"
+  ],
+  "scrubbed": true,
+  "stats": {
+    "slack": {
+      "parsed": 64,
+      "mine": 41,
+      "others": 23,
+      "withContext": 19
+    },
+    "whatsapp": {
+      "parsed": 272,
+      "mine": 180,
+      "others": 92,
+      "withContext": 90
+    }
+  },
+  "scrubCounts": {
+    "PASSWORD": 1,
+    "EMAIL": 1,
+    "PHONE": 1
+  },
+  "createdAt": "2026-11-13T21:52:29.819Z"
+}

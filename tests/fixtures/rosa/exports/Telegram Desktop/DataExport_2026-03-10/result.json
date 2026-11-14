@@ -1,0 +1,352 @@
+{
+ "about": "Here is the data you requested. Remember: Telegram is ad free, it doesn't sell your data.",
+ "personal_information": {
+  "user_id": 7770001,
+  "first_name": "Rosa",
+  "last_name": "Vidal",
+  "phone_number": "+351 912 345 678",
+  "username": "@rosa_vidal",
+  "bio": "wooden boats + sailing"
+ },
+ "chats": {
+  "about": "This page lists all chats from this export.",
+  "list": [
+   {
+    "name": "Marta Sousa",
+    "type": "personal_chat",
+    "id": 7770002,
+    "messages": [
+     {
+      "id": 101,
+      "type": "message",
+      "date": "2026-03-15T08:16:29",
+      "date_unixtime": "1773562589",
+      "from": "Marta Sousa",
+      "from_id": "user7770002",
+      "text": "Are you going to the boat jumble on Sunday?",
+      "text_entities": []
+     },
+     {
+      "id": 102,
+      "type": "message",
+      "date": "2026-03-15T08:18:34",
+      "date_unixtime": "1773562714",
+      "from": "Rosa Vidal",
+      "from_id": "user7770001",
+      "text": "Yes! I need cheap cleats and a new bucket ahah",
+      "text_entities": []
+     },
+     {
+      "id": 103,
+      "type": "message",
+      "date": "2026-03-15T08:19:26",
+      "date_unixtime": "1773562766",
+      "from": "Rosa Vidal",
+      "from_id": "user7770001",
+      "text": "Want a lift?",
+      "text_entities": []
+     },
+     {
+      "id": 104,
+      "type": "message",
+      "date": "2026-03-16T08:15:16",
+      "date_unixtime": "1773648916",
+      "from": "Marta Sousa",
+      "from_id": "user7770002",
+      "text": [
+       "Did you see ",
+       {
+        "type": "text_link",
+        "text": "this article",
+        "href": "https://example.org/wooden-boats"
+       },
+       " about wooden boats?"
+      ],
+      "text_entities": []
+     },
+     {
+      "id": 105,
+      "type": "message",
+      "date": "2026-03-16T08:16:36",
+      "date_unixtime": "1773648996",
+      "from": "Rosa Vidal",
+      "from_id": "user7770001",
+      "text": "Just read it - finally someone saying epoxy is not magic",
+      "text_entities": []
+     },
+     {
+      "id": 106,
+      "type": "message",
+      "date": "2026-03-16T08:17:20",
+      "date_unixtime": "1773649040",
+      "from": "Rosa Vidal",
+      "from_id": "user7770001",
+      "text": [
+       "I am sending it to ",
+       {
+        "type": "mention",
+        "text": "@tiago_vela"
+       }
+      ],
+      "text_entities": []
+     },
+     {
+      "id": 107,
+      "type": "message",
+      "date": "2026-03-16T08:18:20",
+      "date_unixtime": "1773649100",
+      "from": "Rosa Vidal",
+      "from_id": "user7770001",
+      "text": "NOTICE: Doca de Alcântara closed for dredging from 3 to 14 March. Moorings will be reassigned.",
+      "text_entities": [],
+      "forwarded_from": "Lisbon Port Authority"
+     },
+     {
+      "id": 108,
+      "type": "service",
+      "date": "2026-03-16T08:18:50",
+      "date_unixtime": "1773649130",
+      "actor": "Rosa Vidal",
+      "actor_id": "user7770001",
+      "action": "phone_call",
+      "duration_seconds": 240,
+      "discard_reason": "hangup",
+      "text": "",
+      "text_entities": []
+     },
+     {
+      "id": 109,
+      "type": "message",
+      "date": "2026-03-17T17:08:17",
+      "date_unixtime": "1773767297",
+      "from": "Marta Sousa",
+      "from_id": "user7770002",
+      "text": "Can I borrow your heat gun this week?",
+      "text_entities": []
+     },
+     {
+      "id": 110,
+      "type": "message",
+      "date": "2026-03-17T17:10:33",
+      "date_unixtime": "1773767433",
+      "from": "Rosa Vidal",
+      "from_id": "user7770001",
+      "text": "Ofc, it is on the shelf above the bench",
+      "text_entities": [],
+      "reply_to_message_id": 109
+     },
+     {
+      "id": 111,
+      "type": "message",
+      "date": "2026-03-17T17:11:26",
+      "date_unixtime": "1773767486",
+      "from": "Rosa Vidal",
+      "from_id": "user7770001",
+      "text": "Don't point it at the varnish tins please ahah",
+      "text_entities": []
+     },
+     {
+      "id": 112,
+      "type": "message",
+      "date": "2026-03-19T14:06:49",
+      "date_unixtime": "1773929209",
+      "from": "Marta Sousa",
+      "from_id": "user7770002",
+      "text": "How is your back?",
+      "text_entities": []
+     },
+     {
+      "id": 113,
+      "type": "message",
+      "date": "2026-03-19T14:08:48",
+      "date_unixtime": "1773929328",
+      "from": "Rosa Vidal",
+      "from_id": "user7770001",
+      "text": "Better! No more lifting hulls alone, I promised the physio",
+      "text_entities": []
+     },
+     {
+      "id": 114,
+      "type": "message",
+      "date": "2026-03-19T14:09:29",
+      "date_unixtime": "1773929369",
+      "from": "Rosa Vidal",
+      "from_id": "user7770001",
+      "text": "Let's see how long that lasts",
+      "text_entities": []
+     },
+     {
+      "id": 115,
+      "type": "message",
+      "date": "2026-03-21T08:38:58",
+      "date_unixtime": "1774082338",
+      "from": "Marta Sousa",
+      "from_id": "user7770002",
+      "text": "Dinner on Thursday at mine?",
+      "text_entities": []
+     },
+     {
+      "id": 116,
+      "type": "message",
+      "date": "2026-03-21T08:41:07",
+      "date_unixtime": "1774082467",
+      "from": "Rosa Vidal",
+      "from_id": "user7770001",
+      "text": "Yes please!! What can I bring?",
+      "text_entities": []
+     },
+     {
+      "id": 117,
+      "type": "message",
+      "date": "2026-03-21T08:44:57",
+      "date_unixtime": "1774082697",
+      "from": "Marta Sousa",
+      "from_id": "user7770002",
+      "text": "Wine",
+      "text_entities": []
+     },
+     {
+      "id": 118,
+      "type": "message",
+      "date": "2026-03-21T08:46:15",
+      "date_unixtime": "1774082775",
+      "from": "Rosa Vidal",
+      "from_id": "user7770001",
+      "text": "Done 🍷",
+      "text_entities": []
+     },
+     {
+      "id": 119,
+      "type": "message",
+      "date": "2026-03-21T08:46:45",
+      "date_unixtime": "1774082805",
+      "from": "Marta Sousa",
+      "from_id": "user7770002",
+      "text": "",
+      "text_entities": [],
+      "media_type": "sticker",
+      "sticker_emoji": "🎉",
+      "file": "(File not included. Change data exporting settings to download.)"
+     },
+     {
+      "id": 120,
+      "type": "message",
+      "date": "2026-03-22T10:47:49",
+      "date_unixtime": "1774176469",
+      "from": "Marta Sousa",
+      "from_id": "user7770002",
+      "text": "My daughter wants to learn to sail. Is 9 too young?",
+      "text_entities": []
+     },
+     {
+      "id": 121,
+      "type": "message",
+      "date": "2026-03-22T10:51:57",
+      "date_unixtime": "1774176717",
+      "from": "Rosa Vidal",
+      "from_id": "user7770001",
+      "text": "Not at all - 9 is a great age, the kids group starts at 8",
+      "text_entities": []
+     },
+     {
+      "id": 122,
+      "type": "message",
+      "date": "2026-03-22T10:52:45",
+      "date_unixtime": "1774176765",
+      "from": "Rosa Vidal",
+      "from_id": "user7770001",
+      "text": "Bring her on Sunday at 2 and she can try",
+      "text_entities": []
+     },
+     {
+      "id": 123,
+      "type": "message",
+      "date": "2026-03-24T08:59:25",
+      "date_unixtime": "1774342765",
+      "from": "Marta Sousa",
+      "from_id": "user7770002",
+      "text": "Have you got the number of that electrician?",
+      "text_entities": []
+     },
+     {
+      "id": 124,
+      "type": "message",
+      "date": "2026-03-24T09:01:06",
+      "date_unixtime": "1774342866",
+      "from": "Rosa Vidal",
+      "from_id": "user7770001",
+      "text": "Yes - João, +351 936 222 111",
+      "text_entities": []
+     },
+     {
+      "id": 125,
+      "type": "message",
+      "date": "2026-03-24T09:01:41",
+      "date_unixtime": "1774342901",
+      "from": "Rosa Vidal",
+      "from_id": "user7770001",
+      "text": "He is slow but he is good",
+      "text_entities": []
+     },
+     {
+      "id": 126,
+      "type": "message",
+      "date": "2026-03-25T19:58:51",
+      "date_unixtime": "1774468731",
+      "from": "Marta Sousa",
+      "from_id": "user7770002",
+      "text": "Happy new year from the mountains!",
+      "text_entities": []
+     },
+     {
+      "id": 127,
+      "type": "message",
+      "date": "2026-03-25T20:01:44",
+      "date_unixtime": "1774468904",
+      "from": "Rosa Vidal",
+      "from_id": "user7770001",
+      "text": "Happy new year!! Bring snow back for me",
+      "text_entities": []
+     },
+     {
+      "id": 128,
+      "type": "message",
+      "date": "2026-03-25T20:02:18",
+      "date_unixtime": "1774468938",
+      "from": "Rosa Vidal",
+      "from_id": "user7770001",
+      "text": "Here it is 16 degrees and grey ahah",
+      "text_entities": []
+     }
+    ]
+   },
+   {
+    "type": "saved_messages",
+    "id": 7770001,
+    "messages": [
+     {
+      "id": 129,
+      "type": "message",
+      "date": "2026-03-27T21:15:41",
+      "date_unixtime": "1774646141",
+      "from": "Rosa Vidal",
+      "from_id": "user7770001",
+      "text": "Buy: 2 tins of varnish, sandpaper 120 and 240, new brushes",
+      "text_entities": []
+     },
+     {
+      "id": 130,
+      "type": "message",
+      "date": "2026-03-29T08:39:56",
+      "date_unixtime": "1774773596",
+      "from": "Rosa Vidal",
+      "from_id": "user7770001",
+      "text": "The trick to a good finish is patience and thin coats.",
+      "text_entities": [],
+      "forwarded_from": "Wooden Boat Forum"
+     }
+    ]
+   }
+  ]
+ }
+}

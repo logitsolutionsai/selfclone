@@ -1,0 +1,26 @@
+[
+  {
+    "type": "message",
+    "user": "U03PRIYA",
+    "text": "Reminder: kiln schedule for next week is up. Please add your name for a slot.",
+    "ts": "1779096240.000001"
+  },
+  {
+    "type": "message",
+    "user": "U01MAYA",
+    "text": "added myself for tues + fri!",
+    "ts": "1779096480.000121"
+  },
+  {
+    "type": "message",
+    "user": "U01MAYA",
+    "text": "fri is a glaze firing so pls nobody open it early 🙏",
+    "ts": "1779096518.000122"
+  },
+  {
+    "type": "message",
+    "user": "U03PRIYA",
+    "text": "Noted, I will put a sign on it.",
+    "ts": "1779097058.000002"
+  }
+]

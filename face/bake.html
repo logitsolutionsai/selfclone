@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="data:,">
+<title>selfclone bake</title>
+</head>
+<body>
+<p>selfclone photo and clip bake page. It runs headless; there is nothing to see here.</p>
+<script type="module">
+import { bakePhoto, bakeVideo } from './lib/detect.js';
+window.selfcloneBake = (url) => bakePhoto(url, { base: '/mp' });
+window.selfcloneBakeVideo = (url) => bakeVideo(url, { base: '/mp' });
+window.selfcloneReady = true;
+</script>
+</body>
+</html>

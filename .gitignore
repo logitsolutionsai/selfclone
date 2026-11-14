@@ -1,0 +1,8 @@
+node_modules/
+.selfclone/
+/out/*
+!/out/.gitkeep
+tests/output/
+*.log
+.DS_Store
+Thumbs.db

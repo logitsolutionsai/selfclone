@@ -1,0 +1,29 @@
+[
+  {
+    "id": "U01MAYA",
+    "name": "maya",
+    "real_name": "Maya Okafor",
+    "profile": {
+      "display_name": "maya",
+      "real_name": "Maya Okafor"
+    }
+  },
+  {
+    "id": "U02THEO",
+    "name": "theo",
+    "real_name": "Theo Lindqvist",
+    "profile": {
+      "display_name": "Theo",
+      "real_name": "Theo Lindqvist"
+    }
+  },
+  {
+    "id": "U03PRIYA",
+    "name": "priya",
+    "real_name": "Priya Raman",
+    "profile": {
+      "display_name": "Priya",
+      "real_name": "Priya Raman"
+    }
+  }
+]

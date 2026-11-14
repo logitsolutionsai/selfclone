@@ -1,0 +1,13 @@
+{
+  "seed": "selfclone",
+  "fraction": 0.15,
+  "minSealed": 20,
+  "records": 221,
+  "turns": 109,
+  "eligiblePairs": 109,
+  "sealedPairs": 20,
+  "sealedMessages": 40,
+  "trainMessages": 181,
+  "sealedSha256": "889b595d77ce72827ef21bd9094d5830b3b4cccf43f03abbbec148586d1c7a9e",
+  "sealedAt": "2026-11-13T21:52:29.817Z"
+}

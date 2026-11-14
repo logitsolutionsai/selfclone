@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:,">
+<title>selfclone: Enrol Your Face</title>
+<style>
+:root {
+  --bg: #f4f6f9; --panel: #ffffff; --ink: #14161a; --muted: #59606b; --line: #dde2e8;
+  --accent: #0065fd; --accent-ink: #ffffff; --good: #0f7b3f; --bad: #b42318; --warn: #9a5b00;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #0e1014; --panel: #171a20; --ink: #eef1f5; --muted: #a3aab5; --line: #2a2f37; --accent: #5b9dff; --accent-ink: #0b0d10; --good: #4cc38a; --bad: #ff7b72; --warn: #e3b341; }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); }
+body { font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; padding: 16px; }
+main { max-width: 760px; margin: 0 auto; }
+h1 { font-size: 1.5rem; margin: 4px 0; }
+h2 { font-size: 1.1rem; margin: 0 0 8px; }
+.lead { color: var(--muted); margin: 0 0 16px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+.cam { position: relative; width: 100%; aspect-ratio: 4 / 3; background: #000; border-radius: 12px; overflow: hidden; }
+.cam video, .cam canvas.preview { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.cam video { transform: scaleX(-1); }
+.cam svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.checks { list-style: none; padding: 0; margin: 12px 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 6px 14px; }
+.checks li { display: flex; gap: 8px; align-items: center; }
+.dot { width: 12px; height: 12px; border-radius: 50%; background: var(--line); flex: none; }
+.ok .dot { background: var(--good); }
+.no .dot { background: var(--bad); }
+.warn .dot { background: var(--warn); }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+button {
+  font: inherit; font-weight: 600; cursor: pointer; border-radius: 10px; padding: 9px 16px;
+  border: 1.5px solid var(--accent); background: var(--accent); color: var(--accent-ink);
+}
+button.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+button:disabled { opacity: .45; cursor: not-allowed; }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+label.block { display: block; margin: 10px 0 4px; font-weight: 600; }
+input[type=text] { width: 100%; padding: 9px 12px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--panel); color: var(--ink); font: inherit; }
+.consent { display: flex; gap: 10px; align-items: flex-start; margin-top: 8px; }
+.consent input { margin-top: 4px; width: 18px; height: 18px; flex: none; }
+.note { color: var(--muted); font-size: .9rem; }
+.msg { min-height: 1.4em; margin: 10px 0 0; }
+.msg.err { color: var(--bad); }
+.thumb { width: 160px; height: 160px; border-radius: 10px; object-fit: cover; border: 1px solid var(--line); }
+.clipbox { margin-top: 12px; border: 1.5px solid var(--accent); border-radius: 12px; padding: 12px 14px; }
+.clipbox > :first-child { margin-top: 0; }
+.clipbox > :last-child { margin-bottom: 0; }
+.phrase { font-size: 1.35rem; line-height: 1.35; font-weight: 600; margin: 4px 0 8px; }
+.countdown { position: absolute; inset: 0; display: grid; place-items: center; font-size: 5rem; font-weight: 700; color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,.6); pointer-events: none; }
+.rec { position: absolute; top: 10px; right: 10px; background: #d92d20; color: #fff; font-weight: 700; font-size: 12px; letter-spacing: .06em; padding: 4px 8px; border-radius: 6px; }
+progress { width: 100%; height: 10px; accent-color: var(--accent); }
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Enrol Your Face</h1>
+  <p class="lead">A short clip (better) or one still frame becomes a talking avatar that runs offline. The camera image never
+  leaves this computer, and a clip is read in memory and never saved. Only enrol your own face.</p>
+
+  <section class="card" id="step1">
+    <h2>1. Line Up</h2>
+    <div class="cam" id="cam">
+      <video id="video" playsinline muted></video>
+      <svg viewBox="0 0 400 300" aria-hidden="true"><ellipse cx="200" cy="140" rx="78" ry="104" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-dasharray="6 6"/></svg>
+      <div id="countdown" class="countdown" hidden aria-live="assertive"></div>
+      <div id="recBadge" class="rec" hidden>REC (memory only)</div>
+    </div>
+    <ul class="checks" id="checks" aria-live="polite">
+      <li id="c-face"><span class="dot"></span>Exactly one face</li>
+      <li id="c-pose"><span class="dot"></span>Facing the camera</li>
+      <li id="c-mouth"><span class="dot"></span>Mouth closed and relaxed</li>
+      <li id="c-eyes"><span class="dot"></span>Eyes open</li>
+      <li id="c-res"><span class="dot"></span>Close enough to the camera</li>
+      <li id="c-light"><span class="dot"></span>Enough light</li>
+      <li id="c-glasses"><span class="dot"></span>Glasses</li>
+    </ul>
+    <div class="row">
+      <button id="startBtn" type="button">Start camera</button>
+      <button id="clipBtn" type="button" disabled>Record a short clip (better)</button>
+      <button id="captureBtn" type="button" class="ghost" disabled>Capture</button>
+    </div>
+    <div id="clipBox" class="clipbox" hidden>
+      <p class="note">When the countdown ends, read this aloud at a normal pace, then blink twice and keep still until the bar is full:</p>
+      <p id="phrase" class="phrase"></p>
+      <progress id="meter" max="1" value="0" aria-label="Recording progress"></progress>
+      <p class="note">The clip gives the avatar real frames of your open mouth and closed eyes. It is read in memory, frame by frame; only one still frame and a few small patches of your mouth and eyes are kept.</p>
+    </div>
+    <p class="note">Tips: face a window or a lamp, look straight at the lens, keep your head still. For a still frame, keep a neutral face with your mouth closed.</p>
+    <p class="msg" id="msg1" role="status"></p>
+  </section>
+
+  <section class="card" id="step2" hidden>
+    <h2>2. Consent</h2>
+    <div class="row"><img id="thumb" class="thumb" alt="Captured frame"></div>
+    <p class="note" id="clipSummary" hidden></p>
+    <label class="block" for="fullName">Your full name</label>
+    <input id="fullName" type="text" autocomplete="name" placeholder="Type your full name">
+    <label class="consent"><input id="agree" type="checkbox">
+      <span>This is my own face. I am making an AI clone of myself, and I will say it is an AI clone wherever I show it.</span></label>
+    <label class="consent"><input id="glasses" type="checkbox">
+      <span>I am wearing glasses (blinking is turned off so the frames do not warp).</span></label>
+    <div class="row">
+      <button id="bakeBtn" type="button" disabled>Bake my avatar</button>
+      <button id="retakeBtn" type="button" class="ghost">Retake</button>
+    </div>
+    <p class="msg" id="msg2" role="status"></p>
+  </section>
+
+  <section class="card" id="step3" hidden>
+    <h2>3. Done</h2>
+    <p>Your avatar was saved to <code id="savedPath"></code>. It is a single HTML file that works offline.</p>
+    <div class="row"><a id="openLink" href="/avatar" target="_blank" rel="noopener"><button type="button">Open the avatar</button></a></div>
+    <p class="note">Make it speak from Claude Code or a terminal with <code>selfclone serve</code> and <code>selfclone say "hello"</code>.</p>
+  </section>
+</main>
+<script type="module">
+import { loadLandmarker, checkFrame, makeBakeRecord, ClipCollector, clipBakeRecord } from '/face/lib/detect.js';
+import { ENROL_PHRASE, CLIP_SECONDS } from '/face/lib/clip.js';
+
+const $ = (id) => document.getElementById(id);
+const video = $('video');
+let landmarker = null;
+let stream = null;
+let lastChecks = null;
+let running = false;
+let bake = null;
+let bakeSource = 'webcam';
+let recording = null;
+let counting = false;
+const work = document.createElement('canvas');
+const wctx = work.getContext('2d', { willReadFrequently: true });
+
+function mark(id, cls, text) {
+  const li = $(id);
+  li.className = cls;
+  if (text) li.lastChild.textContent = text;
+}
+
+function showChecks(c) {
+  mark('c-face', c.oneFace ? 'ok' : 'no', c.faces > 1 ? 'Only one face, please' : 'Exactly one face');
+  if (!c.oneFace) {
+    for (const id of ['c-pose', 'c-mouth', 'c-eyes', 'c-res', 'c-light', 'c-glasses']) mark(id, '');
+    return;
+  }
+  mark('c-light', c.lightOk ? 'ok' : 'no', c.lightOk ? 'Enough light' : 'Too dark: face a window or a lamp');
+  mark('c-pose', c.frontal ? 'ok' : 'no', c.frontal ? 'Facing the camera' : `Turn to face the camera (${Math.round(c.pose.yaw)} deg, ${Math.round(c.pose.pitch)} deg)`);
+  mark('c-mouth', c.mouthClosed ? 'ok' : 'no');
+  mark('c-eyes', c.eyesOpen ? 'ok' : 'no');
+  mark('c-res', c.resolutionOk ? 'ok' : 'no', c.resolutionOk ? 'Close enough to the camera' : 'Move closer to the camera');
+  mark('c-glasses', c.glassesLikely ? 'warn' : 'ok', c.glassesLikely ? 'Glasses detected (blinking will be off)' : 'No glasses detected');
+}
+
+async function start() {
+  $('msg1').textContent = 'Loading the face model (first time downloads about 7 MB, then it is cached)...';
+  $('startBtn').disabled = true;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 960 }, facingMode: 'user' }, audio: false });
+    video.srcObject = stream;
+    await video.play();
+    landmarker = landmarker || (await loadLandmarker('/mp', 'VIDEO'));
+    $('msg1').textContent = '';
+    running = true;
+    loop();
+  } catch (e) {
+    // Do not leave the camera on when the model could not load.
+    if (stream) for (const t of stream.getTracks()) t.stop();
+    stream = null;
+    video.srcObject = null;
+    $('msg1').textContent = 'Camera or model could not start: ' + e.message + '. You can bake from a photo instead with selfclone bake --photo.';
+    $('msg1').className = 'msg err';
+    $('startBtn').disabled = false;
+  }
+}
+
+let lastRun = 0;
+function loop() {
+  if (!running) return;
+  const now = performance.now();
+  if (recording && video.readyState >= 2) {
+    // Recording: measure about 15 frames a second, in memory only.
+    if (now - lastRun > 62) {
+      lastRun = now;
+      const w = video.videoWidth;
+      const h = video.videoHeight;
+      if (work.width !== w || work.height !== h) {
+        work.width = w;
+        work.height = h;
+      }
+      wctx.drawImage(video, 0, 0, w, h);
+      const res = landmarker.detectForVideo(work, now);
+      const elapsed = (now - recording.t0) / 1000;
+      const c = recording.col.add(work, wctx, res, elapsed);
+      showChecks(c);
+      // Talking and blinking are the point of the clip, so those two checks rest while it records.
+      if (c.oneFace) for (const id of ['c-mouth', 'c-eyes']) mark(id, '');
+      $('meter').value = Math.min(1, elapsed / CLIP_SECONDS);
+      if (elapsed >= CLIP_SECONDS) {
+        finishClip();
+        return;
+      }
+    }
+    requestAnimationFrame(loop);
+    return;
+  }
+  if (now - lastRun > 180 && video.readyState >= 2) {
+    lastRun = now;
+    const w = video.videoWidth;
+    const h = video.videoHeight;
+    work.width = w;
+    work.height = h;
+    wctx.drawImage(video, 0, 0, w, h);
+    const res = landmarker.detectForVideo(video, now);
+    lastChecks = checkFrame(res, wctx, w, h);
+    showChecks(lastChecks);
+    const cap = $('captureBtn');
+    cap.disabled = !lastChecks.oneFace || counting;
+    $('clipBtn').disabled = !lastChecks.oneFace || counting;
+    const fails = ['frontal', 'mouthClosed', 'eyesOpen', 'resolutionOk'].filter((k) => lastChecks.oneFace && !lastChecks[k]).length;
+    cap.textContent = !lastChecks.oneFace ? 'Capture' : fails ? `Capture anyway (${fails} check${fails > 1 ? 's' : ''} not met)` : 'Capture';
+  }
+  requestAnimationFrame(loop);
+}
+
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+
+async function recordClip() {
+  if (!landmarker || !running || recording || counting) return;
+  counting = true;
+  $('clipBtn').disabled = true;
+  $('captureBtn').disabled = true;
+  $('phrase').textContent = ENROL_PHRASE;
+  $('clipBox').hidden = false;
+  $('meter').value = 0;
+  $('msg1').textContent = '';
+  $('msg1').className = 'msg';
+  const cd = $('countdown');
+  cd.hidden = false;
+  for (const n of [3, 2, 1]) {
+    cd.textContent = String(n);
+    await wait(1000);
+  }
+  cd.hidden = true;
+  $('recBadge').hidden = false;
+  recording = { col: new ClipCollector(), t0: performance.now() };
+  counting = false;
+}
+
+function stopCamera() {
+  if (stream) for (const t of stream.getTracks()) t.stop();
+}
+
+function finishClip() {
+  const col = recording.col;
+  recording = null;
+  running = false;
+  $('recBadge').hidden = true;
+  try {
+    bake = clipBakeRecord(col, { source: 'clip' });
+  } catch (e) {
+    $('msg1').textContent = 'That clip did not work: ' + e.message + ' Try again, or capture a still frame.';
+    $('msg1').className = 'msg err';
+    $('clipBtn').disabled = false;
+    running = true;
+    loop();
+    return;
+  }
+  bakeSource = 'clip';
+  $('captureBtn').disabled = true;
+  const shapes = Object.keys(bake.clip.keys);
+  $('clipSummary').textContent = `Clip read: ${bake.clip.frames} frames. Kept this still frame${shapes.length ? ', mouth patches for ' + shapes.join(', ') : ''}${bake.clip.blink ? ' and closed-eye patches' : ''}. Shapes it did not see use the drawn mouth. The clip itself was not saved.`;
+  $('clipSummary').hidden = false;
+  $('thumb').src = bake.image;
+  $('glasses').checked = !!(bake.checks && bake.checks.glassesLikely);
+  $('step2').hidden = false;
+  $('fullName').focus();
+  stopCamera();
+}
+
+async function capture() {
+  running = false;
+  bakeSource = 'webcam';
+  $('clipSummary').hidden = true;
+  const w = video.videoWidth;
+  const h = video.videoHeight;
+  const snap = document.createElement('canvas');
+  snap.width = w;
+  snap.height = h;
+  const sctx = snap.getContext('2d', { willReadFrequently: true });
+  sctx.drawImage(video, 0, 0, w, h);
+  await landmarker.setOptions({ runningMode: 'IMAGE' });
+  const res = landmarker.detect(snap);
+  await landmarker.setOptions({ runningMode: 'VIDEO' });
+  const checks = checkFrame(res, sctx, w, h);
+  if (!checks.oneFace) {
+    $('msg1').textContent = 'The captured frame did not have exactly one face. Try again.';
+    running = true;
+    loop();
+    return;
+  }
+  bake = makeBakeRecord(snap, res, checks);
+  $('thumb').src = bake.image;
+  $('glasses').checked = !!checks.glassesLikely;
+  $('step2').hidden = false;
+  $('fullName').focus();
+  stopCamera();
+}
+
+function consentReady() {
+  $('bakeBtn').disabled = !($('agree').checked && $('fullName').value.trim().length >= 2);
+}
+
+async function doBake() {
+  $('bakeBtn').disabled = true;
+  $('msg2').textContent = 'Baking...';
+  try {
+    const res = await fetch('/api/bake', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        bake,
+        source: bakeSource,
+        glasses: $('glasses').checked,
+        consent: { agreed: $('agree').checked, name: $('fullName').value.trim(), statement: 'This is my own face. I am making an AI clone of myself and will say it is an AI clone wherever I show it.' },
+      }),
+    });
+    const j = await res.json();
+    if (!j.ok) throw new Error(j.error || 'bake failed');
+    $('savedPath').textContent = j.path;
+    $('step3').hidden = false;
+    $('msg2').textContent = '';
+    window.__enrolDone = j;
+  } catch (e) {
+    $('msg2').textContent = 'Could not bake: ' + e.message;
+    $('msg2').className = 'msg err';
+    consentReady();
+  }
+}
+
+$('startBtn').addEventListener('click', start);
+$('captureBtn').addEventListener('click', capture);
+$('clipBtn').addEventListener('click', recordClip);
+$('agree').addEventListener('change', consentReady);
+$('fullName').addEventListener('input', consentReady);
+$('bakeBtn').addEventListener('click', doBake);
+$('retakeBtn').addEventListener('click', async () => {
+  $('step2').hidden = true;
+  $('clipBox').hidden = true;
+  bake = null;
+  $('startBtn').disabled = false;
+  $('captureBtn').disabled = true;
+  $('clipBtn').disabled = true;
+  await start();
+});
+window.__enrolReady = true;
+</script>
+</body>
+</html>

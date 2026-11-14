@@ -1,0 +1,14 @@
+{
+  "name": "selfclone",
+  "displayName": "selfclone",
+  "version": "0.1.0",
+  "description": "Clone yourself from your own chat exports: a persona skill that writes like you, an offline talking avatar from a 10-second clip or one selfie, and a deterministic style score that proves how close it gets. Privacy-first and consent-gated.",
+  "author": {
+    "name": "Logit Solutions AI",
+    "url": "https://github.com/logitsolutionsai"
+  },
+  "homepage": "https://github.com/logitsolutionsai/selfclone",
+  "repository": "https://github.com/logitsolutionsai/selfclone",
+  "license": "MIT",
+  "keywords": ["persona", "clone", "voice", "stylometry", "burrows-delta", "avatar", "lip-sync", "privacy-first", "agent-skill"]
+}

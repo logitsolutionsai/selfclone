@@ -1,0 +1,20 @@
+[
+  {
+    "type": "message",
+    "user": "U03PRIYA",
+    "text": "The studio is too cold in the mornings. Should we get a second heater?",
+    "ts": "1784819040.000018"
+  },
+  {
+    "type": "message",
+    "user": "U01MAYA",
+    "text": "yes pls, my hands stop working before 10",
+    "ts": "1784819400.000202"
+  },
+  {
+    "type": "message",
+    "user": "U01MAYA",
+    "text": "cold clay + cold hands = sad cylinders",
+    "ts": "1784819426.000203"
+  }
+]

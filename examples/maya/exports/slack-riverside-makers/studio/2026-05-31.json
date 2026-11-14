@@ -1,0 +1,32 @@
+[
+  {
+    "type": "message",
+    "user": "U03PRIYA",
+    "text": "The kiln shut off mid-firing last night. Error code E-04.",
+    "ts": "1780224720.000008"
+  },
+  {
+    "type": "message",
+    "user": "U01MAYA",
+    "text": "ugh thats the thermocouple again",
+    "ts": "1780225020.000137"
+  },
+  {
+    "type": "message",
+    "user": "U01MAYA",
+    "text": "i can swap it, theres a spare in the blue drawer",
+    "ts": "1780225059.000138"
+  },
+  {
+    "type": "message",
+    "user": "U01MAYA",
+    "text": "everyone pls dont reload until i check it",
+    "ts": "1780225104.000139"
+  },
+  {
+    "type": "message",
+    "user": "U03PRIYA",
+    "text": "Thank you, you are a hero.",
+    "ts": "1780225164.000009"
+  }
+]

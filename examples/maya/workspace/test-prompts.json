@@ -1,0 +1,106 @@
+{
+  "instructions": "For each prompt, write the reply this person would send in this chat. Return JSON: [{\"id\": \"...\", \"reply\": \"...\"}]. Do not read sealed.jsonl, train.jsonl or corpus.jsonl.",
+  "count": 20,
+  "prompts": [
+    {
+      "id": "s-0114f783",
+      "source": "slack",
+      "context": "Does anyone want to share a stall at the spring fair?"
+    },
+    {
+      "id": "s-0178c942",
+      "source": "whatsapp",
+      "context": "How do you deal with people who say pottery is just a hobby?"
+    },
+    {
+      "id": "s-02c44664",
+      "source": "whatsapp",
+      "context": "Ten is fine. Shall we meet at the bridge?"
+    },
+    {
+      "id": "s-05b80c18",
+      "source": "whatsapp",
+      "context": "I accept the ashtray phase."
+    },
+    {
+      "id": "s-07de2bfe",
+      "source": "slack",
+      "context": "We have been offered a spot in a local shop for consignment. Thoughts?"
+    },
+    {
+      "id": "s-081934cd",
+      "source": "whatsapp",
+      "context": "I am thinking of quitting social media for a month."
+    },
+    {
+      "id": "s-0b432fba",
+      "source": "whatsapp",
+      "context": "You should start a newsletter. People would read it."
+    },
+    {
+      "id": "s-0b8ae01c",
+      "source": "slack",
+      "context": "The clay delivery is delayed until Wednesday. Sorry everyone."
+    },
+    {
+      "id": "s-11033b8f",
+      "source": "whatsapp",
+      "context": "Biscuit updates would carry it."
+    },
+    {
+      "id": "s-12cd5a38",
+      "source": "whatsapp",
+      "context": "Do you want to split a veg box subscription?"
+    },
+    {
+      "id": "s-13c63d85",
+      "source": "whatsapp",
+      "context": "Can you send me your email for the workshop invoice? I keep losing it."
+    },
+    {
+      "id": "s-17f4047a",
+      "source": "whatsapp",
+      "context": "That worked, by the way. Slide 9 became a running joke."
+    },
+    {
+      "id": "s-185a7394",
+      "source": "whatsapp",
+      "context": "Is it ridiculous to buy a second bike?"
+    },
+    {
+      "id": "s-1a7024a1",
+      "source": "slack",
+      "context": "Has anyone seen the big wedging board? It is not in its usual spot."
+    },
+    {
+      "id": "s-1aac9f73",
+      "source": "whatsapp",
+      "context": "Happy birthday! What are the plans?"
+    },
+    {
+      "id": "s-1b19708a",
+      "source": "whatsapp",
+      "context": "How do you decide what to make next?"
+    },
+    {
+      "id": "s-22149022",
+      "source": "whatsapp",
+      "context": "I will be there. Should I bring anything?"
+    },
+    {
+      "id": "s-23ceaaac",
+      "source": "whatsapp",
+      "context": "Are you going to the ceramics fair in the city next month?"
+    },
+    {
+      "id": "s-23e75826",
+      "source": "whatsapp",
+      "context": "Would you teach me to throw a bowl one day? I have always wanted to try."
+    },
+    {
+      "id": "s-27321e5c",
+      "source": "slack",
+      "context": "Can someone show the new members how to load the kiln properly?"
+    }
+  ]
+}

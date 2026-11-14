@@ -1,0 +1,439 @@
+{
+  "version": 1,
+  "method": "function-word z-scores (Burrows Delta, single-author centroid) + stylometric feature z-scores, root-mean-square, bootstrap-calibrated",
+  "prompts": 20,
+  "answered": 20,
+  "model": {
+    "referenceTurns": 89,
+    "referenceKind": "train replies with context",
+    "sampleSize": 20,
+    "bootstrap": 200,
+    "vocabulary": "english-function-words",
+    "vocabularySize": 105,
+    "englishShare": 0.439,
+    "baselineDistance": 0.907,
+    "baselineSpread": 0.113,
+    "halfScoreExcess": 1
+  },
+  "sets": {
+    "real": {
+      "replies": 20,
+      "styleMatch": 98.6,
+      "distance": 1.049,
+      "wordDistance": 1.327,
+      "featureDistance": 0.77,
+      "delta": 1.04,
+      "deltaToReal": 0,
+      "meanWords": 16.1
+    },
+    "clone": {
+      "replies": 20,
+      "styleMatch": 88.5,
+      "distance": 1.328,
+      "wordDistance": 1.368,
+      "featureDistance": 1.288,
+      "delta": 1.058,
+      "deltaToReal": 1.1,
+      "meanWords": 17.3
+    },
+    "bare": {
+      "replies": 20,
+      "styleMatch": 41.4,
+      "distance": 2.035,
+      "wordDistance": 1.279,
+      "featureDistance": 2.79,
+      "delta": 1.013,
+      "deltaToReal": 1.097,
+      "meanWords": 19.1
+    }
+  },
+  "features": [
+    {
+      "feature": "msgChars",
+      "label": "Characters per message",
+      "youMean": 88.389,
+      "youSpread": 9.3318,
+      "real": 78,
+      "clone": 86.8,
+      "cloneZ": -0.17,
+      "bare": 99.95,
+      "bareZ": 1.24,
+      "drift": false
+    },
+    {
+      "feature": "msgWords",
+      "label": "Words per message",
+      "youMean": 17.7702,
+      "youSpread": 1.8406,
+      "real": 16.05,
+      "clone": 17.3,
+      "cloneZ": -0.26,
+      "bare": 19.05,
+      "bareZ": 0.7,
+      "drift": false
+    },
+    {
+      "feature": "sentenceWords",
+      "label": "Words per sentence",
+      "youMean": 7.4023,
+      "youSpread": 0.5748,
+      "real": 6.8511,
+      "clone": 6.4074,
+      "cloneZ": -1.73,
+      "bare": 7.4706,
+      "bareZ": 0.12,
+      "drift": false
+    },
+    {
+      "feature": "wordLength",
+      "label": "Letters per word",
+      "youMean": 3.87,
+      "youSpread": 0.0954,
+      "real": 3.7539,
+      "clone": 3.948,
+      "cloneZ": 0.82,
+      "bare": 4.0315,
+      "bareZ": 1.69,
+      "drift": false
+    },
+    {
+      "feature": "periodPer1k",
+      "label": "Periods per 1k chars",
+      "youMean": 1.7153,
+      "youSpread": 0.769,
+      "real": 2.5641,
+      "clone": 0,
+      "cloneZ": -2.23,
+      "bare": 18.009,
+      "bareZ": 21.19,
+      "drift": true
+    },
+    {
+      "feature": "commaPer1k",
+      "label": "Commas per 1k chars",
+      "youMean": 7.4917,
+      "youSpread": 1.7064,
+      "real": 8.3333,
+      "clone": 9.2166,
+      "cloneZ": 1.01,
+      "bare": 10.005,
+      "bareZ": 1.47,
+      "drift": false
+    },
+    {
+      "feature": "exclamationPer1k",
+      "label": "Exclamation marks per 1k chars",
+      "youMean": 4.453,
+      "youSpread": 1.658,
+      "real": 3.8462,
+      "clone": 4.6083,
+      "cloneZ": 0.09,
+      "bare": 5.0025,
+      "bareZ": 0.33,
+      "drift": false
+    },
+    {
+      "feature": "questionPer1k",
+      "label": "Question marks per 1k chars",
+      "youMean": 1.1349,
+      "youSpread": 0.8725,
+      "real": 1.2821,
+      "clone": 0.576,
+      "cloneZ": -0.64,
+      "bare": 3.0015,
+      "bareZ": 2.14,
+      "drift": false
+    },
+    {
+      "feature": "ellipsisPer1k",
+      "label": "Ellipses per 1k chars",
+      "youMean": 0,
+      "youSpread": 0.25,
+      "real": 0,
+      "clone": 0,
+      "cloneZ": 0,
+      "bare": 0.5003,
+      "bareZ": 2,
+      "drift": false
+    },
+    {
+      "feature": "dashPer1k",
+      "label": "Dashes per 1k chars",
+      "youMean": 0,
+      "youSpread": 0.25,
+      "real": 0,
+      "clone": 0,
+      "cloneZ": 0,
+      "bare": 0,
+      "bareZ": 0,
+      "drift": false
+    },
+    {
+      "feature": "semicolonPer1k",
+      "label": "Semicolons per 1k chars",
+      "youMean": 0,
+      "youSpread": 0.25,
+      "real": 0,
+      "clone": 0,
+      "cloneZ": 0,
+      "bare": 0,
+      "bareZ": 0,
+      "drift": false
+    },
+    {
+      "feature": "colonPer1k",
+      "label": "Colons per 1k chars",
+      "youMean": 0.1193,
+      "youSpread": 0.25,
+      "real": 0,
+      "clone": 0,
+      "cloneZ": -0.48,
+      "bare": 1.0005,
+      "bareZ": 3.52,
+      "drift": false
+    },
+    {
+      "feature": "emojiPer1k",
+      "label": "Emoji per 1k chars",
+      "youMean": 2.4251,
+      "youSpread": 1.0326,
+      "real": 1.9231,
+      "clone": 1.7281,
+      "cloneZ": -0.67,
+      "bare": 0,
+      "bareZ": -2.35,
+      "drift": false
+    },
+    {
+      "feature": "emojiMsgRate",
+      "label": "Messages with emoji",
+      "youMean": 0.2115,
+      "youSpread": 0.0862,
+      "real": 0.15,
+      "clone": 0.15,
+      "cloneZ": -0.71,
+      "bare": 0,
+      "bareZ": -2.45,
+      "drift": false
+    },
+    {
+      "feature": "lowercaseStartRate",
+      "label": "Messages starting lowercase",
+      "youMean": 0.9812,
+      "youSpread": 0.0263,
+      "real": 0.95,
+      "clone": 0.95,
+      "cloneZ": -1.19,
+      "bare": 0,
+      "bareZ": -37.37,
+      "drift": false
+    },
+    {
+      "feature": "allCapsWordRate",
+      "label": "ALL-CAPS words",
+      "youMean": 0.004,
+      "youSpread": 0.01,
+      "real": 0.0071,
+      "clone": 0.0031,
+      "cloneZ": -0.09,
+      "bare": 0,
+      "bareZ": -0.4,
+      "drift": false
+    },
+    {
+      "feature": "contractionRate",
+      "label": "Contractions per word",
+      "youMean": 0.0188,
+      "youSpread": 0.01,
+      "real": 0.0187,
+      "clone": 0.0202,
+      "cloneZ": 0.14,
+      "bare": 0.0394,
+      "bareZ": 2.06,
+      "drift": false
+    },
+    {
+      "feature": "apostropheDropRate",
+      "label": "Contractions without apostrophe",
+      "youMean": 1,
+      "youSpread": 0.01,
+      "real": 1,
+      "clone": 1,
+      "cloneZ": 0,
+      "bare": 0,
+      "bareZ": -100,
+      "drift": false
+    },
+    {
+      "feature": "questionMsgRate",
+      "label": "Messages with a question mark",
+      "youMean": 0.0873,
+      "youSpread": 0.062,
+      "real": 0.1,
+      "clone": 0.05,
+      "cloneZ": -0.6,
+      "bare": 0.25,
+      "bareZ": 2.62,
+      "drift": false
+    },
+    {
+      "feature": "exclamationMsgRate",
+      "label": "Messages with an exclamation mark",
+      "youMean": 0.244,
+      "youSpread": 0.0768,
+      "real": 0.2,
+      "clone": 0.2,
+      "cloneZ": -0.57,
+      "bare": 0.4,
+      "bareZ": 2.03,
+      "drift": false
+    },
+    {
+      "feature": "linkMsgRate",
+      "label": "Messages with a link",
+      "youMean": 0,
+      "youSpread": 0.01,
+      "real": 0,
+      "clone": 0,
+      "cloneZ": 0,
+      "bare": 0,
+      "bareZ": 0,
+      "drift": false
+    },
+    {
+      "feature": "multiLineRate",
+      "label": "Multi-line messages",
+      "youMean": 0.6928,
+      "youSpread": 0.0886,
+      "real": 0.8,
+      "clone": 1,
+      "cloneZ": 3.47,
+      "bare": 0,
+      "bareZ": -7.82,
+      "drift": true
+    },
+    {
+      "feature": "endPunctRate",
+      "label": "Messages ending in punctuation",
+      "youMean": 0.059,
+      "youSpread": 0.0501,
+      "real": 0.05,
+      "clone": 0.05,
+      "cloneZ": -0.18,
+      "bare": 1,
+      "bareZ": 18.8,
+      "drift": false
+    },
+    {
+      "feature": "laughMsgRate",
+      "label": "Messages with laughter (lol, haha)",
+      "youMean": 0.2673,
+      "youSpread": 0.0814,
+      "real": 0.3,
+      "clone": 0.6,
+      "cloneZ": 4.09,
+      "bare": 0.05,
+      "bareZ": -2.67,
+      "drift": true
+    },
+    {
+      "feature": "uppercaseRatio",
+      "label": "Uppercase share of letters",
+      "youMean": 0.0038,
+      "youSpread": 0.01,
+      "real": 0.0041,
+      "clone": 0.0029,
+      "cloneZ": -0.09,
+      "bare": 0.0384,
+      "bareZ": 3.46,
+      "drift": false
+    },
+    {
+      "feature": "digitPer1k",
+      "label": "Digits per 1k chars",
+      "youMean": 6.8611,
+      "youSpread": 2.434,
+      "real": 12.1795,
+      "clone": 4.6083,
+      "cloneZ": -0.93,
+      "bare": 2.5013,
+      "bareZ": -1.79,
+      "drift": false
+    }
+  ],
+  "wordDrift": [
+    {
+      "word": "are",
+      "youPer1k": 1.42,
+      "clonePer1k": 11.56,
+      "z": 5.96
+    },
+    {
+      "word": "just",
+      "youPer1k": 1.75,
+      "clonePer1k": 11.56,
+      "z": 5.25
+    },
+    {
+      "word": "with",
+      "youPer1k": 3.9,
+      "clonePer1k": 14.45,
+      "z": 3.7
+    },
+    {
+      "word": "what",
+      "youPer1k": 3.14,
+      "clonePer1k": 11.56,
+      "z": 3.26
+    },
+    {
+      "word": "at",
+      "youPer1k": 5.32,
+      "clonePer1k": 14.45,
+      "z": 2.59
+    },
+    {
+      "word": "i",
+      "youPer1k": 32.56,
+      "clonePer1k": 11.56,
+      "z": -2.56
+    },
+    {
+      "word": "no",
+      "youPer1k": 4.22,
+      "clonePer1k": 11.56,
+      "z": 2.42
+    },
+    {
+      "word": "my",
+      "youPer1k": 7.31,
+      "clonePer1k": 0,
+      "z": -2.25
+    },
+    {
+      "word": "about",
+      "youPer1k": 9.01,
+      "clonePer1k": 0,
+      "z": -2.09
+    },
+    {
+      "word": "off",
+      "youPer1k": 0.55,
+      "clonePer1k": 2.89,
+      "z": 2.07
+    },
+    {
+      "word": "our",
+      "youPer1k": 0.57,
+      "clonePer1k": 2.89,
+      "z": 2.05
+    },
+    {
+      "word": "has",
+      "youPer1k": 0.6,
+      "clonePer1k": 2.89,
+      "z": 1.98
+    }
+  ],
+  "warnings": []
+}

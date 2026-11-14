@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:,">
+<title>Can You Tell? Maya Okafor</title>
+<style>
+:root {
+  --bg: #f6f7f9; --card: #ffffff; --ink: #14161a; --muted: #5d6470; --line: #dfe3e8;
+  --accent: #0065fd; --accent-ink: #ffffff; --them: #eef1f5; --good: #0f7b3f; --bad: #b42318;
+  --pick: #e8f0ff;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1115; --card: #181b21; --ink: #eef1f5; --muted: #a2a9b4; --line: #2b3038;
+    --accent: #5b9dff; --accent-ink: #0b0d10; --them: #222730; --good: #4cc38a; --bad: #ff7b72;
+    --pick: #1d2a40;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); }
+body {
+  font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  padding: max(16px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
+}
+main { max-width: 640px; margin: 0 auto; }
+h1 { font-size: 1.5rem; line-height: 1.25; margin: 8px 0 4px; }
+.sub { color: var(--muted); margin: 0 0 20px; }
+.bar { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: .9rem; margin-bottom: 10px; }
+.progress { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; margin-bottom: 18px; }
+.progress > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .25s ease; }
+.label { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 6px; }
+.them { background: var(--them); border-radius: 14px 14px 14px 4px; padding: 12px 14px; white-space: pre-wrap; overflow-wrap: anywhere; margin-bottom: 20px; }
+.choices { display: grid; gap: 12px; }
+button.reply {
+  all: unset; display: block; cursor: pointer; background: var(--card); color: var(--ink);
+  border: 1.5px solid var(--line); border-radius: 14px 14px 4px 14px; padding: 14px 16px;
+  white-space: pre-wrap; overflow-wrap: anywhere; transition: border-color .15s, background .15s;
+}
+button.reply:hover, button.reply:focus-visible { border-color: var(--accent); background: var(--pick); }
+button.reply:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+button.reply[disabled] { cursor: default; }
+button.reply.real { border-color: var(--good); }
+button.reply.fake { border-color: var(--bad); opacity: .85; }
+.tag { display: block; font-size: .78rem; font-weight: 600; margin-top: 8px; }
+.real .tag { color: var(--good); }
+.fake .tag { color: var(--bad); }
+.verdict { min-height: 1.6em; margin: 16px 0 8px; font-weight: 600; }
+.next, .again {
+  all: unset; cursor: pointer; display: inline-block; background: var(--accent); color: var(--accent-ink);
+  padding: 10px 18px; border-radius: 10px; font-weight: 600;
+}
+.next:focus-visible, .again:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.end { text-align: center; padding: 24px 0; }
+.big { font-size: 3rem; font-weight: 700; line-height: 1.1; margin: 8px 0; }
+footer { color: var(--muted); font-size: .8rem; margin-top: 32px; border-top: 1px solid var(--line); padding-top: 12px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Can You Tell?</h1>
+  <p class="sub">One reply is really Maya Okafor. The other is an AI clone. Pick the real one.</p>
+  <section id="game" aria-live="polite"></section>
+  <footer>
+    Made with selfclone. Offline page, no tracking. It contains real messages that were scrubbed for secrets;
+    share it only with people who could already read them. The clone is an AI and says so when asked.
+  </footer>
+</main>
+<script id="rounds" type="application/json">[{"id":"s-17f4047a","context":"That worked, by the way. Slide 9 became a running joke.","replies":["NO WAY\nim so proud of u\nslide 9 forever 🫡","WAIT really\nlove that for u\nwhat was on slide 9 lol"],"real":0},{"id":"s-1aac9f73","context":"Happy birthday! What are the plans?","replies":["thank uuu 🥳\nsourdough pizza at mine, nothing fancy. come by after 7?","ty!! 🥹\nidk yet tbh, something with no screens ideally\nwhat are u up to later"],"real":0},{"id":"s-02c44664","context":"Ten is fine. Shall we meet at the bridge?","replies":["yes!! bridge at 10\nsee u there","bridge at 10 👍 bringing snacks, u bring the good coffee"],"real":1},{"id":"s-0178c942","context":"How do you deal with people who say pottery is just a hobby?","replies":["i used to argue lol\nnow i just tell them what a kiln costs and watch their face","ugh the hobby people\ni just tell them what goes into one mug and watch their face lol\nhobbies dont come with a kiln bill"],"real":0},{"id":"s-0b432fba","context":"You should start a newsletter. People would read it.","replies":["haha would they tho\nmaybe a tiny one, like once a month, kiln news and biscuit updates","haha would they tho\nfeels a bit like being a brand idk\nid rather people just come say hi at the market"],"real":0},{"id":"s-1a7024a1","context":"Has anyone seen the big wedging board? It is not in its usual spot.","replies":["hmm not me\nill have a look when im in, whoever borrowed it pls put it back lol","omg sorry thats me, its by my wheel\nbringing it back now"],"real":1},{"id":"s-05b80c18","context":"I accept the ashtray phase.","replies":["perfect student energy. thursday evening class has a spot","haha good\neveryone goes through it, me included\ngive it a few weeks and they start looking like bowls i promise"],"real":0},{"id":"s-12cd5a38","context":"Do you want to split a veg box subscription?","replies":["yes!! i always waste half of mine\nu take the weird squash tho, i dont know what to do with them","ooh tempting\nsend me the link, ill have a look tonight"],"real":0},{"id":"s-081934cd","context":"I am thinking of quitting social media for a month.","replies":["honestly yes do it\nfill the gap with stuff with no screens, bikes, trains, the coast\nreport back on day 3 lol","do it!!\ni did it last winter and slept so much better\nonly rule, tell ur mum first so she doesnt think ur dead lol"],"real":1},{"id":"s-07de2bfe","context":"We have been offered a spot in a local shop for consignment. Thoughts?","replies":["depends on the cut tbh\nanything over 40% and we are basically paying them to hold our stuff\nbut if its 30-35 i think its worth trying for a season","ooh could be good\nwhats their cut tho, we shouldnt drop our prices to make it work\nalso who pays if something breaks"],"real":0}]</script>
+<script>
+(function () {
+  var rounds = JSON.parse(document.getElementById('rounds').textContent);
+  var root = document.getElementById('game');
+  var i = 0, fooled = 0, answered = false;
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function render() {
+    root.innerHTML = '';
+    if (!rounds.length) { root.appendChild(el('p', null, 'No rounds yet. Run selfclone test first.')); return; }
+    if (i >= rounds.length) return end();
+    var r = rounds[i]; answered = false;
+    var bar = el('div', 'bar'); bar.appendChild(el('span', null, 'Round ' + (i + 1) + ' of ' + rounds.length)); bar.appendChild(el('span', 'score', 'Fooled so far: ' + fooled));
+    root.appendChild(bar);
+    var pr = el('div', 'progress'); var fill = el('i'); fill.style.width = (100 * i / rounds.length) + '%'; pr.appendChild(fill); root.appendChild(pr);
+    root.appendChild(el('p', 'label', 'They wrote'));
+    root.appendChild(el('div', 'them', r.context));
+    root.appendChild(el('p', 'label', 'Which reply is real?'));
+    var box = el('div', 'choices');
+    r.replies.forEach(function (text, k) {
+      var b = el('button', 'reply', text); b.type = 'button'; b.setAttribute('data-k', k);
+      b.addEventListener('click', function () { pick(k, box); });
+      box.appendChild(b);
+    });
+    root.appendChild(box);
+    root.appendChild(el('p', 'verdict'));
+  }
+  function pick(k, box) {
+    if (answered) return; answered = true;
+    var r = rounds[i];
+    var ok = k === r.real;
+    if (!ok) fooled++;
+    Array.prototype.forEach.call(box.children, function (b, j) {
+      b.disabled = true;
+      b.classList.add(j === r.real ? 'real' : 'fake');
+      b.appendChild(el('span', 'tag', j === r.real ? 'Real' : 'AI clone'));
+    });
+    var v = root.querySelector('.verdict');
+    v.textContent = ok ? 'Correct. You spotted the real one.' : 'The clone fooled you on this one.';
+    var next = el('button', 'next', i + 1 < rounds.length ? 'Next round' : 'See result'); next.type = 'button';
+    next.addEventListener('click', function () { i++; render(); });
+    root.appendChild(next); next.focus();
+    root.querySelector('.score').textContent = 'Fooled so far: ' + fooled;
+  }
+  function end() {
+    var pct = Math.round(100 * fooled / rounds.length);
+    var d = el('div', 'end');
+    d.appendChild(el('p', 'label', 'Result'));
+    d.appendChild(el('p', 'big', pct + '%'));
+    d.appendChild(el('p', null, 'The clone fooled you ' + pct + '% of the time (' + fooled + ' of ' + rounds.length + ' rounds).'));
+    d.appendChild(el('p', 'sub', fooled === 0 ? 'You know them well.' : pct >= 50 ? 'That is a convincing clone. Remember it is still an AI.' : 'The clone got close a few times.'));
+    var again = el('button', 'again', 'Play again'); again.type = 'button';
+    again.addEventListener('click', function () { i = 0; fooled = 0; render(); });
+    d.appendChild(again);
+    root.appendChild(d);
+    window.__selfcloneGame = { fooled: fooled, rounds: rounds.length, percent: pct };
+  }
+  render();
+})();
+</script>
+</body>
+</html>

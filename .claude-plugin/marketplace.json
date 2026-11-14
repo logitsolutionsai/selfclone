@@ -1,0 +1,17 @@
+{
+  "name": "selfclone",
+  "description": "Open-source agent skills from Logit Solutions AI.",
+  "owner": {
+    "name": "Logit Solutions AI",
+    "url": "https://github.com/logitsolutionsai"
+  },
+  "plugins": [
+    {
+      "name": "selfclone",
+      "source": "./",
+      "description": "Clone yourself from your own chat exports, give the clone a talking face, and measure how close it gets with a deterministic style score.",
+      "category": "productivity",
+      "tags": ["persona", "stylometry", "avatar", "privacy-first"]
+    }
+  ]
+}
