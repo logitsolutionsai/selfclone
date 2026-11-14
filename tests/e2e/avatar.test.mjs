@@ -10,6 +10,7 @@ import { bakeFromPhoto } from '../../src/face/bake.mjs';
 import { launchChrome } from '../../src/face/chrome.mjs';
 import { startAvatarServer, sayText, sayAudio } from '../../src/face/server.mjs';
 import { OUT, FIXTURE, ROOT, decodePng, meanDiff, makeWav, sleep } from './helpers.mjs';
+import { labelCoverage, labelOk } from '../../src/face/video.mjs';
 
 const AVATAR = path.join(OUT, 'avatar.html');
 const FAKE = 'http://avatar.local/avatar.html';
@@ -140,6 +141,119 @@ test('the badge comes back if removed or hidden', async (t) => {
     await page.evaluate(() => (document.getElementById('badge').style.display = 'none'));
     await sleep(1300);
     assert.notEqual(await page.evaluate(() => getComputedStyle(document.getElementById('badge')).display), 'none');
+  } finally {
+    await page.close();
+  }
+});
+
+test('the badge is a near-black chip with white letters on the photo in both themes', async () => {
+  const { page } = await openOffline('?idle=0&blink=0&tts=0');
+  try {
+    for (const scheme of ['light', 'dark']) {
+      await page.emulateMedia({ colorScheme: scheme });
+      const cs = await page.evaluate(() => {
+        const s = getComputedStyle(document.getElementById('badge'));
+        return { bg: s.backgroundColor, fg: s.color, ring: s.boxShadow, page: getComputedStyle(document.body).backgroundColor };
+      });
+      assert.equal(cs.bg, 'rgb(17, 17, 16)', `${scheme}: fill`);
+      assert.equal(cs.fg, 'rgb(255, 255, 255)', `${scheme}: letters`);
+      assert.match(cs.ring, /rgba\(255, 255, 255, 0\.25\) 0px 0px 0px 1px/, `${scheme}: ring`);
+      assert.equal(cs.page, scheme === 'light' ? 'rgb(247, 247, 245)' : 'rgb(14, 14, 13)', `${scheme}: Ink page`);
+    }
+  } finally {
+    await page.close();
+  }
+});
+
+test('the video label check finds the chin label in a rendered export frame, and fails when it is clipped away', async () => {
+  const { page } = await openOffline('?export=circle&controls=0&tts=0&idle=0&blink=0&seed=video');
+  try {
+    await page.setViewportSize({ width: 320, height: 320 });
+    await sleep(400);
+    const box = await page.evaluate(() => {
+      const r = document.getElementById('badge').getBoundingClientRect();
+      return { x: r.left, y: r.top, width: r.width, height: r.height };
+    });
+    const frame = async (name) => decodePng(await page.screenshot({ clip: { x: 0, y: 0, width: 320, height: 320 }, path: path.join(OUT, name) }));
+    const withLabel = labelCoverage(await frame('evidence-export-label.png'), box);
+    assert.ok(labelOk(withLabel), `label found: fill ${withLabel.fill.toFixed(2)}, white ${withLabel.white.toFixed(2)}`);
+    // clip-path hides the label from the frame without tripping the page's own guard (it checks display,
+    // visibility, opacity and size), so only the frame check stands between this frame and the encoder.
+    await page.evaluate(() => document.getElementById('badge').style.setProperty('clip-path', 'inset(50%)'));
+    await sleep(1300);
+    const without = labelCoverage(await frame('evidence-export-nolabel.png'), box);
+    assert.ok(!labelOk(without), `no label: fill ${without.fill.toFixed(2)}, white ${without.white.toFixed(2)}`);
+  } finally {
+    await page.close();
+  }
+});
+
+test('About opens as a sheet anchored to its button and closes back into it', async () => {
+  const { page } = await openOffline('?idle=0&blink=0&tts=0');
+  try {
+    await page.setViewportSize({ width: 800, height: 900 });
+    await page.click('#infoBtn');
+    await page.waitForFunction(() => !document.getElementById('info').hidden && getComputedStyle(document.getElementById('info')).opacity === '1', null, { timeout: 3000 });
+    const st = await page.evaluate(() => {
+      const b = document.getElementById('infoBtn').getBoundingClientRect();
+      const i = document.getElementById('info');
+      const r = i.getBoundingClientRect();
+      return { expanded: document.getElementById('infoBtn').getAttribute('aria-expanded'), gap: Math.min(Math.abs(r.top - b.bottom), Math.abs(b.top - r.bottom)), origin: getComputedStyle(i).transformOrigin, scrim: document.getElementById('scrim').hidden };
+    });
+    assert.equal(st.expanded, 'true');
+    assert.ok(st.gap < 12, `sheet sits next to its button (gap ${st.gap}px)`);
+    assert.ok(st.scrim, 'no scrim on a wide screen');
+    await page.keyboard.press('Escape');
+    await page.waitForFunction(() => document.getElementById('info').hidden, null, { timeout: 3000 });
+    assert.equal(await page.evaluate(() => document.getElementById('infoBtn').getAttribute('aria-expanded')), 'false');
+  } finally {
+    await page.close();
+  }
+});
+
+test('under 600 px About is a bottom sheet: a flick down on the grab bar closes it, a small drag springs back', async () => {
+  const { page } = await openOffline('?idle=0&blink=0&tts=0');
+  try {
+    await page.setViewportSize({ width: 390, height: 800 });
+    await page.click('#infoBtn');
+    await page.waitForFunction(() => {
+      const i = document.getElementById('info');
+      return !i.hidden && !document.getElementById('scrim').hidden && Math.abs(i.getBoundingClientRect().bottom - innerHeight) < 1;
+    }, null, { timeout: 3000 });
+    const g = await page.locator('#grab').boundingBox();
+    const x = g.x + g.width / 2;
+    const y = g.y + g.height / 2;
+    // A short, slow drag: it follows the pointer, then springs back open.
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    for (let k = 1; k <= 5; k++) {
+      await page.mouse.move(x, y + 8 * k);
+      await sleep(60);
+    }
+    const followed = await page.evaluate(() => document.getElementById('info').style.transform);
+    assert.match(followed, /translateY\((3\d|4\d)\./, `the sheet tracks the pointer (${followed})`);
+    await sleep(200);
+    await page.mouse.up();
+    await page.waitForFunction(() => Math.abs(document.getElementById('info').getBoundingClientRect().bottom - innerHeight) < 1, null, { timeout: 3000 });
+    assert.equal(await page.evaluate(() => document.getElementById('info').hidden), false, 'still open');
+    // Dragged up past open, it resists (rubber band) instead of following 1:1.
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x, y - 120, { steps: 6 });
+    const up = await page.evaluate(() => Number((document.getElementById('info').style.transform.match(/-?[\d.]+/) || [0])[0]));
+    assert.ok(up < 0 && up > -80, `rubber band above open (${up})`);
+    await page.mouse.up();
+    await sleep(500);
+    // A quick flick down closes it.
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    for (let k = 1; k <= 4; k++) {
+      await page.mouse.move(x, y + 30 * k);
+      await sleep(16);
+    }
+    await page.mouse.up();
+    await page.waitForFunction(() => document.getElementById('info').hidden && document.getElementById('scrim').hidden, null, { timeout: 3000 });
+    assert.equal(await page.evaluate(() => document.getElementById('infoBtn').getAttribute('aria-expanded')), 'false');
   } finally {
     await page.close();
   }

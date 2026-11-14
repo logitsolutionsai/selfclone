@@ -178,9 +178,13 @@ export function audioFeatures(file, hop = 0.01) {
   return { hop, rms, centroid, seconds: x.length / SR };
 }
 
-/** Share of the label box that is the label's red, and of its white lettering, in an RGBA frame. */
+/**
+ * Share of the label box that is the label's near-black fill, and of its white lettering, in an RGBA frame.
+ * The fill must be a neutral near-black (no channel above 56, channels within 16 of each other), so dark
+ * skin, hair or a shadow on the chin, which all carry some colour, do not count as the label.
+ */
 export function labelCoverage(img, box) {
-  let red = 0;
+  let fill = 0;
   let white = 0;
   let n = 0;
   const x0 = Math.max(0, Math.round(box.x));
@@ -195,15 +199,17 @@ export function labelCoverage(img, box) {
       const b = img.data[o + 2];
       if (img.data[o + 3] < 200) continue;
       n++;
-      if (r > 150 && g < 110 && b < 100 && r - g > 80) red++;
+      const hi = Math.max(r, g, b);
+      if (hi <= 56 && hi - Math.min(r, g, b) <= 16) fill++;
       else if (r > 200 && g > 200 && b > 200) white++;
     }
   }
   const area = Math.max(1, (x1 - x0) * (y1 - y0));
-  return { red: red / area, white: white / area, opaque: n / area };
+  return { fill: fill / area, white: white / area, opaque: n / area };
 }
 
-export const labelOk = (c) => c.red > 0.35 && c.white > 0.04;
+/** The label is there when most of its box is the near-black fill and some of it is white lettering. */
+export const labelOk = (c) => c.fill > 0.35 && c.white > 0.04 && c.white < 0.45;
 
 /** Render and encode. Returns {file, sidecar, bytes, seconds, frames, ...}. */
 export async function exportVideo(opts, { log = () => {} } = {}) {

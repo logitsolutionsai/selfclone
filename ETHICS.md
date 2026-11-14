@@ -69,9 +69,9 @@ the picture, and the tags are there as well.
 
 - **A burned-in "AI CLONE" label on every frame**, over the chin, inside the face, so cropping a corner cannot
   remove it: cropping it out means cutting into the face. It stays legible at the smallest size allowed (240 px:
-  12 px bold white letters on red). No flag turns it off. Every frame is checked for the label before it is
-  encoded, and if one lacks it nothing is written. The page is rebuilt from the avatar's data with selfclone's own
-  code, so editing the avatar's HTML does not remove it.
+  12 px bold white letters on a near-black chip with a faint white ring). No flag turns it off. Every frame is
+  checked for the label before it is encoded, and if one lacks it nothing is written. The page is rebuilt from the
+  avatar's data with selfclone's own code, so editing the avatar's HTML does not remove it.
 - **A consent check.** Export refuses an avatar with no consent record, with no statement or date, or whose
   record does not match the face in the file (the photo hash differs).
 - **Your own audio only.** The only input is an audio file, and there is no text-to-speech, so selfclone never

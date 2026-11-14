@@ -57,19 +57,19 @@ function speechWav(file) {
   fs.writeFileSync(file, Buffer.concat([h, pcm]));
 }
 
-// ---- a mock screen: a plain code editor showing a short tutorial file (no real product) ----
+// ---- a mock screen: a plain code editor showing a short tutorial file (no real product), in neutral greys ----
 const SCREEN = `<!doctype html><meta charset="utf-8"><style>
-body{margin:0;width:1280px;height:720px;background:#1b1d23;color:#c9d1d9;font:15px/1.6 ui-monospace,Consolas,monospace;display:grid;grid-template-rows:34px 1fr 26px;grid-template-columns:220px 1fr}
-.top{grid-column:1/3;background:#14161a;display:flex;align-items:center;gap:8px;padding:0 12px;color:#8b949e;font:13px system-ui,Segoe UI,sans-serif}
-.dot{width:11px;height:11px;border-radius:50%;background:#3a3f48}
-.side{background:#16181d;padding:12px 0;font:13px/2 system-ui,Segoe UI,sans-serif;color:#8b949e}
-.side div{padding:0 16px}.side .on{background:#22262e;color:#e6edf3}
+body{margin:0;width:1280px;height:720px;background:#0e0e0d;color:#d6d6d2;font:15px/1.6 ui-monospace,Consolas,monospace;display:grid;grid-template-rows:34px 1fr 26px;grid-template-columns:220px 1fr}
+.top{grid-column:1/3;background:#171716;border-bottom:1px solid #2b2b29;display:flex;align-items:center;gap:8px;padding:0 12px;color:#9a9a94;font:13px system-ui,Segoe UI,sans-serif}
+.dot{width:11px;height:11px;border-radius:50%;background:#3d3d3a}
+.side{background:#171716;border-right:1px solid #2b2b29;padding:12px 0;font:13px/2 system-ui,Segoe UI,sans-serif;color:#9a9a94}
+.side div{padding:0 16px}.side .on{background:#1f1f1d;color:#f4f4f2}
 .code{padding:18px 0 0 0;counter-reset:l;white-space:pre}
-.code div{counter-increment:l}.code div::before{content:counter(l);display:inline-block;width:46px;text-align:right;margin-right:22px;color:#4a515c}
-.k{color:#ff7b72}.s{color:#a5d6ff}.c{color:#6e7681}.f{color:#d2a8ff}.n{color:#79c0ff}
-.sel{background:#2a3446}
-.bar{grid-column:1/3;background:#0065fd;color:#fff;font:12px/26px system-ui,Segoe UI,sans-serif;padding:0 12px}
-.cur{display:inline-block;width:2px;height:18px;background:#e6edf3;vertical-align:-3px}
+.code div{counter-increment:l}.code div::before{content:counter(l);display:inline-block;width:46px;text-align:right;margin-right:22px;color:#6a6a65}
+.k{color:#f4f4f2;font-weight:600}.s{color:#d6d6d2}.c{color:#6a6a65;font-style:italic}.f{color:#f4f4f2}.n{color:#9a9a94}
+.sel{background:#1f1f1d}
+.bar{grid-column:1/3;background:#171716;border-top:1px solid #2b2b29;color:#9a9a94;font:12px/26px system-ui,Segoe UI,sans-serif;padding:0 12px}
+.cur{display:inline-block;width:2px;height:18px;background:#f4f4f2;vertical-align:-3px}
 </style>
 <div class="top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span style="margin-left:10px">tutorial / retry.js</span></div>
 <div class="side"><div>tutorial</div><div>&nbsp;&nbsp;README.md</div><div class="on">&nbsp;&nbsp;retry.js</div><div>&nbsp;&nbsp;retry.test.js</div><div>&nbsp;&nbsp;package.json</div></div>
@@ -106,5 +106,5 @@ const run = (args) => {
 };
 run(['-loop', '1', '-framerate', '30', '-t', String(SECONDS), '-i', screen, '-c:v', 'libx264', '-pix_fmt', 'yuv420p', path.join(WORK, 'screen.mp4')]);
 run(['-i', path.join(WORK, 'screen.mp4'), '-c:v', 'libvpx-vp9', '-i', pip, '-filter_complex', '[1:v]scale=300:-1[pip];[0:v][pip]overlay=W-w-40:H-h-40', '-map', '1:a', '-c:a', 'aac', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', mp4]);
-run(['-i', mp4, '-filter_complex', 'fps=12.5,scale=640:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=96:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=4:diff_mode=rectangle', '-loop', '0', GIF]);
+run(['-i', mp4, '-filter_complex', 'fps=12.5,scale=640:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=80:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=4:diff_mode=rectangle', '-loop', '0', GIF]);
 console.log(`${path.relative(ROOT, GIF)}: ${Math.round(fs.statSync(GIF).size / 1024)} KB`);

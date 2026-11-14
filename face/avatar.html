@@ -10,57 +10,101 @@
 <title>__SELFCLONE_TITLE__</title>
 <style>
 :root {
-  --bg: #f4f6f9; --panel: #ffffff; --ink: #14161a; --muted: #59606b; --line: #dde2e8;
-  --accent: #0065fd; --accent-ink: #ffffff; --stage: #0d0f13;
+  --bg: #f7f7f5; --surface: #ffffff; --surface-2: #f0f0ed; --line: #e3e3df; --line-strong: #c9c9c3;
+  --ink: #111110; --ink-2: #3a3a37; --muted: #6f6f69; --faint: #a3a39c;
+  --accent: #0065fd; --accent-press: #0654c8; --on-accent: #ffffff;
+  --stage: #111110; --float-shadow: 0 1px 2px rgba(0,0,0,.06), 0 12px 32px rgba(0,0,0,.12);
 }
 @media (prefers-color-scheme: dark) {
-  :root { --bg: #0e1014; --panel: #171a20; --ink: #eef1f5; --muted: #a3aab5; --line: #2a2f37; --accent: #5b9dff; --accent-ink: #0b0d10; --stage: #050608; }
+  :root {
+    --bg: #0e0e0d; --surface: #171716; --surface-2: #1f1f1d; --line: #2b2b29; --line-strong: #3d3d3a;
+    --ink: #f4f4f2; --ink-2: #d6d6d2; --muted: #9a9a94; --faint: #6a6a65;
+    --accent: #5b9cff; --accent-press: #3f86ff; --on-accent: #0e0e0d;
+    --stage: #000000; --float-shadow: 0 1px 2px rgba(0,0,0,.5), 0 12px 32px rgba(0,0,0,.5);
+  }
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--bg); color: var(--ink); }
 body {
   font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  padding: max(16px, env(safe-area-inset-top)) 16px max(20px, env(safe-area-inset-bottom));
+  padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+  -webkit-tap-highlight-color: transparent;
 }
+::selection { background: var(--accent); color: var(--on-accent); }
 main { max-width: 560px; margin: 0 auto; }
 .stage {
   position: relative; width: 100%; max-width: 512px; aspect-ratio: 1 / 1; margin: 0 auto;
-  border-radius: 16px; overflow: hidden; background: var(--stage);
-  box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 8px 24px rgba(0,0,0,.12);
+  border-radius: 10px; overflow: hidden; background: var(--stage);
 }
 .stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .stage canvas[hidden] { display: none; }
+/* The AI CLONE badge: an L3 chip, near-black with white letters and a faint white ring in both themes, so it
+   reads on any photo. The runtime's guard puts it back if it is removed or hidden. */
 .badge {
   position: absolute; top: 10px; left: 10px; z-index: 10; pointer-events: none;
   display: block; visibility: visible; opacity: 1;
-  background: #d92d20; color: #ffffff; font-weight: 700; font-size: 12px; letter-spacing: .08em;
-  padding: 5px 9px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,.35);
+  background: #111110; color: #ffffff; font-weight: 700; font-size: 11px; line-height: 1; letter-spacing: .08em;
+  padding: 6px 10px; border-radius: 999px; box-shadow: 0 0 0 1px rgba(255,255,255,.25);
 }
-.controls { margin-top: 14px; }
+.speak { max-width: 512px; height: 2px; margin: 8px auto 0; overflow: hidden; opacity: 0; }
+.speak > i { display: block; height: 100%; width: 100%; background: var(--ink); transform-origin: 0 50%; transform: scaleX(0); }
+/* The controls: a translucent bar that stays at the bottom of the window while the page scrolls under it. */
+.controls {
+  position: sticky; bottom: max(8px, env(safe-area-inset-bottom)); z-index: 20; margin-top: 10px; padding: 10px;
+  border: 1px solid var(--line); border-radius: 10px;
+  background: color-mix(in srgb, var(--surface) 78%, transparent);
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+}
 .controls[hidden] { display: none; }
 textarea {
-  width: 100%; resize: vertical; min-height: 56px; padding: 10px 12px; border-radius: 10px;
-  border: 1.5px solid var(--line); background: var(--panel); color: var(--ink); font: inherit;
+  display: block; width: 100%; resize: vertical; min-height: 56px; padding: 10px 12px; border-radius: 6px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: inherit;
 }
-textarea:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
-.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
+textarea::placeholder { color: var(--muted); }
+textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 8px; }
 button, .file {
-  font: inherit; font-weight: 600; cursor: pointer; border-radius: 10px; padding: 8px 14px;
-  border: 1.5px solid var(--accent); background: var(--accent); color: var(--accent-ink);
+  font: inherit; font-weight: 600; cursor: pointer; border-radius: 6px; height: 36px; padding: 0 12px;
+  display: inline-flex; align-items: center; border: 1px solid var(--accent); background: var(--accent); color: var(--on-accent);
+  transition: background-color .15s, border-color .15s;
 }
-.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
-button:focus-visible, .file:focus-within { outline: 3px solid var(--accent); outline-offset: 2px; }
-.file { position: relative; overflow: hidden; display: inline-block; }
+button:hover { background: var(--accent-press); border-color: var(--accent-press); }
+.ghost, .ghost:hover { background: var(--surface); color: var(--ink); border-color: var(--line); }
+.ghost:hover { border-color: var(--line-strong); }
+button[aria-expanded="true"] { border-color: var(--ink); }
+button:focus-visible, .file:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.file { position: relative; overflow: hidden; }
 .file input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-.check { display: inline-flex; gap: 6px; align-items: center; color: var(--muted); }
-.status { min-height: 1.4em; color: var(--muted); font-size: .9rem; margin: 8px 0 0; }
-.info { margin-top: 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.check { display: inline-flex; gap: 6px; align-items: center; color: var(--ink-2); margin: 0 4px; }
+.check input { accent-color: var(--accent); width: 16px; height: 16px; margin: 0; }
+.status { min-height: 1.4em; color: var(--muted); font-size: .875rem; margin: 8px 0 0; }
+/* About: a solid sheet anchored to its button; under 600 px a bottom sheet that drags down to close. */
+.info {
+  position: fixed; z-index: 40; width: min(440px, calc(100vw - 32px)); max-height: calc(100vh - 32px); overflow: auto;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px 18px;
+  box-shadow: var(--float-shadow); will-change: transform, opacity;
+}
 .info[hidden] { display: none; }
-.info h2 { font-size: 1rem; margin: 0 0 8px; }
-.info dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 0; }
+.info:focus { outline: none; }
+.info h2 { font-size: 1rem; margin: 0 0 10px; }
+.info dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 14px; margin: 0; font-size: .875rem; }
 .info dt { color: var(--muted); }
-.info dd { margin: 0; overflow-wrap: anywhere; }
-.info p { color: var(--muted); font-size: .88rem; margin: 10px 0 0; }
+.info dd { margin: 0; overflow-wrap: anywhere; color: var(--ink-2); }
+#infoHash { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .8125rem; }
+.info p { color: var(--muted); font-size: .8125rem; margin: 12px 0 0; padding-top: 12px; border-top: 1px solid var(--line); }
+.grab { display: none; }
+.scrim { position: fixed; inset: 0; z-index: 39; background: rgba(0,0,0,.32); opacity: 0; }
+.scrim[hidden] { display: none; }
+@media (max-width: 599.98px) {
+  .info {
+    left: 0 !important; right: 0; bottom: 0; top: auto !important; width: 100%; max-height: 85vh;
+    border-radius: 14px 14px 0 0; border-bottom: 0; padding: 0 18px max(18px, env(safe-area-inset-bottom));
+    /* the extra surface below fills the gap when the sheet is pulled up past open */
+    box-shadow: var(--float-shadow), 0 120px 0 0 var(--surface);
+  }
+  .grab { display: block; position: sticky; top: 0; margin: 0 -18px 4px; padding: 10px 0 8px; touch-action: none; cursor: grab; background: var(--surface); }
+  .grab::before { content: ""; display: block; width: 36px; height: 4px; margin: 0 auto; border-radius: 2px; background: var(--line-strong); }
+}
 #unlock { margin-top: 10px; }
 #unlock[hidden] { display: none; }
 .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -75,6 +119,7 @@ button:focus-visible, .file:focus-within { outline: 3px solid var(--accent); out
     <canvas id="patches" aria-hidden="true" hidden></canvas>
     <div id="badge" class="badge">AI CLONE</div>
   </div>
+  <div id="speak" class="speak" aria-hidden="true"><i></i></div>
   <div id="controls" class="controls">
     <label for="text" class="vh">Text for the clone to say</label>
     <textarea id="text" rows="2" placeholder="Type something for the clone to say, then press Say it"></textarea>
@@ -88,7 +133,9 @@ button:focus-visible, .file:focus-within { outline: 3px solid var(--accent); out
     <button id="unlock" type="button" hidden>Turn on sound</button>
     <p id="status" class="status" role="status" aria-live="polite"></p>
   </div>
-  <section id="info" class="info" hidden aria-label="Consent record">
+  <div id="scrim" class="scrim" hidden></div>
+  <section id="info" class="info" hidden aria-label="Consent record" tabindex="-1">
+    <div class="grab" id="grab" aria-hidden="true"></div>
     <h2>About This Clone</h2>
     <dl>
       <dt>Person</dt><dd id="infoName"></dd>
@@ -109,6 +156,7 @@ button:focus-visible, .file:focus-within { outline: 3px solid var(--accent); out
 <script>
 (function () {
 'use strict';
+/*__SELFCLONE_FLUID__*/
 /*__SELFCLONE_GEOMETRY__*/
 /*__SELFCLONE_RUNTIME__*/
 })();

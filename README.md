@@ -20,6 +20,14 @@
   </picture>
 </p>
 
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/media/app-dark.webp">
+    <source media="(prefers-color-scheme: light)" srcset="docs/media/app-light.webp">
+    <img src="docs/media/app-light.webp" width="100%" alt="The Can You Tell page from the Maya example after the first pick, with the chosen reply outlined, the real one tagged Real, the clone's tagged AI clone, and the verdict that the clone fooled the player.">
+  </picture>
+</p>
+
 selfclone is a Claude Code skill, and an agent skill that also runs in Codex and Cursor. Give it your own chat exports. It distills them into a persona skill that writes the way you write, gives that persona an offline talking face made from a 10-second clip (or one selfie), and measures how close the clone gets with a score computed by counting, not by asking a model to grade itself. Privacy-first: the tool runs on your computer, and Claude reads only the scrubbed distill pack it writes.
 
 The face in these images is the Mona Lisa, a public domain painting used as the test face. selfclone never ships or tests with photos or video of living people.

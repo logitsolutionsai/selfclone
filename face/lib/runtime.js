@@ -37,10 +37,10 @@ if (OPT.exportShape) {
   st.textContent = `html,body{background:${bg} !important;padding:0 !important;margin:0 !important;overflow:hidden}` +
     'main{max-width:none !important;margin:0 !important}' +
     `.stage{width:100vw !important;max-width:none !important;height:100vh;border-radius:${OPT.exportShape === 'circle' ? '50%' : '0'} !important;box-shadow:none !important;background:${bg} !important}` +
-    '#controls,#info{display:none !important}' +
+    '#controls,#info,#speak,#scrim{display:none !important}' +
     `.badge.export{left:${((100 * chin[0]) / S).toFixed(2)}%;top:${((100 * chin[1]) / S).toFixed(2)}%;transform:translate(-50%,-50%);` +
-    'font-size:max(12px,4.4vw);letter-spacing:.09em;padding:.32em .62em;border-radius:.42em;line-height:1.15;white-space:nowrap;' +
-    'box-shadow:0 0 0 max(1.5px,.25vw) rgba(255,255,255,.92),0 1px 4px rgba(0,0,0,.4)}';
+    'font-size:max(12px,4.4vw);letter-spacing:.09em;padding:.36em .8em;border-radius:999px;line-height:1.15;white-space:nowrap;' +
+    'box-shadow:0 0 0 max(1px,.21vw) rgba(255,255,255,.25)}';
   document.head.appendChild(st);
 }
 const cavity = document.getElementById('cavity');
@@ -1111,6 +1111,7 @@ async function sayAudio(src) {
     if (speech && speech.node === node) endSpeech();
   };
   node.start();
+  speech.startedAt = ctx.currentTime;
   setStatus(ctx.state === 'running' ? 'Playing audio.' : 'Click the page once to allow sound, then play again.');
   return done;
 }
@@ -1459,6 +1460,185 @@ function fillInfo() {
   set('infoGlasses', DATA.glasses ? 'Yes (blinking turned off)' : 'No');
 }
 
+// ---- page UI: the About sheet and the speaking line (springs from fluid.js) ----
+/** How far through the current speech we are, 0 to 1, or null when the clone is not speaking. */
+function speechProgress() {
+  if (!speech) return null;
+  if (speech.kind === 'text') return speech.t0 == null ? 0 : clamp((performance.now() - speech.t0 + speech.offset) / Math.max(1, speech.tl.total), 0, 1);
+  if (speech.kind === 'audio') return speech.startedAt == null || !audioCtx ? 0 : clamp((audioCtx.currentTime - speech.startedAt) / Math.max(0.01, speech.duration), 0, 1);
+  if (speech.kind === 'features') return clamp((performance.now() - speech.t0) / Math.max(1, speech.features.rms.length * speech.features.hop * 1000), 0, 1);
+  return null;
+}
+
+/** A thin ink line under the face that tracks the speech 1:1 and fades in and out with it. */
+function wireSpeakLine() {
+  const line = document.getElementById('speak');
+  if (!line) return;
+  const bar = line.firstElementChild;
+  const fade = Fluid.spring({ value: 0, response: 0.3, damping: 1, onUpdate: (v) => (line.style.opacity = String(clamp(v, 0, 1))) });
+  let shown = false;
+  let last = -1;
+  const tick = () => {
+    const p = speechProgress();
+    if (p != null) {
+      if (!shown) {
+        shown = true;
+        fade.to(1);
+      }
+      const q = Math.round(p * 1000) / 1000;
+      if (q !== last) {
+        last = q;
+        bar.style.transform = `scaleX(${q})`;
+      }
+    } else if (shown) {
+      shown = false;
+      fade.to(0);
+    }
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+/**
+ * About this clone: a solid sheet that grows out of its button (scale 0.96 to 1, 8 px of travel, damping 0.8,
+ * response 0.3) and closes back into it. Under 600 px wide it is a bottom sheet over a scrim, which the grab
+ * bar drags 1:1 (rubber band above open); on release the velocity is projected, the sheet closes if it would
+ * come to rest past 40% of its height, and the release velocity is handed to the spring.
+ */
+function wireAbout(btn, sheet) {
+  const scrim = document.getElementById('scrim');
+  const grab = document.getElementById('grab');
+  const narrow = matchMedia('(max-width: 599.98px)');
+  const SHEET = { response: 0.3, damping: 0.8 }; // opening bounces slightly
+  const SETTLE = { response: 0.3, damping: 1 }; // closing does not
+  let open = false;
+  let mode = null; // 'pop' (anchored to the button) or 'sheet' (bottom sheet)
+  let dir = 1; // +1 when the popover sits above the button (it rises out of it), -1 below
+  let H = 1;
+  const finishClose = () => {
+    if (open) return;
+    sheet.hidden = true;
+    scrim.hidden = true;
+    sheet.style.transform = sheet.style.opacity = scrim.style.opacity = '';
+    mode = null;
+  };
+  const pop = Fluid.spring({
+    value: 0,
+    ...SHEET,
+    onUpdate: (p) => {
+      sheet.style.opacity = String(clamp(p, 0, 1));
+      sheet.style.transform = `translateY(${(dir * 8 * (1 - p)).toFixed(2)}px) scale(${(0.96 + 0.04 * p).toFixed(4)})`;
+    },
+    onRest: () => mode === 'pop' && finishClose(),
+  });
+  const drag = Fluid.spring({
+    value: 0,
+    ...SHEET,
+    onUpdate: (y) => {
+      sheet.style.transform = `translateY(${y.toFixed(2)}px)`;
+      scrim.style.opacity = String(clamp(1 - y / H, 0, 1));
+    },
+    onRest: () => mode === 'sheet' && finishClose(),
+  });
+  // Below the button when it fits, otherwise above; transform-origin on the button.
+  const place = () => {
+    const r = btn.getBoundingClientRect();
+    const w = sheet.offsetWidth;
+    const h = sheet.offsetHeight;
+    const below = r.bottom + 8 + h <= innerHeight - 16 || r.top - 8 - h < 16;
+    const top = below ? Math.min(r.bottom + 8, Math.max(16, innerHeight - 16 - h)) : r.top - 8 - h;
+    const left = clamp(r.left, 16, Math.max(16, innerWidth - 16 - w));
+    dir = below ? -1 : 1;
+    sheet.style.left = `${Math.round(left)}px`;
+    sheet.style.top = `${Math.round(top)}px`;
+    sheet.style.transformOrigin = `${Math.round(r.left + r.width / 2 - left)}px ${Math.round((below ? r.bottom : r.top) - top)}px`;
+  };
+  const show = () => {
+    const visible = !sheet.hidden;
+    open = true;
+    btn.setAttribute('aria-expanded', 'true');
+    sheet.hidden = false;
+    const want = narrow.matches ? 'sheet' : 'pop';
+    if (visible && mode !== want) {
+      pop.stop();
+      drag.stop();
+    }
+    if (want === 'sheet') {
+      sheet.style.left = sheet.style.top = sheet.style.transformOrigin = '';
+      scrim.hidden = false;
+      H = Math.max(1, sheet.offsetHeight);
+      if (!visible || mode !== 'sheet') drag.set(H);
+      mode = 'sheet';
+      drag.to(0, SHEET);
+    } else {
+      place();
+      if (!visible || mode !== 'pop') pop.set(0);
+      mode = 'pop';
+      pop.to(1, SHEET);
+    }
+    sheet.focus({ preventScroll: true });
+  };
+  const hide = (o) => {
+    if (!open) return;
+    open = false;
+    btn.setAttribute('aria-expanded', 'false');
+    if (sheet.contains(document.activeElement)) btn.focus({ preventScroll: true });
+    if (mode === 'sheet') drag.to(H, o || SETTLE);
+    else pop.to(0, SETTLE);
+  };
+  btn.addEventListener('click', () => (open ? hide() : show()));
+  scrim.addEventListener('click', () => hide());
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && open) hide();
+  });
+  document.addEventListener('pointerdown', (e) => {
+    if (open && mode === 'pop' && !sheet.contains(e.target) && !btn.contains(e.target)) hide();
+  }, true);
+  const replace = () => {
+    if (sheet.hidden) return;
+    if (narrow.matches !== (mode === 'sheet')) {
+      pop.stop();
+      drag.stop();
+      const was = open;
+      open = false;
+      finishClose();
+      if (was) show();
+    } else if (mode === 'pop') place();
+    else H = Math.max(1, sheet.offsetHeight);
+  };
+  addEventListener('resize', replace);
+  addEventListener('scroll', () => mode === 'pop' && !sheet.hidden && place(), { passive: true });
+
+  // Drag to dismiss (bottom sheet only): pointer capture, 1:1 tracking, rubber band above open, velocity handoff.
+  const vt = Fluid.velocityTracker();
+  let grip = null;
+  grab.addEventListener('pointerdown', (e) => {
+    if (mode !== 'sheet' || !open || e.button > 0) return;
+    grab.setPointerCapture(e.pointerId);
+    drag.stop();
+    grip = { id: e.pointerId, y0: e.clientY, from: drag.value };
+    vt.reset();
+    vt.add(drag.value);
+  });
+  grab.addEventListener('pointermove', (e) => {
+    if (!grip || e.pointerId !== grip.id) return;
+    let y = grip.from + (e.clientY - grip.y0);
+    if (y < 0) y = Fluid.rubber(y, H);
+    drag.set(y);
+    vt.add(y);
+  });
+  const release = (e) => {
+    if (!grip || e.pointerId !== grip.id) return;
+    grip = null;
+    const v = vt.get();
+    const fling = { velocity: v, response: 0.3, damping: Math.abs(v) > 300 ? 0.8 : 1 };
+    if (drag.value + Fluid.project(v) > 0.4 * H) hide(fling);
+    else drag.to(0, fling);
+  };
+  grab.addEventListener('pointerup', release);
+  grab.addEventListener('pointercancel', release);
+}
+
 function wireUI() {
   const text = document.getElementById('text');
   const sayBtn = document.getElementById('sayBtn');
@@ -1476,10 +1656,9 @@ function wireUI() {
     if (file.files && file.files[0]) sayAudio(file.files[0]);
     file.value = '';
   });
-  infoBtn.addEventListener('click', () => {
-    info.hidden = !info.hidden;
-    infoBtn.setAttribute('aria-expanded', String(!info.hidden));
-  });
+  for (const b of document.querySelectorAll('#controls button, #controls .file')) Fluid.pressable(b);
+  wireAbout(infoBtn, info);
+  wireSpeakLine();
   if (window.__SELFCLONE_LIVE__ && unlock) {
     unlock.hidden = false;
     unlock.addEventListener('click', () => {

@@ -178,11 +178,13 @@ export function htmlFromData(data) {
   const template = fs.readFileSync(path.join(FACE_DIR, 'avatar.html'), 'utf8');
   const geometry = stripExports(fs.readFileSync(path.join(FACE_DIR, 'lib', 'geometry.js'), 'utf8'));
   const runtime = fs.readFileSync(path.join(FACE_DIR, 'lib', 'runtime.js'), 'utf8');
+  const fluid = fs.readFileSync(path.join(FACE_DIR, 'lib', 'fluid.js'), 'utf8');
   const name = data.consent && data.consent.name;
   const title = name ? `${name}: AI clone` : 'AI clone';
   return template
     .replace('__SELFCLONE_TITLE__', () => escapeHtml(title))
     .replace('"__SELFCLONE_DATA__"', () => jsonForScript(data))
+    .replace('/*__SELFCLONE_FLUID__*/', () => fluid.replace(/<\/script/gi, '<\\/script'))
     .replace('/*__SELFCLONE_GEOMETRY__*/', () => geometry.replace(/<\/script/gi, '<\\/script'))
     .replace('/*__SELFCLONE_RUNTIME__*/', () => runtime.replace(/<\/script/gi, '<\\/script'));
 }

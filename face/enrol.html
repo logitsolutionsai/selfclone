@@ -8,53 +8,78 @@
 <title>selfclone: Enrol Your Face</title>
 <style>
 :root {
-  --bg: #f4f6f9; --panel: #ffffff; --ink: #14161a; --muted: #59606b; --line: #dde2e8;
-  --accent: #0065fd; --accent-ink: #ffffff; --good: #0f7b3f; --bad: #b42318; --warn: #9a5b00;
+  --bg: #f7f7f5; --surface: #ffffff; --surface-2: #f0f0ed; --line: #e3e3df; --line-strong: #c9c9c3;
+  --ink: #111110; --ink-2: #3a3a37; --muted: #6f6f69; --faint: #a3a39c;
+  --accent: #0065fd; --accent-press: #0654c8; --on-accent: #ffffff;
 }
 @media (prefers-color-scheme: dark) {
-  :root { --bg: #0e1014; --panel: #171a20; --ink: #eef1f5; --muted: #a3aab5; --line: #2a2f37; --accent: #5b9dff; --accent-ink: #0b0d10; --good: #4cc38a; --bad: #ff7b72; --warn: #e3b341; }
+  :root {
+    --bg: #0e0e0d; --surface: #171716; --surface-2: #1f1f1d; --line: #2b2b29; --line-strong: #3d3d3a;
+    --ink: #f4f4f2; --ink-2: #d6d6d2; --muted: #9a9a94; --faint: #6a6a65;
+    --accent: #5b9cff; --accent-press: #3f86ff; --on-accent: #0e0e0d;
+  }
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--bg); color: var(--ink); }
-body { font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; padding: 16px; }
+body { font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; padding: 24px 16px; -webkit-tap-highlight-color: transparent; }
+::selection { background: var(--accent); color: var(--on-accent); }
 main { max-width: 760px; margin: 0 auto; }
-h1 { font-size: 1.5rem; margin: 4px 0; }
-h2 { font-size: 1.1rem; margin: 0 0 8px; }
-.lead { color: var(--muted); margin: 0 0 16px; }
-.card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
-.cam { position: relative; width: 100%; aspect-ratio: 4 / 3; background: #000; border-radius: 12px; overflow: hidden; }
+h1 { font-size: 1.75rem; line-height: 1.2; letter-spacing: -0.01em; margin: 0 0 6px; }
+h2 { font-size: 1.05rem; margin: 0 0 12px; }
+.lead { color: var(--muted); margin: 0 0 24px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+.cam { position: relative; width: 100%; aspect-ratio: 4 / 3; background: #111110; border-radius: 6px; overflow: hidden; }
 .cam video, .cam canvas.preview { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .cam video { transform: scaleX(-1); }
 .cam svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-.checks { list-style: none; padding: 0; margin: 12px 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 6px 14px; }
-.checks li { display: flex; gap: 8px; align-items: center; }
-.dot { width: 12px; height: 12px; border-radius: 50%; background: var(--line); flex: none; }
-.ok .dot { background: var(--good); }
-.no .dot { background: var(--bad); }
-.warn .dot { background: var(--warn); }
-.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+/* Live checks: status by shape and weight. Not checked yet: an empty dashed ring (L0). Passing: a check mark in
+   the muted grey. Failing: a cross in a solid ink chip (L3) and the line in full ink. Glasses: an outlined ink
+   chip (L2) with an exclamation mark. */
+.checks { list-style: none; padding: 0; margin: 12px 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 8px 16px; }
+.checks li { display: flex; gap: 8px; align-items: center; color: var(--muted); }
+.mark { width: 18px; height: 18px; flex: none; display: grid; place-items: center; border-radius: 999px; border: 1px dashed var(--line-strong); }
+.mark svg { width: 12px; height: 12px; display: none; }
+.checks li.ok { color: var(--ink-2); }
+.ok .mark { border: 0; color: var(--muted); }
+.ok .mark svg { width: 16px; height: 16px; }
+.ok .mark .i-ok, .no .mark .i-no, .warn .mark .i-warn { display: block; }
+.checks li.no { color: var(--ink); font-weight: 600; }
+.no .mark { border: 0; background: var(--ink); color: var(--bg); }
+.checks li.warn { color: var(--ink); }
+.warn .mark { border: 1.5px solid var(--ink); color: var(--ink); }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 16px; }
 button {
-  font: inherit; font-weight: 600; cursor: pointer; border-radius: 10px; padding: 9px 16px;
-  border: 1.5px solid var(--accent); background: var(--accent); color: var(--accent-ink);
+  font: inherit; font-weight: 600; cursor: pointer; border-radius: 6px; height: 38px; padding: 0 16px;
+  border: 1px solid var(--accent); background: var(--accent); color: var(--on-accent); transition: background-color .15s, border-color .15s;
 }
-button.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
-button:disabled { opacity: .45; cursor: not-allowed; }
-button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
-label.block { display: block; margin: 10px 0 4px; font-weight: 600; }
-input[type=text] { width: 100%; padding: 9px 12px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--panel); color: var(--ink); font: inherit; }
-.consent { display: flex; gap: 10px; align-items: flex-start; margin-top: 8px; }
-.consent input { margin-top: 4px; width: 18px; height: 18px; flex: none; }
-.note { color: var(--muted); font-size: .9rem; }
+button:hover:not(:disabled) { background: var(--accent-press); border-color: var(--accent-press); }
+button.ghost, button.ghost:hover:not(:disabled) { background: var(--surface); color: var(--ink); border-color: var(--line); }
+button.ghost:hover:not(:disabled) { border-color: var(--line-strong); }
+button:disabled, button:disabled:hover { cursor: not-allowed; background: var(--surface-2); border-color: var(--line); color: var(--faint); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+label.block { display: block; margin: 16px 0 4px; font-weight: 600; }
+input[type=text] { width: 100%; height: 40px; padding: 0 12px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; }
+input[type=text]::placeholder { color: var(--muted); }
+input[type=checkbox] { accent-color: var(--accent); }
+.consent { display: flex; gap: 10px; align-items: flex-start; margin-top: 10px; color: var(--ink-2); }
+.consent input { margin-top: 3px; width: 18px; height: 18px; flex: none; }
+.note { color: var(--muted); font-size: .875rem; }
 .msg { min-height: 1.4em; margin: 10px 0 0; }
-.msg.err { color: var(--bad); }
-.thumb { width: 160px; height: 160px; border-radius: 10px; object-fit: cover; border: 1px solid var(--line); }
-.clipbox { margin-top: 12px; border: 1.5px solid var(--accent); border-radius: 12px; padding: 12px 14px; }
+.msg.err { color: var(--ink); font-weight: 600; display: flex; gap: 8px; align-items: flex-start; }
+.msg.err::before { content: "\2715"; flex: none; display: grid; place-items: center; width: 18px; height: 18px; margin-top: 2px; border-radius: 999px; background: var(--ink); color: var(--bg); font-size: 10px; line-height: 1; }
+.thumb { width: 160px; height: 160px; border-radius: 6px; object-fit: cover; border: 1px solid var(--line); }
+.clipbox { margin-top: 12px; background: var(--surface-2); border-radius: 10px; padding: 12px 14px; }
 .clipbox > :first-child { margin-top: 0; }
 .clipbox > :last-child { margin-bottom: 0; }
 .phrase { font-size: 1.35rem; line-height: 1.35; font-weight: 600; margin: 4px 0 8px; }
-.countdown { position: absolute; inset: 0; display: grid; place-items: center; font-size: 5rem; font-weight: 700; color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,.6); pointer-events: none; }
-.rec { position: absolute; top: 10px; right: 10px; background: #d92d20; color: #fff; font-weight: 700; font-size: 12px; letter-spacing: .06em; padding: 4px 8px; border-radius: 6px; }
-progress { width: 100%; height: 10px; accent-color: var(--accent); }
+.countdown { position: absolute; inset: 0; display: grid; place-items: center; font-size: 5rem; font-weight: 700; color: #ffffff; text-shadow: 0 2px 12px rgba(0,0,0,.6); pointer-events: none; font-variant-numeric: tabular-nums; }
+.rec {
+  position: absolute; top: 10px; right: 10px; display: flex; align-items: center; gap: 6px;
+  background: #111110; color: #ffffff; box-shadow: 0 0 0 1px rgba(255,255,255,.25);
+  font-weight: 700; font-size: 11px; line-height: 1; letter-spacing: .06em; padding: 6px 10px; border-radius: 999px;
+}
+.rec::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #ffffff; }
+progress { width: 100%; height: 6px; accent-color: var(--ink); }
 [hidden] { display: none !important; }
 </style>
 </head>
@@ -73,13 +98,13 @@ progress { width: 100%; height: 10px; accent-color: var(--accent); }
       <div id="recBadge" class="rec" hidden>REC (memory only)</div>
     </div>
     <ul class="checks" id="checks" aria-live="polite">
-      <li id="c-face"><span class="dot"></span>Exactly one face</li>
-      <li id="c-pose"><span class="dot"></span>Facing the camera</li>
-      <li id="c-mouth"><span class="dot"></span>Mouth closed and relaxed</li>
-      <li id="c-eyes"><span class="dot"></span>Eyes open</li>
-      <li id="c-res"><span class="dot"></span>Close enough to the camera</li>
-      <li id="c-light"><span class="dot"></span>Enough light</li>
-      <li id="c-glasses"><span class="dot"></span>Glasses</li>
+      <li id="c-face" data-status="pending"><span class="mark" aria-hidden="true"><svg class="i-ok" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg><svg class="i-no" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3l6 6M9 3l-6 6"/></svg><svg class="i-warn" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2.5v4.5"/><path d="M6 9.6v.01"/></svg></span>Exactly one face</li>
+      <li id="c-pose" data-status="pending"><span class="mark" aria-hidden="true"><svg class="i-ok" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg><svg class="i-no" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3l6 6M9 3l-6 6"/></svg><svg class="i-warn" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2.5v4.5"/><path d="M6 9.6v.01"/></svg></span>Facing the camera</li>
+      <li id="c-mouth" data-status="pending"><span class="mark" aria-hidden="true"><svg class="i-ok" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg><svg class="i-no" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3l6 6M9 3l-6 6"/></svg><svg class="i-warn" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2.5v4.5"/><path d="M6 9.6v.01"/></svg></span>Mouth closed and relaxed</li>
+      <li id="c-eyes" data-status="pending"><span class="mark" aria-hidden="true"><svg class="i-ok" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg><svg class="i-no" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3l6 6M9 3l-6 6"/></svg><svg class="i-warn" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2.5v4.5"/><path d="M6 9.6v.01"/></svg></span>Eyes open</li>
+      <li id="c-res" data-status="pending"><span class="mark" aria-hidden="true"><svg class="i-ok" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg><svg class="i-no" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3l6 6M9 3l-6 6"/></svg><svg class="i-warn" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2.5v4.5"/><path d="M6 9.6v.01"/></svg></span>Close enough to the camera</li>
+      <li id="c-light" data-status="pending"><span class="mark" aria-hidden="true"><svg class="i-ok" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg><svg class="i-no" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3l6 6M9 3l-6 6"/></svg><svg class="i-warn" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2.5v4.5"/><path d="M6 9.6v.01"/></svg></span>Enough light</li>
+      <li id="c-glasses" data-status="pending"><span class="mark" aria-hidden="true"><svg class="i-ok" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg><svg class="i-no" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3l6 6M9 3l-6 6"/></svg><svg class="i-warn" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2.5v4.5"/><path d="M6 9.6v.01"/></svg></span>Glasses</li>
     </ul>
     <div class="row">
       <button id="startBtn" type="button">Start camera</button>
@@ -120,6 +145,97 @@ progress { width: 100%; height: 10px; accent-color: var(--accent); }
     <p class="note">Make it speak from Claude Code or a terminal with <code>selfclone serve</code> and <code>selfclone say "hello"</code>.</p>
   </section>
 </main>
+<script>
+/* fluid.js: interruptible springs and pointer helpers for offline pages. No dependencies, about 2 KB minified.
+ * Inline a copy into each generated page. Springs use Apple's response/damping model:
+ *   response = period of the undamped spring in seconds; damping = damping ratio (1 = no bounce, 0.8 = slight bounce).
+ *   Move or reposition: damping 1, response 0.4. Drawer or sheet: damping 0.8, response 0.3. Press: damping 1, response 0.18.
+ * Every spring keeps its live value and velocity, so a new target retargets from where it is now (interruptible).
+ * Under prefers-reduced-motion every spring jumps straight to its target.
+ */
+var Fluid = (function () {
+  'use strict';
+  var mq = typeof matchMedia === 'function' ? matchMedia('(prefers-reduced-motion: reduce)') : null;
+  function reduce() { return !!(mq && mq.matches); }
+
+  function spring(opts) {
+    opts = opts || {};
+    var x = opts.value || 0, v = 0, target = x, raf = 0, last = 0, k = 0, c = 0;
+    var onUpdate = opts.onUpdate, onRest = opts.onRest, eps = opts.epsilon || 0.001;
+    var response = opts.response || 0.4, damping = opts.damping == null ? 1 : opts.damping;
+    function params(r, d) { k = Math.pow((2 * Math.PI) / r, 2); c = (4 * Math.PI * d) / r; }
+    params(response, damping);
+    function emit() { if (onUpdate) onUpdate(x, v); }
+    function settle() { x = target; v = 0; raf = 0; emit(); if (onRest) onRest(x); }
+    function step(t) {
+      var dt = (t - last) / 1000;
+      if (!(dt > 0)) dt = 1 / 60; // the first frame's timestamp can be earlier than the call to to()
+      if (dt > 0.064) dt = 0.064;
+      last = t;
+      var n = Math.max(1, Math.ceil(dt * 240)), h = dt / n;
+      for (var i = 0; i < n; i++) { var a = -k * (x - target) - c * v; v += a * h; x += v * h; }
+      if (Math.abs(x - target) < eps && Math.abs(v) < eps * 10) return settle();
+      emit();
+      raf = requestAnimationFrame(step);
+    }
+    var api = {
+      get value() { return x; },
+      get velocity() { return v; },
+      get target() { return target; },
+      /** Animate to t. opts.velocity hands off a release velocity (units per second). */
+      to: function (t, o) {
+        o = o || {};
+        target = t;
+        if (o.velocity != null) v = o.velocity;
+        if (o.response || o.damping != null) params(o.response || response, o.damping == null ? damping : o.damping);
+        if (reduce()) { cancelAnimationFrame(raf); settle(); return api; }
+        if (!raf) { last = performance.now(); raf = requestAnimationFrame(step); }
+        return api;
+      },
+      /** Jump without animating (direct manipulation: the finger owns the value). */
+      set: function (val) { cancelAnimationFrame(raf); raf = 0; x = target = val; v = 0; emit(); return api; },
+      stop: function () { cancelAnimationFrame(raf); raf = 0; return api; },
+    };
+    return api;
+  }
+
+  /** Velocity over the last 100 ms of samples, in units per second. */
+  function velocityTracker() {
+    var s = [];
+    return {
+      add: function (p, t) { t = t == null ? performance.now() : t; s.push([p, t]); while (s.length > 2 && t - s[0][1] > 100) s.shift(); },
+      get: function () { if (s.length < 2) return 0; var a = s[0], b = s[s.length - 1]; return b[1] > a[1] ? (b[0] - a[0]) / ((b[1] - a[1]) / 1000) : 0; },
+      reset: function () { s.length = 0; },
+    };
+  }
+
+  /** Where a flick comes to rest under exponential decay (deceleration rate per millisecond, 0.998 = normal). */
+  function project(velocity, rate) { rate = rate || 0.998; return ((velocity / 1000) * rate) / (1 - rate); }
+
+  /** Resistance past an edge: overshoot in px, dimension = track length in px. Returns the drawn overshoot. */
+  function rubber(overshoot, dimension, coeff) {
+    coeff = coeff || 0.55;
+    var sign = overshoot < 0 ? -1 : 1, o = Math.abs(overshoot);
+    return sign * (1 - 1 / ((o * coeff) / dimension + 1)) * dimension;
+  }
+
+  /** Press feedback on pointer-down. Scales el with a spring; a move of more than 10 px cancels the press. */
+  function pressable(el, o) {
+    o = o || {};
+    var down = o.scale || 0.97, start = null, sp = spring({ value: 1, response: 0.18, damping: 1, onUpdate: function (s) {
+      el.style.transform = s === 1 ? '' : 'scale(' + s.toFixed(4) + ')';
+    } });
+    function release() { start = null; sp.to(1, { response: 0.3, damping: 0.8 }); }
+    el.addEventListener('pointerdown', function (e) { if (e.button > 0) return; start = [e.clientX, e.clientY]; sp.to(down, { response: 0.18, damping: 1 }); });
+    el.addEventListener('pointermove', function (e) { if (start && Math.hypot(e.clientX - start[0], e.clientY - start[1]) > 10) release(); });
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (n) { el.addEventListener(n, function () { if (start) release(); }); });
+    return sp;
+  }
+
+  return { spring: spring, velocityTracker: velocityTracker, project: project, rubber: rubber, pressable: pressable, reduce: reduce };
+})();
+if (typeof module !== 'undefined') module.exports = Fluid;
+</script>
 <script type="module">
 import { loadLandmarker, checkFrame, makeBakeRecord, ClipCollector, clipBakeRecord } from '/face/lib/detect.js';
 import { ENROL_PHRASE, CLIP_SECONDS } from '/face/lib/clip.js';
@@ -137,9 +253,11 @@ let counting = false;
 const work = document.createElement('canvas');
 const wctx = work.getContext('2d', { willReadFrequently: true });
 
+// Each check carries its state as a class (ok, no, warn) and as data-status (pass, fail, warn, pending).
 function mark(id, cls, text) {
   const li = $(id);
   li.className = cls;
+  li.dataset.status = { ok: 'pass', no: 'fail', warn: 'warn' }[cls] || 'pending';
   if (text) li.lastChild.textContent = text;
 }
 
@@ -358,6 +476,8 @@ $('retakeBtn').addEventListener('click', async () => {
   $('clipBtn').disabled = true;
   await start();
 });
+// Press feedback on every button.
+for (const b of document.querySelectorAll('button')) Fluid.pressable(b);
 window.__enrolReady = true;
 </script>
 </body>

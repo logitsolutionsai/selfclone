@@ -97,19 +97,29 @@ test('provenance comment names the tool, says it is an AI clone, and quotes the 
   assert.match(c, /"This is my own face\. Test Person" \(2026-11-14\)/);
 });
 
-test('label check: finds the red label with white lettering, and nothing in its place', () => {
+test('label check: finds the near-black label with white lettering, and nothing in its place', () => {
   const w = 40;
   const h = 20;
   const img = { width: w, height: h, data: Buffer.alloc(w * h * 4) };
   const fill = (fn) => {
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) img.data.set([...fn(x, y), 255], (y * w + x) * 4);
   };
-  fill((x, y) => (y > 6 && y < 13 && x % 4 === 0 ? [255, 255, 255] : [217, 45, 32]));
-  assert.ok(labelOk(labelCoverage(img, { x: 0, y: 0, width: w, height: h })));
+  const ok = () => labelOk(labelCoverage(img, { x: 0, y: 0, width: w, height: h }));
+  const letters = (bg) => (x, y) => (y > 6 && y < 13 && x % 4 === 0 ? [255, 255, 255] : bg);
+  fill(letters([17, 17, 16])); // the label: #111110 with white letters
+  assert.ok(ok());
+  fill((x, y) => (y > 6 && y < 13 && x % 4 === 0 ? [246, 250, 244] : [26, 22, 25])); // the same after video encoding
+  assert.ok(ok());
   fill(() => [190, 150, 90]); // skin, no label
-  assert.ok(!labelOk(labelCoverage(img, { x: 0, y: 0, width: w, height: h })));
-  fill(() => [217, 45, 32]); // a red box with no lettering is not a label
-  assert.ok(!labelOk(labelCoverage(img, { x: 0, y: 0, width: w, height: h })));
+  assert.ok(!ok());
+  fill(() => [17, 17, 16]); // a near-black box with no lettering is not a label
+  assert.ok(!ok());
+  fill(letters([52, 32, 24])); // dark skin or a beard with bright highlights is not the label's neutral near-black
+  assert.ok(!ok());
+  fill(letters([217, 45, 32])); // nor is the old red label
+  assert.ok(!ok());
+  fill(() => [255, 255, 255]); // nor a white box
+  assert.ok(!ok());
 });
 
 test('CLI: selfclone video refuses without --audio, with text, and without a consented avatar', () => {

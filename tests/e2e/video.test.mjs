@@ -93,7 +93,7 @@ test('video: a transparent round WebM at the smallest size, labelled on every fr
   const [first, mid, last] = frames(file, 240, [0, Math.floor(n / 2), n - 1], true);
   for (const [name, f] of [['first', first], ['middle', mid], ['last', last]]) {
     const c = labelCoverage(f, box);
-    t.diagnostic(`${name} frame label: red ${c.red.toFixed(2)}, white ${c.white.toFixed(2)}`);
+    t.diagnostic(`${name} frame label: fill ${c.fill.toFixed(2)}, white ${c.white.toFixed(2)}`);
     assert.ok(labelOk(c), `label in the ${name} frame`);
   }
   // Transparent outside the circle, opaque inside.
@@ -108,10 +108,14 @@ test('video: a transparent round WebM at the smallest size, labelled on every fr
   const pairs = [[13, 20], [28, 35], [43, 50]];
   const got = frames(file, 240, pairs.flat(), true);
   const m = regionAt(240, [61, 291, 0, 17, 37, 267, 84, 314, 13, 14], 0.1);
+  // The near-black chin label (and its 1 px ring) can reach into the bottom of that box; it does not move, so
+  // its pixels are left out of the count.
+  const inLabel = (x, y) => x >= box.x - 2 && x < box.x + box.width + 2 && y >= box.y - 2 && y < box.y + box.height + 2;
   const dark = (f) => {
     let c = 0;
     for (let y = m.y; y < m.y + m.h; y++) {
       for (let x = m.x; x < m.x + m.w; x++) {
+        if (inLabel(x, y)) continue;
         const o = (y * 240 + x) * 4;
         if (0.299 * f.data[o] + 0.587 * f.data[o + 1] + 0.114 * f.data[o + 2] < 60) c++;
       }

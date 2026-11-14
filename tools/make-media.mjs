@@ -3,6 +3,8 @@
 //                       under a fake clock, assembled with ffmpeg)
 //   avatar-page.png     the avatar page with its controls and consent panel
 //   game.png            the Can You Tell page from the fictional example
+//   app-light.webp,     the Can You Tell page alone at 1280 x 800 and 2x, light and dark, round 1 after the
+//   app-dark.webp       clone's reply was picked (the README's app image, the same state as the hero)
 //   enrol.png           the webcam enrolment page recording a clip (from the e2e evidence, if present)
 // Run: npm run gif   (needs Chrome or Edge, and ffmpeg on PATH)
 //      node tools/make-media.mjs --avatar-only   (just avatar-talking.gif and avatar-page.png)
@@ -132,16 +134,18 @@ try {
     // few dark mouth tones get their own colours instead of being mapped to skin; a fine ordered dither
     // keeps the skin from banding without the noise (and size) of error diffusion.
     'scale=320:-1:flags=lanczos,split=3[x][y][z];[z]crop=70:40:115:168,scale=320:-1[m];[x][m]vstack[pin];' +
-    '[pin]palettegen=max_colors=120:stats_mode=full[p];[y][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle',
+    '[pin]palettegen=max_colors=100:stats_mode=full[p];[y][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle',
     '-loop', '0', gif,
   ], { encoding: 'utf8' });
   if (ff.status !== 0) throw new Error(`ffmpeg failed: ${ff.stderr}`);
   console.log(`GIF: ${n} frames captured, ${n - FADE} in the loop (${(((n - FADE) * STEP) / 1000).toFixed(1)} s), ${Math.round(fs.statSync(gif).size / 1024)} KB`);
 
   // ---- avatar page with controls and the consent panel open, caught mid-word ----
-  const p2 = await openAvatar(browser, { width: 600, height: 980 }, '?tts=0&idle=0&blink=0');
+  // Tall enough that About opens below its button, so the face stays in view; the shot ends under the panel.
+  const p2 = await openAvatar(browser, { width: 600, height: 1200 }, '?tts=0&idle=0&blink=0');
   await p2.page.fill('#text', 'Hello. I am an AI clone of a painting.');
   await p2.page.click('#infoBtn');
+  await p2.page.clock.runFor(800);
   await p2.page.evaluate(() => {
     window.selfclone.say('Hello. I am an AI clone of a painting.', { tts: false });
   });
@@ -150,7 +154,8 @@ try {
     const st = await p2.page.evaluate(() => window.selfclone.state());
     if (i > 10 && st.params.jaw > 0.4) break;
   }
-  await p2.page.screenshot({ path: path.join(MEDIA, 'avatar-page.png'), fullPage: true });
+  const bottom = await p2.page.evaluate(() => Math.ceil(Math.max(document.getElementById('info').getBoundingClientRect().bottom, document.getElementById('controls').getBoundingClientRect().bottom)) + 16);
+  await p2.page.screenshot({ path: path.join(MEDIA, 'avatar-page.png'), clip: { x: 0, y: 0, width: 600, height: bottom } });
   await p2.context.close();
 
   // ---- game page from the fictional example ----
@@ -160,8 +165,38 @@ try {
     const p3 = await ctx.newPage();
     await p3.setContent(fs.readFileSync(gameFile, 'utf8'));
     await p3.click('button.reply >> nth=1');
+    await p3.evaluate(() => document.activeElement && document.activeElement.blur());
+    await p3.mouse.move(2, 2);
+    await p3.waitForTimeout(800); // the tags and the verdict materialise on springs
     await p3.screenshot({ path: path.join(MEDIA, 'game.png') });
     await ctx.close();
+
+    // The README's app image: the page alone, cropped to its column, light and dark.
+    for (const scheme of ['light', 'dark']) {
+      const c = await browser.newContext({ viewport: { width: 1280, height: 800 }, colorScheme: scheme, deviceScaleFactor: 2 });
+      const p = await c.newPage();
+      await p.setContent(fs.readFileSync(gameFile, 'utf8'));
+      const real = await p.evaluate(() => JSON.parse(document.getElementById('rounds').textContent)[0].real);
+      await p.click(`button.reply >> nth=${1 - real}`);
+      await p.evaluate(() => document.activeElement && document.activeElement.blur());
+      await p.mouse.move(2, 2);
+      await p.waitForTimeout(800);
+      const clip = await p.evaluate(() => {
+        const m = document.querySelector('main').getBoundingClientRect();
+        const f = document.querySelector('footer').getBoundingClientRect();
+        return { x: Math.round(m.left - 48), y: 0, width: Math.round(m.width + 96), height: Math.min(800, Math.ceil(f.bottom + 32)) };
+      });
+      const png = path.join(WORK, `app-${scheme}.png`);
+      await p.screenshot({ path: png, clip });
+      await c.close();
+      const webp = path.join(MEDIA, `app-${scheme}.webp`);
+      for (const q of [90, 82, 74]) {
+        const r = spawnSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', png, '-c:v', 'libwebp', '-quality', String(q), '-compression_level', '6', webp], { encoding: 'utf8' });
+        if (r.status !== 0) throw new Error(`ffmpeg webp failed: ${r.stderr}`);
+        if (fs.statSync(webp).size < 300 * 1024) break;
+      }
+      if (fs.statSync(webp).size >= 300 * 1024) throw new Error(`${webp} is over 300 KB`);
+    }
   }
 } finally {
   await browser.close();

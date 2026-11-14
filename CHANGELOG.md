@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Changed
+
+- The avatar page, the Can You Tell page and the enrolment page use one neutral palette (warm greys) with a
+  single blue accent for buttons, links, focus and selection; no status is shown by colour. A passing check shows
+  a check mark, a failing one a cross in a solid chip. The AI CLONE badge, on the page and burned into videos, is
+  a near-black chip with white letters and a faint white ring in both themes, and the video's frame check now
+  looks for that near-black fill with white lettering.
+- Motion: buttons and reply cards react on pointer-down; game rounds slide out and in on springs that a second
+  press retargets; the game's progress bar is a scaleX spring; About opens as a sheet anchored to its button and,
+  under 600 px, as a bottom sheet you drag down to close; a thin line under the face tracks the speech. The
+  springs come from `face/lib/fluid.js`, inlined into each page, and every motion has a reduced-motion fallback.
+
 ### Added
 
 - `selfclone voicecheck <file|->`: "Does this sound like me?" Scores any draft against your training messages
