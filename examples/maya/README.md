@@ -19,7 +19,8 @@ and Priya Raman (who runs the studio co-op) are invented too. All 336 messages w
 | `workspace/bare-replies.json` | replies from a fresh subagent with no skill |
 | `workspace/report.md` | the score report |
 | `workspace/can-you-tell.html` | the game page |
-| `out/maya-okafor-clone/` | the clone skill, written by Claude following `SKILL.md` step 4 |
+| `out/maya-okafor-clone/` | the clone skill, written by Claude following `SKILL.md` step 4, with the reply, write, dev and ask me modes |
+| `out/maya-okafor-clone/export/` | the clone as ready-to-paste files, from `selfclone export` (system prompt, ChatGPT, Claude Project, AGENTS.md, `persona.json`) |
 
 The workspace includes `sealed.jsonl`, `train.jsonl` and `corpus.jsonl` so the run can be checked. In a real run
 they stay on your computer and the clone never reads them.
@@ -53,6 +54,23 @@ This is the first pass with no revisions. The drift table shows what to fix next
 replies against Maya's 27%, it always splits a reply into several lines (100% against 69%), and it never uses a
 full stop inside a message. The function-word part of the score did not separate the clone from the bare model
 here (20 short replies are too few words for it); the surface features did.
+
+## Voice Check
+
+`selfclone voicecheck` scores any text against her training messages. As sets of 20 replies (high confidence):
+
+```text
+node scripts/selfclone.mjs voicecheck examples/maya/workspace/clone-replies.json --dir examples/maya/workspace
+```
+
+| Text | Voice match |
+| --- | --- |
+| Her own 20 held-out replies | 100% |
+| The clone's 20 replies | 86% (drifts: laughs in 60% of replies against her 27%, splits every reply into lines) |
+| The bare model's 20 replies | 7% (capital starts, full stops, apostrophes) |
+| A formal 53-word paragraph by someone else | 25% (medium confidence) |
+
+The clone replies were written before the voice check existed, so the clone did not check them.
 
 ## Caveats
 

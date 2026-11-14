@@ -166,17 +166,37 @@ export function buildAvatarHtml({ bake, consent, glasses = false }) {
       : null,
     tool: { name: 'selfclone', version: VERSION, bakedAt: new Date().toISOString() },
   };
-  const template = fs.readFileSync(path.join(FACE_DIR, 'avatar.html'), 'utf8');
-  const geometry = stripExports(fs.readFileSync(path.join(FACE_DIR, 'lib', 'geometry.js'), 'utf8'));
-  const runtime = fs.readFileSync(path.join(FACE_DIR, 'lib', 'runtime.js'), 'utf8');
-  const title = c.name ? `${c.name}: AI clone` : 'AI clone';
-  const html = template
-    .replace('__SELFCLONE_TITLE__', () => escapeHtml(title))
-    .replace('"__SELFCLONE_DATA__"', () => jsonForScript(data))
-    .replace('/*__SELFCLONE_GEOMETRY__*/', () => geometry.replace(/<\/script/gi, '<\\/script'))
-    .replace('/*__SELFCLONE_RUNTIME__*/', () => runtime.replace(/<\/script/gi, '<\\/script'));
+  const html = htmlFromData(data);
   const clipInfo = clip
     ? { shapes: Object.keys(clip.shapes), blink: !!clip.blink, frames: clip.frames, bytes: Buffer.byteLength(JSON.stringify(clip)) }
     : null;
   return { html, triangles: triangles.length, points: points.length, landmarks: bake.landmarks.length, photoSha256, clip: clipInfo };
+}
+
+/** The avatar page for a data record, with the current template, geometry and runtime. */
+export function htmlFromData(data) {
+  const template = fs.readFileSync(path.join(FACE_DIR, 'avatar.html'), 'utf8');
+  const geometry = stripExports(fs.readFileSync(path.join(FACE_DIR, 'lib', 'geometry.js'), 'utf8'));
+  const runtime = fs.readFileSync(path.join(FACE_DIR, 'lib', 'runtime.js'), 'utf8');
+  const name = data.consent && data.consent.name;
+  const title = name ? `${name}: AI clone` : 'AI clone';
+  return template
+    .replace('__SELFCLONE_TITLE__', () => escapeHtml(title))
+    .replace('"__SELFCLONE_DATA__"', () => jsonForScript(data))
+    .replace('/*__SELFCLONE_GEOMETRY__*/', () => geometry.replace(/<\/script/gi, '<\\/script'))
+    .replace('/*__SELFCLONE_RUNTIME__*/', () => runtime.replace(/<\/script/gi, '<\\/script'));
+}
+
+/** The data record embedded in a baked avatar.html (throws if there is none). */
+export function readAvatarData(html) {
+  const m = String(html).match(/<script id="selfclone-data" type="application\/json">([\s\S]*?)<\/script>/);
+  if (!m) throw new Error('This file is not a selfclone avatar (no avatar data found).');
+  let data;
+  try {
+    data = JSON.parse(m[1]);
+  } catch {
+    throw new Error('The avatar data in this file is damaged (not valid JSON).');
+  }
+  if (!data || typeof data !== 'object') throw new Error('This file is the avatar template, not a baked avatar.');
+  return data;
 }

@@ -100,10 +100,15 @@ export function buildModel(refTexts, { n, seed = 'selfclone', B = BOOTSTRAP, voc
     gSd[w] = Math.max(std(xs, mu), 0.0005);
   }
   const model = { n: size, B, vocabKind: voc.kind, englishShare: voc.englishShare, vocab: used, fMu, fSd, gMu, gSd, featKeys };
-  const nullD = samples.map((s) => distanceParts(model, s.f, s.g).D);
+  const nullParts = samples.map((s) => distanceParts(model, s.f, s.g));
+  const nullD = nullParts.map((x) => x.D);
   model.m0 = mean(nullD);
   model.s0 = std(nullD, model.m0);
   model.p95 = quantile(nullD, 0.95);
+  // Feature-only baseline, used by voicecheck for short drafts where word frequencies are noise.
+  const nullF = nullParts.map((x) => x.feature);
+  model.m0Feature = mean(nullF);
+  model.s0Feature = std(nullF, model.m0Feature);
   return model;
 }
 

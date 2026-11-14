@@ -163,15 +163,19 @@ test('selectKeyframes on the recorded synthetic clip finds rest, mouth shapes an
   assert.equal(frames.length, 150);
   const sel = selectKeyframes(frames);
   const t = (i) => frames[i].t;
-  // The clip: still until 0.6 s, the phrase until about 4 s (with pauses), blinks near 4.9 s and
-  // 5.7 s, then still. Rest must be a closed mouth inside a still stretch: the start, a pause, or the end.
+  // The clip: still until 0.6 s, the phrase read slowly until about 8 s (with pauses), blinks near
+  // 8.5 s and 9.2 s, then still. Rest must be a closed mouth inside a still stretch: the start, a pause,
+  // or the end. The landmarker reads the drawn O and U clearly (pucker up to 1.0) but the drawn AA and E
+  // as nearly closed (lip gap at most 0.15 of the mouth width, jawOpen at most 0.07), so selection
+  // rightly finds only the rounded shapes in this clip; AA, E, M B P and F V selection is covered by the
+  // synthetic sequences above.
   for (const i of [sel.rest - 1, sel.rest, sel.rest + 1]) assert.ok(frames[i].geo.gap < 0.02, `rest at ${t(sel.rest)} s is inside a closed, still stretch`);
-  for (const k of ['AA', 'E', 'U']) {
+  for (const k of ['O', 'U']) {
     assert.ok(sel.keys[k], `found ${k}`);
-    assert.ok(t(sel.keys[k].index) > 0.6 && t(sel.keys[k].index) < 4.2, `${k} at ${t(sel.keys[k].index)} s, inside the phrase`);
+    assert.ok(t(sel.keys[k].index) > 0.6 && t(sel.keys[k].index) < 8.2, `${k} at ${t(sel.keys[k].index)} s, inside the phrase`);
   }
   assert.ok(sel.blink, 'found the blink');
-  assert.ok(t(sel.blink.index) > 4.6 && t(sel.blink.index) < 6, `blink at ${t(sel.blink.index)} s`);
+  assert.ok(t(sel.blink.index) > 8.2 && t(sel.blink.index) < 9.6, `blink at ${t(sel.blink.index)} s`);
   // Every chosen frame aligns to the rest frame closely on the stable points.
   for (const k of Object.values(sel.keys)) assert.ok(k.residual < 0.05);
 });

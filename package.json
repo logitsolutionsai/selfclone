@@ -1,7 +1,7 @@
 {
   "name": "selfclone",
   "version": "0.1.0",
-  "description": "Clone yourself. It writes like you, thinks like you, has your face, and proves how close it gets.",
+  "description": "Clone how you write from your own chat exports, give the clone a talking face, and score it on your real messages. A Claude Code skill (agent skill) for Claude Code, Codex and Cursor.",
   "type": "module",
   "bin": {
     "selfclone": "scripts/selfclone.mjs"
@@ -24,7 +24,7 @@
   "scripts": {
     "test": "node --test --test-concurrency=4 \"tests/unit/*.test.mjs\"",
     "test:e2e": "node --test --test-concurrency=1 --test-timeout=600000 \"tests/e2e/*.test.mjs\"",
-    "gif": "node docs/make-media.mjs"
+    "gif": "node tools/make-media.mjs"
   },
   "engines": {
     "node": ">=20"
@@ -33,14 +33,24 @@
     "playwright-core": "1.64.1"
   },
   "keywords": [
-    "agent-skill",
     "claude-code",
+    "claude-skill",
+    "claude-code-skill",
+    "agent-skills",
+    "agent-skill",
+    "codex",
+    "cursor",
+    "ai-clone",
+    "digital-twin",
     "persona",
+    "writing-style",
     "stylometry",
     "burrows-delta",
-    "avatar",
+    "voice-check",
+    "talking-avatar",
     "lip-sync",
-    "privacy-first"
+    "privacy-first",
+    "offline-first"
   ],
   "repository": {
     "type": "git",

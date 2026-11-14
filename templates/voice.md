@@ -30,3 +30,11 @@ with rules for this person and delete any section that does not apply.
 ## Tone
 
 - How they sound when helping, disagreeing, celebrating, apologising, each with example ids.
+
+## By Channel
+
+How the habits change between chat, email and posts, from the "By Kind Of Writing" table in `style.md`
+(delete this section when the exports hold only one kind). For example: "In email: capital first letter
+(style.md: 96% of emails), greeting 'Hi [name],' and sign-off 'Best,' [em-1a2b3c4d5e], [em-6f7a8b9c0d]; median
+48 words. In chat: lowercase, no full stops, median 9 words." For a channel with no evidence (developer
+writing, a bio), say so and keep the general habits, applied lightly.

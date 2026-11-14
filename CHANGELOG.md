@@ -1,5 +1,66 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- `selfclone voicecheck <file|->`: "Does this sound like me?" Scores any draft against your training messages
+  with the existing scorer, prints a voice match, a confidence (low under 40 words, calibrated in
+  `docs/voicecheck-calibration.mjs`), and the top drifts as plain fixes built from the per-feature z-scores
+  ("You use no semicolons; this has 3."). `--as message|post|email` compares against your writing of that kind
+  (chat, posts and notes, or email), falling back to everything when a kind has fewer than 30 units. `--json`
+  for data, `--min <pct>` for an exit code, and a replies JSON file is checked as a set. Short drafts use the
+  feature distance only, because function-word frequencies in a short text are noise (`docs/SCORING.md`).
+- `selfclone fingerprint` adds a "By Kind Of Writing" table when the exports hold two or more kinds of writing.
+- Clone skill modes in `templates/clone-SKILL.md`: reply, write, dev (commit messages, PRs, review comments,
+  docs), ask me (answers cite message ids, or say "I do not know what they would say"), and a voice check after
+  every draft, at most 2 rounds, without cramming habits into a caricature. `templates/voice.md` gains a
+  "By Channel" section. The Maya example clone shows the modes.
+- `selfclone export [--to ...]`: the clone as `system-prompt.md`, `chatgpt-instructions.md` (1,500 and 5,000
+  character blocks), `claude-project.md` (16,000 characters), `agents-md.md` (under 6,000 bytes) and
+  `persona.json`, in `out/<slug>-clone/export/`. Rules are ranked by voice signal from the fingerprint and the
+  bare model's drift, and every export starts with the AI clone disclosure, which truncation never removes.
+- New input formats, each detected inside folders and zips: Discord (DiscordChatExporter JSON and Discord's
+  data package), Instagram and Facebook Messenger (Meta JSON, with the Latin-1 mojibake decoded), LinkedIn
+  `messages.csv`, iMessage (`imessage-exporter` text), Reddit `comments.csv` and `posts.csv`, Google Chat from
+  Takeout, Word `.docx`, and blog posts (HTML pages and RSS or Atom feeds).
+- `selfclone video --audio voice.wav [-o out.webm|out.mp4]`: a face on camera without the camera. The avatar as a
+  picture-in-picture presenter for screen recordings and tutorials, lip-synced to your own recorded voice (or a
+  voice clone of yourself), rendered frame by frame in headless Chrome on a paused clock and encoded with
+  ffmpeg: a round or square WebM (VP9 with alpha) or MP4 (H.264), 240 to 1080 px, with your audio. This reverses
+  the earlier "no video export" rule, with safeguards built first: an "AI CLONE" label burned into every frame
+  over the chin (checked on every frame, no option to remove it), a consent check bound to the face's photo
+  hash, audio input only (no text-to-speech), provenance tags plus a `.provenance.json` with the video's
+  SHA-256, and a 10-minute cap (`--max-minutes`, at most 60). `ETHICS.md` explains the change and why the label
+  is burned in (EU AI Act, Article 50). `tools/make-video-overlay.mjs` makes `docs/media/video-overlay.gif`.
+
+### Changed
+
+- The README follows the layout of the other Logit skill repos: a hero image, Install near the top, Before And
+  After, Proof and Limits. The full command list, the export file limits, the project layout and the roadmap moved
+  to `docs/REFERENCE.md`. The hero images and the social preview are in `docs/media/`.
+- The developer scripts (`calibration.mjs`, `make-contact-sheet.mjs`, `make-media.mjs`, `ngram-experiment.mjs`
+  and `voicecheck-calibration.mjs`) moved from `docs/` to `tools/`, so `docs/` holds only documentation. Earlier
+  entries below still name their old paths.
+- The empty `out/` folder at the repository root is gone, and `.gitignore` ignores `/out/`. Clone output goes to
+  `out/` in your working folder, never inside the skill.
+- The package and plugin descriptions and keywords follow the other Logit skill repos.
+
+- The photo bake's O and U are small, upright, rounded openings with the lips pushed forward around them (the
+  inner lip ring is laid on an ellipse, taller than wide for O and smaller for U, and the lip rings outside it
+  follow), with a lighter, warmer rim inside the lips, a softer, less saturated dark centre and a feathered edge,
+  instead of dark boxy holes. AA, E, rest, M B P and the blink are unchanged.
+- The synthetic test clip was recorded again with the current drawn mouth, under a paused clock (it used to run
+  on real time as well, so the phrase sped up with slow screenshots) and read more slowly. The landmarker reads
+  its drawn AA and E as nearly closed, so it now yields O, U and blink patches only; the clip tests check the
+  patch path with O instead of AA (see `tests/fixtures/SOURCE.md`). `docs/media/photo-vs-clip.png` shows O, U and
+  the blink.
+
+### Fixed
+
+- The scrubber missed "password is: x" and "password was = x" (a label word followed by a colon or equals sign).
+  A labelled password that was already scrubbed is no longer scrubbed a second time, which dropped the label.
+
 ## 0.1.0 (2026-11-14)
 
 First release.
@@ -38,6 +99,10 @@ First release.
   a webcam clip or a video file and what was kept; the badge carries the source too.
 - An "Enough light" live check at enrolment.
 - `say(text, {rate})` in the avatar, and `?patches=0` to compare a clip avatar with the drawn mouth.
+- A more lifelike drawn mouth and blink for photo bakes: the interior, tongue glow and dim upper teeth are
+  shaded from the photo's own colours with soft edges, the lips close onto the photo's own pixels at rest and
+  on M, B, P, O and U are round, openings are capped, shapes ease and blend into each other, and the blink is a
+  lid of the photo's skin sliding down with a soft lash line (about 170 ms).
 - A synthetic enrol clip of the test painting (`tests/fixtures/mona-lisa-clip.webm`), a recording of the
   landmarker's output on it, unit and browser tests for the clip path, and `docs/make-contact-sheet.mjs`.
 - SHA-256 pinning of every MediaPipe file, checked on download and on every read from the cache.

@@ -88,7 +88,7 @@ top, text from a very different author lands low, and a near miss lands in betwe
 The unit tests generate two synthetic authors from phrase banks (`tests/unit/synth.mjs`): a casual one
 (lowercase, no full stops, emoji, "lol", dropped apostrophes, short) and a formal one (capitals, full sentences,
 semicolons, long, no emoji). The model is built from 400 casual messages. Reproduce with
-`node docs/calibration.mjs`:
+`node tools/calibration.mjs`:
 
 | Sealed prompts n | Baseline m0 | Same author, held out | Near miss (capitals and full stops added) | Different author |
 | --- | --- | --- | --- | --- |
@@ -111,7 +111,7 @@ In both examples the word distance W did not separate the clone from the bare mo
 work. A character n-gram component was tested as a fix: the profile of your 100 most frequent character 3- and
 4-grams, the cosine distance of a reply set's profile from yours, z-scored against the 200 bootstrap samples of
 your own replies (capped at 5), averaged in as a third part, `D' = (W + F + C) / 3`. Reproduce with
-`node docs/ngram-experiment.mjs`. Each cell is today's score / with C at `H = 1.0` / with C at `H = 1.5`:
+`node tools/ngram-experiment.mjs`. Each cell is today's score / with C at `H = 1.0` / with C at `H = 1.5`:
 
 | Synthetic authors, n | Same author | Near miss | Different author |
 | --- | --- | --- | --- |
@@ -160,6 +160,55 @@ after two rounds, because tuning against the same sealed prompts overfits them.
 - **Other languages fully.** Character-level features work for any script; the function-word list is English,
   and the fallback (your most frequent words) also picks up topic words.
 - **Gaming.** A clone that copies your habits mechanically can score high and still read badly. Read the replies.
+
+## Voicecheck: One Draft At A Time
+
+`selfclone voicecheck <file|->` scores any text (an AI draft, a ghostwritten post, an email) with the same
+model. The differences from `test score`:
+
+- **Reference.** The training split only (`train.jsonl`), never the sealed set, so a held-out text gets an
+  honest score and a clone that runs voicecheck while answering the sealed prompts never sees the answers.
+- **Kind of writing.** Each ingest source has a kind (`src/kinds.mjs`): chat messages (WhatsApp, Telegram,
+  Slack, Discord, Instagram, Messenger, LinkedIn, iMessage, Google Chat, generic JSONL and CSV), posts and notes
+  (X, notes, Reddit, Word, blogs) or email. `--as message|post|email` picks the reference: chat reply turns, or
+  one post or email each. A kind with fewer than 30 units in the training split falls back to all the writing,
+  and the output says so. Without `--as`, the kind with the most writing is used.
+- **Units.** A message draft is one reply (its lines are the separate messages of a burst); `---` on its own
+  line separates several drafts, and a replies file (`[{"id": "...", "reply": "..."}]`) is checked as a set.
+  A post is split into paragraphs; an email is one unit. The bootstrap is drawn at the draft's number of units.
+- **Distance.** Below 1,000 words the match uses the feature distance `F` alone, against the feature-only
+  baseline `m0F` (the mean `F` of the 200 bootstrap samples). In the calibration below, `F` alone separated the
+  same author from another better than `(W + F) / 2` at every length tested, up to about 300 words: function-word
+  frequencies in a short text are mostly noise. From 1,000 words the word part is added back, as in `test score`.
+  That range is untested here.
+- **Drift list.** Every feature with `|z| >= 2` becomes one plain instruction built from the person's own
+  numbers and counts in the draft ("You use no semicolons; this has 3."), the strongest first, related
+  features merged. Two checks do not depend on `z`: a person who drops the apostrophe in 90% or more of
+  contractions is told when the draft keeps them, and shorthand the person never writes is flagged. Their
+  shorthand and recurring phrases are suggested only when the draft has none of them, with "Do not force them
+  in", and a short draft that crams three or more of them is called out.
+
+**Confidence.** Reproduce with `node tools/voicecheck-calibration.mjs`. Each row is 100 seeded drafts of `k`
+replies; "F / W+F" compares the two distances.
+
+| Maya: held-out replies against bare model replies, k | Mean words | Her median (F / W+F) | Bare model median (F / W+F) | Bare model below 50% (F) |
+| --- | --- | --- | --- | --- |
+| 1 | 15 | 100% / 100% | 62.6% / 87% | 33% |
+| 2 | 31 | 100% / 99.9% | 48.7% / 80.6% | 59% |
+| 3 | 48 | 100% / 99.9% | 33.7% / 72.1% | 100% |
+| 5 | 79 | 99.5% / 99% | 22.1% / 63.9% | 100% |
+| 10 | 158 | 98.5% / 96.4% | 9.1% / 44.3% | 100% |
+| 20 | 316 | 91.6% / 84.8% | 5.8% / 29.6% | 100% |
+
+On the synthetic authors the different author scores at most 9.1% (median) even for one 7-word message, so
+the limit comes from the harder Maya case: below about 40 words a bare-model draft often still scores above
+50%, and from about 48 words it never did. Voicecheck therefore reports **low confidence under 40 words**,
+medium from 40, and high from 80. One sentence cannot be scored reliably, and the output says so.
+
+On the Maya example, as sets of 20 replies (about 320 to 380 words, high confidence): her own held-out replies
+100%, the clone replies 86%, the bare model replies 7%. One reply at a time (all under 40 words, so all low
+confidence): her replies median 100% (19 of 20 at 80% or more), the clone median 100% (19 of 20), the bare model
+median 59% (none at 80% or more). A formal 53-word paragraph by a different author scores 25%.
 
 ## Integrity Checks
 

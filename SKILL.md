@@ -1,6 +1,6 @@
 ---
 name: selfclone
-description: Clone a person's writing voice and way of thinking from their own chat exports into a persona skill, optionally give it a talking face from a 10-second clip or one selfie, and measure how close it gets with a deterministic style score that no language model grades. Use when the user says "clone me", "distill myself", "make a persona of me", "make a skill that writes like me", "give my clone a face", "make my clone talk", "test my clone" or "how close is my clone", or brings WhatsApp, Telegram, Slack, X, email or notes exports to build a persona. Only for the user themself or a person who gave written consent; never public figures' private data, never minors.
+description: Clone a person's writing voice and way of thinking from their own chat exports into a persona skill, optionally give it a talking face from a 10-second clip or one selfie, and measure how close it gets with a deterministic style score that no language model grades. Use when the user says "clone me", "distill myself", "make a persona of me", "make a skill that writes like me", "give my clone a face", "make my clone talk", "test my clone", "how close is my clone", "does this sound like me", "check this draft against my voice" or "export my clone to ChatGPT", or brings WhatsApp, Telegram, Slack, Discord, Instagram, Messenger, LinkedIn, iMessage, Reddit, Google Chat, X, email, Word, blog or notes exports to build a persona. Only for the user themself or a person who gave written consent; never public figures' private data, never minors.
 ---
 
 # selfclone
@@ -43,11 +43,15 @@ installed Chrome, Edge or Chromium). Work happens in `.selfclone/` in the curren
 ### 1. Gather Exports
 
 Ask which apps the user writes in and point them at the export steps in `docs/FORMATS.md`. Supported inputs:
-WhatsApp `.txt` or `.zip`, Telegram Desktop `result.json`, a Slack export folder or `.zip`, the X archive
-(`data/tweets.js` or the whole `.zip`), `.mbox` or `.eml` email, plain `.txt` / `.md` notes, and JSONL or CSV with
-author and text columns. A folder holding the downloaded `.zip` files works too. More reply-style chat gives a
-better clone and a more reliable score; X posts and notes shape the voice but cannot be tested, because they
-answer nobody.
+WhatsApp `.txt` or `.zip`, Telegram Desktop `result.json`, a Slack export folder or `.zip`, Discord
+(DiscordChatExporter JSON or Discord's own data package), Instagram and Facebook Messenger ("Download your
+information" in JSON), LinkedIn `messages.csv`, iMessage (the `.txt` output of `imessage-exporter`), Reddit
+`comments.csv` and `posts.csv`, Google Chat from Takeout, the X archive (`data/tweets.js` or the whole `.zip`),
+`.mbox` or `.eml` email, Word `.docx`, blog posts (HTML pages or an RSS or Atom feed), plain `.txt` / `.md` notes,
+and JSONL or CSV with author and text columns. A folder holding the downloaded `.zip` files works too. More
+reply-style chat gives a better clone and a more reliable score; posts, documents and notes shape the voice
+but cannot be tested, because they answer nobody. Writing from several kinds of place (chat, email, posts) lets
+the clone and the voice check match each channel.
 
 ### 2. Ingest And Seal
 
@@ -88,7 +92,11 @@ the first name; `{{MESSAGE_COUNT}}` the number of training messages (the first l
 from `style.md` in words ("January to April 2026"); `{{SELFCLONE_CLI}}` the absolute path of
 `scripts/selfclone.mjs` in this skill; `{{WORKSPACE}}` the absolute path of the `.selfclone` folder (use one
 slash style throughout); `{{CONSENT}}` the consent statement from the ground rules (who, when, how it was
-given). Write "Not scored yet." for `{{FIDELITY}}` now; step 6 replaces it. The `voice.md`, `mind.md`,
+given). Write "Not scored yet." for `{{FIDELITY}}` now; step 6 replaces it. The template gives the clone five
+modes (reply, write, dev, ask me, and the voice check after every draft); keep them, and adjust a mode's
+wording where the evidence is thin (for example, say plainly in "Dev" when the exports hold no developer
+writing). If `style.md` has a "By Kind Of Writing" table, fill the "By Channel" section of `voice.md` from it.
+The `voice.md`, `mind.md`,
 `never.md` and `examples.md` templates show the expected structure; replace their placeholders and the
 instructions addressed to you with real rules, delete sections that do not apply, and add sections the
 person needs (for example, how they write in email compared with chat).
@@ -136,7 +144,9 @@ Bare subagent brief:
 > array `[{"id": "...", "reply": "..."}]` to `<abs path>/.selfclone/bare-replies.json`, then report how many you wrote.
 
 If subagents are not available, do the clone pass yourself in a fresh session that loads only the clone skill,
-and say so in the hand-off.
+and say so in the hand-off. The clone skill tells the clone to run `voicecheck` on its drafts. That is allowed
+here: voicecheck reads only the training split, never the sealed replies. Say in the hand-off whether the clone
+ran it, because a clone that checks its drafts usually scores higher than one that does not.
 
 ### 6. Score
 
@@ -195,12 +205,55 @@ SC say "hello, I am an AI clone"   # from any other terminal or from Claude Code
 SC say --audio reply.mp3           # or drive the mouth from a recorded or cloned voice
 ```
 
+If the user wants the face in a screen recording or tutorial (a face on camera without the camera), export it as a
+picture-in-picture video, lip-synced to their own recorded voice:
+
+```bash
+SC video --audio voice.wav -o presenter.webm                                    # round, transparent overlay
+SC video --audio voice.wav --shape square --background "#1e1e1e" -o presenter.mp4   # for tools without transparency
+```
+
+Every frame carries an "AI CLONE" label over the chin that no option removes, the file is tagged as an AI clone
+with a `.provenance.json` beside it, and videos are capped at 10 minutes (`--max-minutes`, at most 60). Only the
+user's own voice: a recording of them, or a voice clone of themself. Never use someone else's voice, and do not
+make speech for them with a text-to-speech voice that is not theirs; the command takes audio only. Tell them to
+keep the label visible when they publish (the EU AI Act, Article 50, requires disclosure).
+
 ### 9. Install The Clone
 
 Copy `out/<slug>-clone/` to `~/.claude/skills/<slug>-clone/` (personal) or `.claude/skills/<slug>-clone/`
 (project). Other agents (Codex, Cursor) can load the same folder as instructions; see the README.
 
+### 10. Take It Anywhere
+
+```bash
+SC export                      # all targets, into out/<slug>-clone/export/
+SC export --to chatgpt         # or system-prompt, claude-project, agents-md, persona
+```
+
+This writes ready-to-paste files: `system-prompt.md` (any model), `chatgpt-instructions.md` (one block for
+1,500 characters, one for 5,000 on paid plans), `claude-project.md` (16,000 characters), `agents-md.md` (an
+AGENTS.md or Cursor rules section for commit messages, PRs and docs, under 6,000 bytes) and `persona.json`.
+Each is fitted to its limit with the voice rules that carry the most signal first, and each starts with the AI
+clone disclosure. Tell the user to keep that line when they paste.
+
+## Voice Check Any Draft
+
+Whenever you draft anything in the user's voice (with the clone or without it), check it:
+
+```bash
+SC voicecheck draft.txt --as message      # or post, email; "-" reads standard input; --json for data
+```
+
+It prints a voice match against the user's own writing of that kind, a confidence (low under 40 words, where one
+sentence cannot be scored reliably), and the top drifts as fixable instructions ("You use no semicolons; this
+has 3."). Revise against the list and check again; stop at 80% or more, or after 2 rounds. Report the score
+honestly, including the confidence. Never over-tune into a caricature: fix what the list says, keep what the
+text has to say, and do not cram every signature phrase or bit of shorthand into one text. The score measures
+surface style only.
+
 ## Hand-Off
 
 End with a short summary: messages ingested, sealed pairs, Style match (clone, bare, ceiling), the top drifts,
-where the clone skill and the game page are, whether a face was made, and any consent or privacy caveats.
+where the clone skill and the game page are, whether a face was made, which exports were written, and any
+consent or privacy caveats.

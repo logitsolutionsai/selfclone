@@ -13,17 +13,25 @@ It is used only as a test face. It is a painting, not a photo of a living person
 
 # Synthetic Enrol Clip
 
-`mona-lisa-clip.webm` (10 s, 15 frames per second, 512 x 512, VP9, about 190 KB) is synthetic. It was made by
+`mona-lisa-clip.webm` (10 s, 15 frames per second, 512 x 512, VP9, about 200 KB) is synthetic. It was made by
 `make-clip.mjs` in this folder: the painting above is baked into a photo avatar, which then reads the enrol
-phrase ("Ah, I see. Oh, why would you move a big cheap boat? Five fast vans.") at half speed and blinks twice
-in headless Chrome under a fake clock, and ffmpeg encodes the frames. No real person was filmed.
+phrase ("Ah, I see. Oh, why would you move a big cheap boat? Five fast vans.") slowly (0.74 of the normal rate,
+about 0.6 to 8 s) and blinks twice (about 8.5 and 9.2 s) in headless Chrome under a paused fake clock, and
+ffmpeg encodes the frames. No real person was filmed. It was last recorded on 2026-11-14 with the current drawn
+mouth (dim teeth, small rounded O and U).
 
 Why synthetic: the project never uses video or photos of a living person, and there is no public domain
 video of a real face reading this phrase. The clip proves that the clip pipeline (decoding, landmarks on every
 frame, keyframe selection, alignment, patches, rendering) works end to end. It does not prove that the clip
 path looks better than the drawn mouth, because its "real" open mouths and closed eyes are the drawn mouth and
-the drawn blink of the photo avatar. MediaPipe also reads that drawn mouth as only slightly open (jawOpen
-stays under 0.1), which is itself a sign of how unconvincing the drawn mouth is.
+the drawn blink of the photo avatar.
+
+What the landmarker sees in it: the drawn O and U clearly (mouthPucker up to 1.0, a narrow mouth), and the
+drawn AA and E as nearly closed (jawOpen at most 0.07, a lip gap at most 0.15 of the mouth width, no smile or
+stretch). So keyframe selection finds O, U and the blink, and the baked avatar draws AA, E, M B P and F V with
+the drawn mouth. Reading more slowly, or holding every vowel three times as long, gave the same result: the
+drawn open mouth is too subtle for the landmarker to call open, which is itself a sign that it is not a real
+mouth. The browser tests therefore check the patch path with O.
 
 `mona-lisa-clip-frames.json` is a recording of what the face landmarker measured on every frame of that clip
 (blendshapes, head pose, mouth sharpness and the landmarks keyframe selection reads), made by

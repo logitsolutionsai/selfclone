@@ -1,5 +1,5 @@
 // Prints the calibration table in docs/SCORING.md from the synthetic authors
-// used by the unit tests. Run: node docs/calibration.mjs
+// used by the unit tests. Run: node tools/calibration.mjs
 import { buildModel, scoreTexts } from '../src/score.mjs';
 import { synthTexts } from '../tests/unit/synth.mjs';
 

@@ -8,7 +8,13 @@ Pass several inputs at once, for example `selfclone ingest chat.zip slack-export
 A folder can hold the export `.zip` files as they were downloaded; they are opened too. Files that macOS and
 Windows add when zipping (`__MACOSX/`, `._*`, `.DS_Store`, `Thumbs.db`) are ignored.
 `--me` is a comma-separated list of names, handles or user ids. If nothing matches, ingest lists the authors it
-found. Force a format with `--format whatsapp|telegram|slack|x|mbox|text|jsonl|csv` when detection guesses wrong.
+found. Force a format with
+`--format whatsapp|telegram|slack|x|mbox|text|jsonl|csv|discord|instagram|messenger|linkedin|imessage|reddit|googlechat|docx|blog`
+when detection guesses wrong.
+
+Each kept message records its `source` (the format name above). Exports that hold only your own writing
+(the Discord data package, Reddit, Word, blog posts, notes and X) have no other people in them, so their
+messages shape the voice but are sealed only where a reply has its own context.
 
 ## WhatsApp
 
@@ -92,6 +98,123 @@ notes app.
 For Markdown, front matter, code blocks, images and heading and list markers are removed and links keep their
 text. Paragraphs longer than 2,000 characters are split at sentence ends. Notes have no context, so they shape
 the voice but are never sealed.
+
+## Discord
+
+There are two kinds of Discord export, and both work.
+
+**DiscordChatExporter (best for the test).** The open-source DiscordChatExporter tool exports a channel, a
+thread or a DM with everyone's messages. Choose the JSON format. Use it only on conversations you are part of,
+and follow Discord's terms. You get one `.json` file per channel.
+
+**What is parsed:** `guild`, `channel` and `messages`, each message with `author` (`id`, `name`, `nickname`,
+`isBot`), `type`, `timestamp`, `content` and `reference.messageId`. Only `Default` and `Reply` messages are
+kept; joins, pins, calls, thread notices and bots are skipped, and so are messages with only an attachment or a
+sticker. A reply gets the exact message it answered as context. `--me` can be your username, your server
+nickname, `username#1234` or your user id.
+
+**Discord's own data package.** User Settings, Data and Privacy, Request all of my Data. Discord emails a link
+to a `.zip`. Pass the `.zip` or the unzipped folder.
+
+**What is parsed:** `Messages/c<channel id>/messages.json` (newer packages: an array of `{ID, Timestamp,
+Contents, Attachments}`) or `messages.csv` (older packages: the same four columns), with `channel.json` beside
+it and `Messages/index.json` for channel names. The package holds only messages you sent, with no author field
+and no one else's messages, so every message is yours, none has context, and none is sealed: the package
+shapes the voice but cannot be tested. Timestamps such as `2023-12-22 07:14:15` are read as UTC. Discord
+documents the four fields in its support article "Your Discord Data Package"; the folder layout above is the
+one described by Discord and by open-source parsers of the package in 2025 and 2026 (older packages leave out
+the `c` before the channel id, which also works).
+
+## Instagram And Facebook Messenger
+
+**How to export:** Accounts Center, Your information and permissions, Download your information, choose the
+account and Messages, format **JSON** (not HTML), media quality low. You get one or more `.zip` files. Pass
+them as they are, or the unzipped folder.
+
+**What is parsed:** every `message_1.json`, `message_2.json` and so on, in the older `messages/inbox/<chat>/`
+layout and the newer `your_instagram_activity/messages/inbox/<chat>/` and
+`your_facebook_activity/messages/inbox/<chat>/` layouts (also `archived_threads`, `message_requests` and the
+other folders). The files of one chat are read together and put in time order, because Meta lists the newest
+message first. Meta writes every non-ASCII character as its UTF-8 bytes, each escaped separately (`cafÃ©` for
+`café`, four odd characters for one emoji); names and text are decoded back, and a string that is not valid
+UTF-8 that way is left as it is. Lines Meta writes itself are skipped: "sent an attachment", reactions and
+likes, "unsent a message", calls, group notices, shares that are only a link, and messages of type `Share`,
+`Call`, `Subscribe` or `Unsubscribe`. Messenger's download of end-to-end encrypted chats, which writes
+camelCase fields (`senderName`, `timestamp`, `text`, `isUnsent`), is read too; that shape was not checked
+against a real download. The HTML version of the export is not supported: download JSON.
+
+**Your name:** Meta writes your messages under your profile name. Use that with `--me`. The source is
+`instagram` when the folder or `.zip` name says Instagram and `messenger` when it says Facebook or Messenger;
+otherwise Facebook-only fields decide. Force it with `--format instagram` or `--format messenger`.
+
+## LinkedIn
+
+**How to export:** Settings, Data privacy, Get a copy of your data, choose Messages (or the full archive).
+LinkedIn emails a link to a `.zip` holding `messages.csv`.
+
+**What is parsed:** `messages.csv` with the columns `CONVERSATION ID`, `FROM`, `SENDER PROFILE URL`, `DATE`,
+`CONTENT` and `FOLDER` (other columns are ignored). HTML in `CONTENT` is converted to text, rows in the
+`SPAM` folder and unsent drafts (`IS MESSAGE DRAFT` true) are skipped, and each conversation is put in time
+order. `--me` is your name as LinkedIn shows it, or your profile URL.
+
+## iMessage
+
+**How to export:** on a Mac, install the open-source `imessage-exporter` tool and run
+`imessage-exporter -f txt -o imessage_export`. You get one `.txt` file per conversation. Pass the folder.
+
+**What is parsed:** the tool's TXT layout: a timestamp line (`May 17, 2022  5:29:42 PM`, with an optional
+read receipt in parentheses), a sender line, the message lines and a blank line. Your own messages are those
+written by `Me`, so `--me` can be left out. Attachment paths, the deleted-message notice, expressive notes
+("Sent with Confetti"), location sharing, FaceTime and SharePlay lines and
+the tapback list under a message are skipped; for a translated message the original text is kept. Replies that
+the tool prints indented under their parent are read as messages too. The layout was checked against the
+expected output in the tool's own tests; tapback lines are skipped by a best guess at their layout.
+
+## Reddit
+
+**How to export:** reddit.com/settings/data-request on a computer, request your data. Reddit emails a link to
+a `.zip` holding `comments.csv` and `posts.csv`, among other files.
+
+**What is parsed:** columns are found by name: `id`, `date`, `subreddit`, `body` and `parent` in
+`comments.csv`; `id`, `date`, `subreddit`, `title` and `body` in `posts.csv`. Every row is yours. A post is its
+title and its text. `[deleted]` and `[removed]` rows are skipped, Markdown links keep their text, and quoted
+lines (`> ...`) are removed because they quote someone else. The export does not contain other people's
+comments, so a comment gets context only when its parent is one of your own posts or comments in the same
+export.
+
+## Google Chat
+
+**How to export:** Google Takeout, select Google Chat. You get `Takeout/Google Chat/Groups/<space or DM>/`
+folders, each with `messages.json` and `group_info.json`, and `Takeout/Google Chat/Users/User <id>/user_info.json`.
+
+**What is parsed:** each message's `creator` (`name`, `email`, `user_type`), `created_date` (for example
+`Tuesday, March 14, 2023 at 10:22:01 AM UTC`) and `text`. Bots and messages with only an attachment are
+skipped. `user_info.json` names the account owner, so `--me` can be left out when it is in the export;
+otherwise use your name or your email address.
+
+## Word Documents
+
+**How to export:** any `.docx` you wrote. Save older `.doc` files as `.docx` first.
+
+**What is parsed:** the paragraphs of `word/document.xml`, read with the built-in ZIP reader. Tabs and line
+breaks are kept, headings (Title, Subtitle and Heading styles), deleted tracked changes and field codes are
+left out, and headers, footers, footnotes and comments are not read. Everything is treated as written by you,
+like notes, so it shapes the voice but is never sealed.
+
+## Blog Posts
+
+**How to export:** save your posts as HTML pages, or download your blog's RSS or Atom feed (often `/feed`,
+`/rss.xml` or `/atom.xml`) and save it as a `.xml`, `.rss` or `.atom` file. Most blog platforms also offer an
+export that includes a feed file.
+
+**What is parsed:** for an HTML page, the `<article>` (else `<main>`, else the body), without navigation,
+headers, footers, forms, scripts, styles, code blocks or headings; every paragraph and list item becomes a
+message. For a feed, every item or entry: the full content (`content:encoded` or Atom `content`) when present,
+otherwise the description or summary, escaped HTML and CDATA included, with its publication date. Everything
+is treated as written by you, like notes. An HTML page passed on its own is always read; inside a folder or a
+`.zip`, a page is read only when it is marked up as an article (an `<article>` element or `og:type` article),
+so the pages that other exports carry (the X archive viewer, the Takeout index, Meta's HTML export) are never
+taken as your posts.
 
 ## Generic JSONL And CSV
 

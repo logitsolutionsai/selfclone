@@ -1,6 +1,6 @@
 {
   "name": "selfclone",
-  "description": "Open-source agent skills from Logit Solutions AI.",
+  "description": "selfclone: a writing clone of you with a talking face, scored on your real messages. A Claude Code skill (agent skill) for Claude Code, Codex and Cursor.",
   "owner": {
     "name": "Logit Solutions AI",
     "url": "https://github.com/logitsolutionsai"
@@ -9,9 +9,15 @@
     {
       "name": "selfclone",
       "source": "./",
-      "description": "Clone yourself from your own chat exports, give the clone a talking face, and measure how close it gets with a deterministic style score.",
+      "description": "Clone how you write from your own chat exports, give the clone a talking face, and score it on your real messages. A Claude Code skill (agent skill) for Claude Code, Codex and Cursor.",
       "category": "productivity",
-      "tags": ["persona", "stylometry", "avatar", "privacy-first"]
+      "tags": [
+        "persona",
+        "writing-style",
+        "stylometry",
+        "avatar",
+        "privacy-first"
+      ]
     }
   ]
 }

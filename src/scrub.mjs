@@ -88,7 +88,7 @@ const CAPABILITY_URL = /^https?:\/\/(?:hooks\.slack\.com\/(?:services|workflows)
 
 // Password labels in a few languages, and the words for "is" that follow them.
 const PW_LABELS = 'pass(?:word|wd|code|phrase)?|pwd|pw|pin|passcode|senha|contrase[ñn]a|clave|passwort|kennwort|mot de passe|mdp|wachtwoord|has[łl]o|l[öo]senord|passord|adgangskode|salasana|[şs]ifre|пароль|密码|パスワード';
-const PW_SEP = String.raw`\s+(?:is|was)\s+|\s*(?:=|:|：|->)\s*|\s+[-–]\s+|\s+(?:é|es|est|ist|è|er|är|on|era|war)\s+`;
+const PW_SEP = String.raw`\s+(?:is|was)\s*(?:=|:|：|->)\s*|\s+(?:is|was)\s+|\s*(?:=|:|：|->)\s*|\s+[-–]\s+|\s+(?:é|es|est|ist|è|er|är|on|era|war)\s+`;
 const PW_RE = new RegExp(String.raw`(?<![\p{L}\p{N}_])(${PW_LABELS})(?![\p{L}])((?:\s+(?:for|to|of|on|da|do|de|für|pour|del)\s[^.!?\n:=]{0,30}?)?)(${PW_SEP})(?:"([^"\n]{3,64})"|'([^'\n]{3,64})'|\x60([^\x60\n]{3,64})\x60|([^\s"'\x60]{3,}))`, 'giu');
 // "wifi password BlueWhale2026", "pw Sailboat!77": no separator, so the value must contain a digit or symbol.
 // A bare "pass" is left alone: "pass 3pm" is a verb far more often than a password.
@@ -169,7 +169,8 @@ export function scrub(input) {
     return `${label}${forWhat || ''}${sep}${q}${put('PASSWORD')}${q}${tail}`;
   });
   text = text.replace(PW_BARE_RE, (m, label, sp, value) => {
-    if (/^\[[A-Z_]+\]$/.test(value) || !hasDigitOrSymbol(value)) return m;
+    // Already scrubbed by the labelled rule above ("password is:[PASSWORD]"): leave it alone.
+    if (/\[[A-Z_]+\]/.test(value) || !hasDigitOrSymbol(value)) return m;
     const tail = (value.match(/[.,;)]+$/) || [''])[0];
     if (tail === value) return m;
     return `${label}${sp}${put('PASSWORD')}${tail}`;

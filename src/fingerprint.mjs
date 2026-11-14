@@ -3,6 +3,7 @@
 import { features, words, emojis, FEATURE_LABELS, wordFrequencies, englishShare, normalizeQuotes, LAUGH_WORD } from './text.mjs';
 import { FUNCTION_WORDS, FUNCTION_WORD_SET, EXTRA_STOPWORDS } from './functionwords.mjs';
 import { mean, quantile, round } from './util.mjs';
+import { kindOf } from './kinds.mjs';
 
 const GREETINGS = new Set(['hi', 'hey', 'heya', 'hello', 'hiya', 'yo', 'morning', 'evening', 'afternoon', 'dear', 'sup', 'heyy', 'heyyy', 'hii', 'hiii', 'howdy', 'greetings', 'gm', 'ola', 'hola', 'salut', 'hallo', 'ciao']);
 // Chat shorthand: reported on its own, kept out of topic words.
@@ -158,6 +159,42 @@ export function topEmoji(records, max = 10) {
   return [...c].sort((a, b) => b[1] - a[1]).slice(0, max).map(([emoji, count]) => ({ emoji, count }));
 }
 
+/**
+ * The main habits per kind of writing (chat messages, posts and notes, email), so a clone can match the
+ * channel. Only filled when at least two kinds have 10 or more messages each; otherwise null.
+ */
+export function byKind(records, { min = 10 } = {}) {
+  const groups = new Map();
+  for (const r of records) {
+    const k = kindOf(r.source);
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(r);
+  }
+  const kinds = [...groups].filter(([, recs]) => recs.length >= min);
+  if (kinds.length < 2) return null;
+  const out = {};
+  for (const [k, recs] of kinds) {
+    const f = features(recs.map((r) => r.text));
+    const sources = {};
+    for (const r of recs) sources[r.source] = (sources[r.source] || 0) + 1;
+    out[k] = {
+      messages: recs.length,
+      sources,
+      lengthWords: lengthStats(recs.map((r) => words(r.text).length)),
+      lowercaseStartRate: round(f.lowercaseStartRate, 3),
+      endPunctRate: round(f.endPunctRate, 3),
+      emojiMsgRate: round(f.emojiMsgRate, 3),
+      laughMsgRate: round(f.laughMsgRate, 3),
+      exclamationMsgRate: round(f.exclamationMsgRate, 3),
+      apostropheDropRate: round(f.apostropheDropRate, 3),
+      sentenceWords: round(f.sentenceWords, 1),
+      openers: openersClosers(recs, { min: 2, max: 5 }).openers.map((o) => o.token),
+      closers: openersClosers(recs, { min: 2, max: 5 }).closers.map((o) => o.token),
+    };
+  }
+  return out;
+}
+
 export function fingerprint(records) {
   const texts = records.map((r) => r.text);
   const charCounts = texts.map((t) => t.length);
@@ -173,6 +210,7 @@ export function fingerprint(records) {
   for (const r of records) sources[r.source] = (sources[r.source] || 0) + 1;
   const dates = records.map((r) => r.ts).filter(Boolean).sort();
   const eng = englishShare(texts);
+  const kinds = byKind(records);
   return {
     version: 1,
     messages: records.length,
@@ -192,6 +230,7 @@ export function fingerprint(records) {
     ...openersClosers(records),
     shorthand: shorthand(records),
     topicWords: topicWords(records),
+    ...(kinds ? { byKind: kinds } : {}),
   };
 }
 
@@ -255,5 +294,19 @@ export function fingerprintMarkdown(fp, { name = 'the user' } = {}) {
   lines.push('');
   lines.push(fp.topicWords.map((w) => `${w.word} (${w.messages})`).join(', ') || 'none');
   lines.push('');
+  if (fp.byKind) {
+    const names = { message: 'Chat messages', post: 'Posts and notes', email: 'Email' };
+    lines.push('## By Kind Of Writing');
+    lines.push('');
+    lines.push('The same habits measured separately for each kind of writing in the exports. Use them to match the channel.');
+    lines.push('');
+    lines.push('| Kind | Messages | Median words | 10th to 90th percentile | Words per sentence | Start lowercase | End in punctuation | With emoji | With laughter | With "!" | Contractions without apostrophe | Common first words | Common last words |');
+    lines.push('| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |');
+    for (const [k, v] of Object.entries(fp.byKind)) {
+      const src = Object.entries(v.sources).map(([s, c]) => `${s} ${c}`).join(', ');
+      lines.push(`| ${names[k] || k} (${src}) | ${v.messages} | ${v.lengthWords.median} | ${v.lengthWords.p10} to ${v.lengthWords.p90} | ${v.sentenceWords} | ${pct(v.lowercaseStartRate)} | ${pct(v.endPunctRate)} | ${pct(v.emojiMsgRate)} | ${pct(v.laughMsgRate)} | ${pct(v.exclamationMsgRate)} | ${pct(v.apostropheDropRate)} | ${v.openers.map((o) => `"${o}"`).join(', ') || 'none'} | ${v.closers.map((o) => `"${o}"`).join(', ') || 'none'} |`);
+    }
+    lines.push('');
+  }
   return lines.join('\n');
 }

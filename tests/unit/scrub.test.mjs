@@ -140,3 +140,9 @@ test('scrubs webhook and share links, database URLs, spelled-out emails and US S
 test('keeps ordinary URLs whole instead of turning their paths into [SECRET]', () => {
   for (const keep of ['https://example.com/blog/2026/01/sailing-tips', 'read https://medium.com/@rosa/sailing-tips-for-beginners-2026-3f9a1c', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ']) assert.equal(s(keep), keep);
 });
+
+test('scrubs "password is: x" and keeps the label words intact', () => {
+  assert.equal(s('the wifi password is: kilnroom2026'), 'the wifi password is: [PASSWORD]');
+  assert.equal(s('Password is:hunter2x'), 'Password is:[PASSWORD]');
+  assert.equal(s('pw was -> Sail!77'), 'pw was -> [PASSWORD]');
+});

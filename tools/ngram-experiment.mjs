@@ -2,8 +2,8 @@
 // Adds C = |z| of the cosine distance between a reply set's profile of the 100 most frequent
 // character 3- and 4-grams and your own profile (z against 200 bootstrap samples of your training
 // replies, capped at 5), and scores D' = (W + F + C) / 3 next to today's D = (W + F) / 2.
-// Prints the synthetic authors (as docs/calibration.mjs) and the Maya example, before and after.
-// Run: node docs/ngram-experiment.mjs   Results and the decision are in docs/SCORING.md.
+// Prints the synthetic authors (as tools/calibration.mjs) and the Maya example, before and after.
+// Run: node tools/ngram-experiment.mjs   Results and the decision are in docs/SCORING.md.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

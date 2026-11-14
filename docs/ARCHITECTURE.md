@@ -27,6 +27,10 @@ flowchart LR
   J --> K
   D --> K
   I -->|game| L[can-you-tell.html]
+  P[Any draft] -->|voicecheck vs train model| Q[voice match + drift list]
+  C --> Q
+  G -->|export| R[system prompt, ChatGPT, Claude Project, AGENTS.md, persona.json]
+  E --> R
   M[10 s clip, selfie or webcam frame] -->|MediaPipe at enrolment| N[avatar.html]
   N -->|selfclone serve + say| O[talking clone]
 ```
@@ -36,7 +40,10 @@ flowchart LR
 | Path | Role |
 | --- | --- |
 | `scripts/selfclone.mjs` | command line entry point |
-| `src/ingest/` | one parser per format, a ZIP reader, and `index.mjs` which detects formats and builds records with context and turns |
+| `src/ingest/` | one parser per format (WhatsApp, Telegram, Slack, X, email, notes, generic; Discord, Instagram and Messenger, LinkedIn, iMessage, Reddit, Google Chat, Word, blogs), shared HTML helpers, a ZIP reader, `more.mjs` (detection and dispatch for the newer formats) and `index.mjs`, which detects formats and builds records with context and turns |
+| `src/kinds.mjs` | the kind of writing of each source: chat message, post and notes, or email |
+| `src/voicecheck.mjs` | `selfclone voicecheck`: scores a draft against the training model of the matching kind and writes the drift list |
+| `src/export.mjs` | `selfclone export`: the clone as a system prompt, ChatGPT custom instructions, Claude Project instructions, an AGENTS.md section and `persona.json`, each fitted to its size limit |
 | `src/scrub.mjs` | secrets scrubber |
 | `src/split.mjs` | seeded train / sealed split by turn |
 | `src/text.mjs`, `src/functionwords.mjs` | tokenisation and the stylometric feature vector |
@@ -71,6 +78,34 @@ turns are ordered by `sha1(seed + ":" + turn)` and the first `min(eligible, max(
 are sealed. The order depends only on the seed and the turn ids, so the same corpus always gives the same
 split. A SHA-256 of `sealed.jsonl` is stored in `split.json` and checked by `test prompts` and `test score`.
 The pack excludes sealed message ids and any training message whose text equals a sealed reply line.
+
+## Voicecheck
+
+`voicecheck` reads `train.jsonl` only. It picks the reference units for the requested kind (`--as`): reply
+turns for chat, one record each for posts and email, falling back to all the writing when the kind has fewer
+than 30 units. It splits the draft into units of the same shape, builds the scorer's model at that number of
+units (cached per training set, kind and size), and scores the draft with `scoreTexts`. Below 1,000 words the
+match is computed from the feature distance against the feature-only baseline, because function-word
+frequencies in a short text are noise (`docs/SCORING.md`, Voicecheck). Each feature with `|z| >= 2` is turned
+into a sentence from the person's own numbers and from counts in the draft; related features (words and
+characters per message, lowercase starts and the uppercase share, the two emoji, question and exclamation
+measures) are merged so one habit gives one instruction. `--json` prints the whole result, and `--min <pct>`
+exits with code 2 below the threshold, for use in scripts and hooks.
+
+`fingerprint` also writes a "By Kind Of Writing" table when two or more kinds have 10 or more training messages
+each, so the clone can match the channel.
+
+## Export
+
+`export` reads the clone folder (`SKILL.md` and `references/`) and, when present, `style.json` and `report.json`
+from the workspace. It turns the fingerprint into concrete rules and ranks them by voice signal: the bare
+model's measured drift on that feature when `report.json` exists (`|z|` capped at 5), otherwise how far the
+person's habit sits from what a model writes by default (capital starts, final full stops, apostrophes, long
+replies). Each target is filled block by block in priority order: the AI clone disclosure (required; a limit too
+small for it is an error), the ranked rules, the modes, the hard limits, the voice details, the opinions,
+what is unknown, the examples. The first item that does not fit ends the export, so cutting to a size limit
+always drops the least important text and never the disclosure. ChatGPT and AGENTS.md exports carry no
+message ids. Sizes are counted in characters, or in UTF-8 bytes for AGENTS.md (Codex counts bytes).
 
 ## The Face
 
@@ -158,11 +193,18 @@ Each frame the rig computes vertex positions on the CPU (about 570 vertices):
 - **Lips:** width (scale around the mouth centre, falloff by distance), rounding (narrower plus pucker), upper
   lip raise (shows teeth), and lower-lip tuck for F and V.
 - **Visemes:** rest (M, B, P), AA, E, I, O, U and W, F and V, and L, T, D, N, S. Each is a set of jaw, width,
-  rounding, raise, tuck and teeth values. Parameters move toward the target with a 45 ms time constant (30 ms
-  when closing).
-- **Blink:** upper-lid points slide to the lower lid (85% of the gap) and the lower lid rises 15%; skin above the
-  lid follows with a falloff. The upper-lid texture coordinates shift upward during the blink so the closed lid
-  shows skin instead of stretched lashes. With glasses, blinking is off.
+  rounding, raise, tuck and teeth values. The jaw never opens past 58% of its range (AA), so the mouth talks
+  and never screams. Rounding (O, U) narrows the mouth, gathers the corners toward the centre, levels a smiling
+  lip line, lifts the middle of the upper lip and lowers the sides of the lower lip, so the opening is round,
+  not a lens. The corners also come in a little as the jaw drops. Each side is measured to its own corner,
+  since mouths are rarely symmetric.
+- **Timing:** each parameter follows its target as a critically damped spring (solved exactly per frame; it
+  settles in about 80 ms, a little faster when closing), so shapes ease in and out without overshoot. For the
+  drawn mouth the text target leans toward the next shape over the last 60 ms of a segment, and L, T, D, N, S
+  keep half the shape of the vowel next to them (coarticulation).
+- **Blink:** about 170 ms in all, with the eye more than half shut for about 100 ms (50 ms to close, 30 ms
+  closed, 90 ms to reopen). The upper lid slides down over the eye on the overlay canvas (see Rendering); the
+  mesh lids only sink by a fifth of the gap under it. With glasses, blinking is off.
 - **Head:** small yaw and pitch rotations about an axis behind the face use the landmark depth, so the nose
   moves more than the cheeks; roll pivots below the chin. Sums of slow sines drive idle motion, clamped to
   6 degrees yaw and pitch and 3 degrees roll. Face points move fully, the rings partly, the border not at all.
@@ -170,18 +212,32 @@ Each frame the rig computes vertex positions on the CPU (about 570 vertices):
 
 ### Rendering
 
-The mouth interior is drawn on a 2D canvas under the face: a dark cavity in the shape of the inner-lip ring, a
-tongue, and upper and lower teeth bands (the upper band hangs from the rest lip line, the lower band rides on
-the jaw), clipped to the opening and shown only for open visemes. The face mesh is drawn on top with WebGL (one
-textured draw call) and the mouth hole lets the cavity show through. If WebGL is not available, or with
-`?renderer=2d`, a Canvas2D renderer draws each triangle with an affine transform and a slightly enlarged clip
-to hide seams.
+The mouth interior is drawn on a 2D canvas under the face, in the shape of the inner-lip ring, with colours
+taken from the photo at load: the lip colour (sampled from the body of both lips) is pulled toward red and
+darkened to make a near-black base, a soft rim of a warmer, lighter shade inside the lips, and a faint
+dark-red glow low in the mouth for the tongue on open shapes. Upper teeth only, and only on open, spread
+shapes (AA, E, I, a little on L): the middle of the upper lip line, tinted from skin and lip tones, mostly
+desaturated, no brighter than the skin, at under half opacity, with the upper lip's shadow over their top.
+Every shape is softened with a shadow blur (which also works where canvas filters are missing), so nothing in
+the mouth has a hard edge. The face mesh is drawn on top with WebGL and the mouth hole lets the cavity show
+through. A strip of triangles across the hole (upper to lower inner lip) is drawn from the photo itself with
+an opacity that is 1 while the lips touch and fades out as they part, so the rest pose and M, B, P are exactly
+the photo, with no drawn line between the lips. If WebGL is not available, or with `?renderer=2d`, a Canvas2D
+renderer draws each triangle with an affine transform and a slightly enlarged clip to hide seams.
+
+**Drawn blink.** A photo avatar draws the blink on a canvas above the face. The lid is the band between the
+upper lid line (raised a little at the middle, to cover the painted lash line) and a lid edge that moves from
+the upper to the lower lid line. It is filled with the photo's own skin from just above the lid, mirrored
+across the top of the band so it joins without a seam, evened out toward the skin colour sampled just above the
+crease and shaded slightly darker toward the lashes, and feathered with a blurred mask. A soft lash line,
+darkened from the colour of the lid line itself, runs along the lid edge, thickest in the middle. Both
+renderers use the same overlay. A clip avatar with a closed-eye patch uses the patch instead.
 
 **Clip patches.** A clip-baked avatar has a third canvas above the face (Canvas2D in both renderers, so WebGL and
 the fallback behave the same). Each text viseme maps to a clip shape and an opening: AA, E, O, U and F V to their
 own patch, I to E at 80%, L, T, D, N, S to E at 55%, and closed lips inside a word to M B P (a pause between
 words is rest). When the shape has a patch, the drawn mouth's parameters aim at rest and two values move
-instead, with the same 45 ms and 30 ms time constants: a mix weight per shape and the opening. The mesh gets
+instead, with 45 ms and 30 ms time constants (opening and closing): a mix weight per shape and the opening. The mesh gets
 the measured displacement of each shape times its weight times the opening, so the lips take the shape seen in
 the clip (O and U are round, not lens-shaped). Each patch with weight above 1% is then warped piecewise-affinely
 (Delaunay triangles over its own landmarks, about 100 points) onto the current mesh points, masked by the ring
@@ -213,10 +269,28 @@ web page cannot forge it), and the server pushes it to every open avatar. Reques
 header (DNS rebinding) and writes with another site's `Origin` are refused, pages cannot be framed by another
 site, and uploaded audio gets an unguessable address.
 
+## Video Export
+
+`selfclone video` (`src/face/video.mjs`) turns a baked avatar into a labelled clip for screen recordings and
+tutorials. The page is rebuilt from the avatar's embedded data with the current runtime, so an edited
+`avatar.html` cannot drop the label. ffmpeg decodes the user's audio; Node measures loudness and spectral
+centroid every 10 ms with the same mapping the live audio mode uses (`sayFeatures()`); headless Chrome renders
+each frame on a paused clock (`?export=circle|square`, label on the chin); the raw frames are piped back to
+ffmpeg, which writes WebM VP9 with alpha (transparent background) or MP4 H.264, with the original audio muxed in.
+
+Safeguards, each covered by `tests/unit/video.test.mjs` and `tests/e2e/video.test.mjs`: every frame is checked
+for the "AI CLONE" label before encoding and a missing label aborts the export; the consent record must have a
+statement and a date, and its photo SHA-256 must match the embedded face; there is no text input, only the
+user's own audio; the file carries provenance tags and a `<file>.provenance.json` sidecar with SHA-256 hashes of
+the video and the audio; and `--max-minutes` caps the length (default 10, at most 60). The policy behind these
+rules is in [`ETHICS.md`](../ETHICS.md).
+
 ## Testing
 
-- `npm test`: unit tests for every parser, the scrubber, the split, the fingerprint, the pack, the scorer, the
-  game, the geometry, the clip enrolment (known transforms recovered by the similarity and affine fits,
+- `npm test`: unit tests for every parser (`tests/unit/formats-more.test.mjs` for the newer formats, on
+  synthetic exports built in the test), the scrubber, the split, the fingerprint, the pack, the scorer,
+  voicecheck (same and different authors, planted drifts, short texts, the per-kind reference, the CLI), the
+  exports (size limits, rule order, the disclosure surviving truncation, the CLI), the game, the geometry, the clip enrolment (known transforms recovered by the similarity and affine fits,
   alignment untouched by an open jaw, keyframe selection on synthetic sequences and on a recording of the
   landmarker's output for the test clip, patch validation), the CLI, and the security of the local servers and
   the MediaPipe download. No browser
@@ -227,5 +301,7 @@ site, and uploaded audio gets an unguessable address.
   fake camera fed by the test painting, and the clip path: `bake --video` on the synthetic clip
   (`tests/fixtures/mona-lisa-clip.webm`, see `SOURCE.md`), AA drawn from the patch and not the drawn mouth,
   the blink patch, the Canvas2D fallback, `file://` with the network off, the clip consent record, and webcam
-  clip enrolment with no `MediaRecorder`. Evidence frames go to `tests/output/`; `docs/make-contact-sheet.mjs`
-  renders every shape for both paths into `tests/output/contact-sheet.png`.
+  clip enrolment with no `MediaRecorder`. Evidence frames go to `tests/output/`; `tools/make-contact-sheet.mjs`
+  renders rest, AA, E, O, U, M B P, F V, a half-closed and a closed blink for both bakes, in WebGL and Canvas2D,
+  into `tests/output/contact-sheet.png` (and a zoomed `contact-sheet-mouth.png`; `--name before` keeps a
+  separate copy for comparisons). `npm run gif` makes the README media under a paused fake clock.

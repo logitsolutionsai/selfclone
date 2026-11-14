@@ -12,9 +12,10 @@ import { looksLikeSlack, parseSlack } from './slack.mjs';
 import { looksLikeTwitter, parseTwitter } from './twitter.mjs';
 import { looksLikeMbox, looksLikeEml, parseMbox } from './mbox.mjs';
 import { parsePlain, parseJsonl, parseCsvMessages, rowsToMessages } from './generic.mjs';
+import { MORE_FORMATS, MORE_PREFIX, detectMore, detectMoreText, resolveForced, parseMoreFile, multiFileUnits } from './more.mjs';
 
-export const FORMATS = ['whatsapp', 'telegram', 'slack', 'x', 'mbox', 'text', 'jsonl', 'csv'];
-const SOURCE_PREFIX = { whatsapp: 'wa', telegram: 'tg', slack: 'sl', x: 'x', mbox: 'em', text: 'tx', jsonl: 'gj', csv: 'gc' };
+export const FORMATS = ['whatsapp', 'telegram', 'slack', 'x', 'mbox', 'text', 'jsonl', 'csv', ...MORE_FORMATS];
+const SOURCE_PREFIX = { whatsapp: 'wa', telegram: 'tg', slack: 'sl', x: 'x', mbox: 'em', text: 'tx', jsonl: 'gj', csv: 'gc', ...MORE_PREFIX };
 const MEDIA_EXT = /\.(?:jpe?g|png|gif|webp|heic|mp4|mov|opus|ogg|m4a|mp3|wav|pdf|vcf|webm|zip)$/i;
 
 const TURN_GAP_MS = 5 * 60 * 1000; // consecutive own messages within 5 minutes form one turn
@@ -85,6 +86,7 @@ function parseEntries(entries, label, { format, me }, depth = 0) {
       units.push({ format: 'slack', label: name, ...parseSlackUnit(sub, name) });
     }
   }
+  units.push(...multiFileUnits(entries, label, claimed, format));
   const tw = entries.filter((e) => !claimed.has(e.path) && /(^|\/)tweets?(-part\d+)?\.js$/.test(e.path));
   if (format === 'x' || !format) {
     for (const e of tw) {
@@ -92,7 +94,8 @@ function parseEntries(entries, label, { format, me }, depth = 0) {
       claimed.add(e.path);
     }
     // An X archive folder holds many other .js data files that are not messages.
-    if (tw.length) for (const e of entries) if (/^(?:.*\/)?data\/[^/]+\.js$/.test(e.path)) claimed.add(e.path);
+    // Its viewer pages are not blog posts either.
+    if (tw.length) for (const e of entries) if (/^(?:.*\/)?data\/[^/]+\.js$/.test(e.path) || /\.html?$/i.test(e.path)) claimed.add(e.path);
   }
   for (const e of entries) {
     if (claimed.has(e.path)) continue;
@@ -112,7 +115,7 @@ function parseEntries(entries, label, { format, me }, depth = 0) {
     if (MEDIA_EXT.test(e.path)) continue;
     if (/(^|\/)(?:users|channels|groups|dms|mpims|integration_logs|canvases)\.json$/.test(e.path)) continue;
     try {
-      units.push(...parseFile(e, { format, me, label: `${label}/${e.path}` }));
+      units.push(...parseFile(e, { format, me, label: `${label}/${e.path}`, inFolder: true }));
     } catch (err) {
       if (format) throw new Error(`Could not read "${label}/${e.path}" as ${format}: ${err.message}. --format applies to every file in a folder or .zip; pass the export file itself instead.`);
     }
@@ -127,6 +130,8 @@ function parseSlackUnit(entries, label) {
 
 export function detectFormat(name, text) {
   const lower = name.toLowerCase();
+  const more = detectMore(lower, text);
+  if (more) return more === 'none' ? null : more;
   if (/\.js$/.test(lower) && looksLikeTwitter(text)) return 'x';
   if (/\.(?:mbox|mbx|eml)$/.test(lower)) return 'mbox';
   if (/\.(?:jsonl|ndjson)$/.test(lower)) return 'jsonl';
@@ -143,18 +148,22 @@ export function detectFormat(name, text) {
     return null;
   }
   if (looksLikeWhatsApp(text)) return 'whatsapp';
+  const txt = detectMoreText(text);
+  if (txt) return txt;
   if (looksLikeMbox(text) || looksLikeEml(text)) return 'mbox';
   if (/\.txt$/.test(lower) || !/\.[a-z0-9]{1,5}$/.test(lower)) return 'text';
   return null;
 }
 
-function parseFile(entry, { format, me, label }) {
+function parseFile(entry, { format, me, label, inFolder = false }) {
   const buf = entry.read();
   const name = entry.path;
   const utf8 = buf.toString('utf8');
-  const fmt = format || detectFormat(name, utf8);
+  const fmt = format ? resolveForced(format, name.toLowerCase(), utf8) : detectFormat(name, utf8);
   const base = path.basename(name);
   const meName = Array.isArray(me) ? me[0] : String(me || 'me').split(',')[0];
+  const more = parseMoreFile(fmt, { entry, buf, utf8, name, base, label, format, meName, inFolder });
+  if (more) return more;
   switch (fmt) {
     case 'whatsapp':
       // iOS names every export "_chat.txt" inside its .zip; use the zip name so two chats stay apart.

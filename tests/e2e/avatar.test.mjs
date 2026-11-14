@@ -217,12 +217,23 @@ test('blink changes the eye region and then reopens', async (t) => {
     const e1 = reg.eyes[1];
     const box = { x: e0.x, y: Math.min(e0.y, e1.y) - 6, width: e1.x + e1.width - e0.x, height: Math.max(e0.height, e1.height) + 12 };
     const open = await shot(page, box, 'evidence-eyes-open.png');
+    // A blink lasts under 200 ms, about as long as two or three screenshots, so sample it back to back
+    // from the moment it starts and keep the most closed frame, instead of one shot after a fixed sleep.
     await page.evaluate(() => window.selfclone.blink());
-    await sleep(85);
-    const closed = await shot(page, box, 'evidence-eyes-blink.png');
+    let d = 0;
+    let closedBuf = null;
+    const t0 = Date.now();
+    while (Date.now() - t0 < 400) {
+      const buf = await page.screenshot({ clip: box });
+      const dd = meanDiff(open, decodePng(buf));
+      if (dd > d) {
+        d = dd;
+        closedBuf = buf;
+      }
+    }
+    if (closedBuf) fs.writeFileSync(path.join(OUT, 'evidence-eyes-blink.png'), closedBuf);
     await sleep(500);
     const reopened = await shot(page, box);
-    const d = meanDiff(open, closed);
     const back = meanDiff(open, reopened);
     t.diagnostic(`blink diff ${d.toFixed(2)}, after ${back.toFixed(2)}`);
     assert.ok(d > 2, `eyes should change during a blink (${d.toFixed(2)})`);

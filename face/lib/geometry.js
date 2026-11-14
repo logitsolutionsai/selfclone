@@ -225,6 +225,10 @@ export function createRig({ points, kinds, landmarks: L, size, glasses = false }
   const lipTuck = new Float32Array(n);
   const pucker = new Float32Array(n);
   const corner = new Float32Array(n);
+  const gather = new Float32Array(n);
+  const roundOpen = new Float32Array(n);
+  const level = new Float32Array(n);
+  const innerCorner = new Float32Array(n);
   const wHead = new Float32Array(n);
   const blinkEye = new Uint8Array(n);
   const blinkW = new Float32Array(n);
@@ -249,6 +253,8 @@ export function createRig({ points, kinds, landmarks: L, size, glasses = false }
   const lineRight = cl[0] < cr[0] ? cr : cl;
   const lipLine = (u) => (u < 0 ? polyAt([lineLeft, [0, 0]], u) : polyAt([[0, 0], lineRight], u));
   const chinT = local(L[CHIN])[1];
+  const innerLeft = Math.max(1, -Math.min(local(L[78])[0], local(L[308])[0]));
+  const innerRight = Math.max(1, Math.max(local(L[78])[0], local(L[308])[0]));
   const lowerOuterT = local(L[17])[1];
 
   for (let i = 0; i < n; i++) {
@@ -288,7 +294,48 @@ export function createRig({ points, kinds, landmarks: L, size, glasses = false }
       }
     }
     if (isLip && kinds[i] === KIND.FACE) wMouth[i] = Math.max(wMouth[i], 0.9);
+    // Rounding gathers the mouth corners toward the centre (more than a plain narrowing), and opens
+    // the sides of the inner lips, so O and U read as round rather than as a narrow lens.
+    // Mouths are rarely symmetric about the lip centre, so each side is measured to its own corner.
+    const sideOuter = u < 0 ? -lineLeft[0] : lineRight[0];
+    const cw = kinds[i] === KIND.FRAME ? 0 : smoothstep(0.2 * sideOuter, 0.85 * sideOuter, Math.abs(u)) * wMouth[i];
+    gather[i] = Math.sign(u) * cw;
+    // A smile lifts the corners above the centre of the lip line; rounding levels them, so the
+    // opening is not a crescent.
+    level[i] = -lipLine(clamp(u, lineLeft[0], lineRight[0])) * cw;
+    if (i === 78 || i === 308) innerCorner[i] = Math.sign(u);
+    else if (i === 62 || i === 292) innerCorner[i] = 0.6 * Math.sign(u);
+    if (i < N_FACE && (UPPER_INNER.includes(i) || UPPER_SEMI_INNER.includes(i) || LOWER_INNER.includes(i) || LOWER_SEMI_INNER.includes(i))) {
+      const sx = clamp(Math.abs(u) / (u < 0 ? innerLeft : innerRight), 0, 1);
+      // Lower lip: the sides drop more than a lens would; upper lip: lifts most in the middle.
+      roundOpen[i] = lowerSet.has(i) ? clamp(0.3 * (1 - sx * sx) + 0.6 * 4 * sx * (1 - sx), 0, 1) : -clamp(1 - sx * sx, 0, 1);
+    }
   }
+
+  // Rounded shapes (O, U): the lips push forward around a small, upright opening. The inner lip ring is
+  // laid out on that opening's outline (each point keeps its place around the ring: left corner, along
+  // the upper lip, right corner, back along the lower lip), and the lip rings outside it follow mostly
+  // up and down and only a little sideways, so the lips keep their own texture and nothing folds.
+  const tRest = new Float32Array(n);
+  for (let i = 0; i < n; i++) tRest[i] = local(points[i])[1];
+  const roundRings = [];
+  const FOLLOW_T = [0.85, 0.55, 0.25];
+  const FOLLOW_U = [0.55, 0.3, 0.12];
+  const outerOf = (rings, k) => rings.map((r, j) => [r[k], FOLLOW_U[j], FOLLOW_T[j]]);
+  const cornerFirst = local(L[78])[0] < local(L[308])[0];
+  roundRings.push({ i: cornerFirst ? 78 : 308, ang: Math.PI, follow: outerOf(cornerFirst ? [[62], [76], [61]] : [[292], [306], [291]], 0) });
+  roundRings.push({ i: cornerFirst ? 308 : 78, ang: 0, follow: outerOf(cornerFirst ? [[292], [306], [291]] : [[62], [76], [61]], 0) });
+  for (const [inner, outers, side] of [
+    [UPPER_INNER, [UPPER_SEMI_INNER, UPPER_SEMI_OUTER, UPPER_OUTER], 1],
+    [LOWER_INNER, [LOWER_SEMI_INNER, LOWER_SEMI_OUTER, LOWER_OUTER], -1],
+  ]) {
+    const lf = local(L[inner[0]])[0] < local(L[inner[inner.length - 1]])[0];
+    const m = inner.length + 1;
+    inner.forEach((i, k) => roundRings.push({ i, ang: side * (Math.PI - (Math.PI * (lf ? k + 1 : m - 1 - k)) / m), follow: outerOf(outers, k) }));
+  }
+  const roundUV = new Float32Array(n);
+  const DU = new Float32Array(n);
+  const DT = new Float32Array(n);
 
   // Blink weights, per eye.
   const eyes = [
@@ -393,7 +440,13 @@ export function createRig({ points, kinds, landmarks: L, size, glasses = false }
     for (let i = 0; i < n; i++) {
       const u = mu[i];
       let du = kw * s * u * wMouth[i];
+      // Corners come in as the mouth rounds, and a little as the jaw drops.
+      if (gather[i]) du -= (0.09 * round + 0.03 * jaw) * mw * gather[i];
+      // The inner corners tuck in further, so a rounded mouth has blunt ends, not points.
+      if (innerCorner[i]) du -= round * 0.035 * mw * innerCorner[i];
       let dt = jaw * maxDrop * wJaw[i];
+      if (roundOpen[i]) dt += round * 0.07 * mw * roundOpen[i];
+      if (level[i]) dt += round * 0.7 * level[i];
       if (lipTuck[i]) dt -= tuck * (0.7 * jaw * maxDrop * wJaw[i] + 0.03 * mw) * lipTuck[i];
       if (lipRaise[i]) dt -= raise * 0.06 * mw * lipRaise[i];
       if (pucker[i]) dt += round * 0.035 * mw * pucker[i];
@@ -402,6 +455,36 @@ export function createRig({ points, kinds, landmarks: L, size, glasses = false }
         const b = blinkEye[i] === 1 ? bR : bL;
         dt += b * blinkGap[i] * blinkW[i];
       }
+      DU[i] = du;
+      DT[i] = dt;
+    }
+    roundUV.fill(0);
+    if (round > 0) {
+      // The opening: about 0.26 x 0.30 mouth widths for O, 0.21 x 0.24 for U, centred between the
+      // corners and halfway down the jaw drop.
+      // Applied at half strength: a full relayout onto a small ellipse stretches the lip texture into radial creases.
+      const k = 0.5 * smoothstep(0, 0.8, round);
+      const ea = (0.12 + 0.11 * jaw) * mw;
+      const eb = (0.095 + 0.14 * jaw) * mw;
+      const uc = (mu[78] + DU[78] + mu[308] + DU[308]) / 2;
+      const ec = 0.45 * jaw * maxDrop;
+      for (const r of roundRings) {
+        // The inner ring samples the photo a little into each lip, so the dark line between the lips
+        // is not drawn around the opening as an outline.
+        roundUV[r.i] = -k * 0.03 * mw * Math.sin(r.ang);
+        const gu = k * (uc + ea * Math.cos(r.ang) - (mu[r.i] + DU[r.i]));
+        const gt = k * (ec - eb * Math.sin(r.ang) - (tRest[r.i] + DT[r.i]));
+        DU[r.i] += gu;
+        DT[r.i] += gt;
+        for (const [j, wu, wt] of r.follow) {
+          DU[j] += wu * gu;
+          DT[j] += wt * gt;
+        }
+      }
+    }
+    for (let i = 0; i < n; i++) {
+      const du = DU[i];
+      const dt = DT[i];
       let x = rest[2 * i] + du * ex[0] + dt * ey[0];
       let y = rest[2 * i + 1] + du * ex[1] + dt * ey[1];
       if (extra) {
@@ -416,6 +499,7 @@ export function createRig({ points, kinds, landmarks: L, size, glasses = false }
         const b = blinkEye[i] === 1 ? bR : bL;
         su = b * uvShift[i];
       }
+      su -= roundUV[i];
       uvOut[2 * i] = (rest[2 * i] - su * ey[0]) / size;
       uvOut[2 * i + 1] = (rest[2 * i + 1] - su * ey[1]) / size;
     }
@@ -467,13 +551,15 @@ export function buildMesh(L, size) {
 // ---- visemes ----
 export const VISEMES = {
   rest: { jaw: 0, wide: 0, round: 0, raise: 0, tuck: 0, teeth: 0, lowerTeeth: 0 },
-  AA: { jaw: 0.85, wide: 0.15, round: 0, raise: 0.2, tuck: 0, teeth: 0.85, lowerTeeth: 0.25 },
-  E: { jaw: 0.45, wide: 0.6, round: 0, raise: 0.35, tuck: 0, teeth: 0.95, lowerTeeth: 0.5 },
-  I: { jaw: 0.25, wide: 0.85, round: 0, raise: 0.4, tuck: 0, teeth: 1, lowerTeeth: 0.6 },
-  O: { jaw: 0.6, wide: -0.5, round: 0.7, raise: 0.05, tuck: 0, teeth: 0.25, lowerTeeth: 0 },
-  U: { jaw: 0.22, wide: -0.85, round: 1, raise: 0, tuck: 0, teeth: 0, lowerTeeth: 0 },
-  FV: { jaw: 0.16, wide: 0.1, round: 0, raise: 0.35, tuck: 1, teeth: 1, lowerTeeth: 0 },
-  L: { jaw: 0.35, wide: 0.2, round: 0, raise: 0.2, tuck: 0, teeth: 0.85, lowerTeeth: 0.4 },
+  // Openings are capped well below the jaw's range (a talking mouth, never a scream), and only the
+  // open, spread shapes show the upper teeth.
+  AA: { jaw: 0.58, wide: 0.06, round: 0, raise: 0.12, tuck: 0, teeth: 0.55, lowerTeeth: 0 },
+  E: { jaw: 0.3, wide: 0.5, round: 0, raise: 0.25, tuck: 0, teeth: 0.7, lowerTeeth: 0 },
+  I: { jaw: 0.2, wide: 0.65, round: 0, raise: 0.25, tuck: 0, teeth: 0.55, lowerTeeth: 0 },
+  O: { jaw: 0.4, wide: -0.3, round: 0.85, raise: 0.05, tuck: 0, teeth: 0, lowerTeeth: 0 },
+  U: { jaw: 0.18, wide: -0.55, round: 1, raise: 0, tuck: 0, teeth: 0, lowerTeeth: 0 },
+  FV: { jaw: 0.08, wide: 0.05, round: 0, raise: 0.25, tuck: 1, teeth: 0, lowerTeeth: 0 },
+  L: { jaw: 0.26, wide: 0.12, round: 0, raise: 0.12, tuck: 0, teeth: 0.25, lowerTeeth: 0 },
 };
 export const VISEME_KEYS = Object.keys(VISEMES);
 

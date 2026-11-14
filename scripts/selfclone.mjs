@@ -3,34 +3,46 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseArgs, workDir, readJsonl, writeJsonl, readJson, writeJson, writeText, VERSION, sealedDigestCheck } from '../src/cli-helpers.mjs';
-import { ingest } from '../src/ingest/index.mjs';
+import { ingest, FORMATS } from '../src/ingest/index.mjs';
 import { split } from '../src/split.mjs';
 import { scrub } from '../src/scrub.mjs';
 import { fingerprint, fingerprintMarkdown } from '../src/fingerprint.mjs';
 import { buildPack } from '../src/pack.mjs';
 import { score, reportMarkdown, parseReplies } from '../src/score.mjs';
 import { buildRounds, gameHtml } from '../src/game.mjs';
+import { voicecheck, voicecheckText, KINDS } from '../src/voicecheck.mjs';
 
 // Paths are stored relative to the working folder, so workspace files never record a user's home or drive path.
 const relPath = (x) => path.relative(process.cwd(), path.resolve(x)).split(path.sep).join('/') || '.';
 
-const HELP = `selfclone ${VERSION}: clone your writing style, give it a face, and measure how close it gets.
+const HELP = () => `selfclone ${VERSION}: clone your writing style, give it a face, and measure how close it gets.
 
 Usage:
   selfclone ingest <paths...> --me "<name or handle>"   Parse exports into .selfclone/ and seal a test set
-      [--format whatsapp|telegram|slack|x|mbox|text|jsonl|csv] [--no-scrub] [--seed s] [--name "Display Name"]
+      [--format ${FORMATS.join('|')}]
+      [--no-scrub] [--seed s] [--name "Display Name"]
   selfclone scrub <file> [--out file]                  Print a file with secrets replaced by placeholders
   selfclone fingerprint                                Measure style on the training split (style.json, style.md)
   selfclone pack [--max-chars 60000]                   Write distill-pack.md for Claude to read
   selfclone test prompts                               Write test-prompts.json (sealed contexts, no answers)
   selfclone test score --clone <file> --bare <file>    Score replies against the sealed real replies
   selfclone game [--clone file] [--rounds 10]          Write can-you-tell.html
+  selfclone voicecheck <file|-> [--as message|post|email] [--json] [--min 80]
+                                                       Does this draft sound like me? Score any text against your
+                                                       style (a replies JSON file is checked as a set)
+  selfclone export [--to all|system-prompt|chatgpt|claude-project|agents-md|persona] [--clone out/<slug>-clone]
+                                                       Ready-to-paste files for other tools, in <clone>/export/
   selfclone face [--port 7319] [--no-open]             Enrol your face with the webcam (local page)
   selfclone bake --photo <img> --consent "<statement>" Bake avatar.html from a still photo (headless Chrome)
   selfclone bake --video <clip> --consent "<statement>" Better: bake from a ~10 s clip of you reading the enrol phrase
       [--name "Full Name"] [--glasses auto|yes|no] [--out file]
   selfclone serve [--port 7320] [--no-open]            Serve the avatar so other commands can make it speak
   selfclone say "text" | selfclone say --audio <file>  Make the open avatar speak
+  selfclone video --audio voice.wav [-o out.webm|out.mp4] [--avatar .selfclone/avatar.html]
+      [--size 480] [--shape circle|square] [--background transparent|#hex] [--max-minutes 10]
+                                                       A face on camera without the camera: the avatar
+                                                       lip-synced to your own recorded voice, labelled
+                                                       AI CLONE on every frame, for screen recordings
   selfclone status                                     Show what is in .selfclone/
 
 Options for every command: --dir <folder> (default .selfclone, or SELFCLONE_DIR)
@@ -56,8 +68,10 @@ function need(file, hint) {
 }
 
 async function main(argv) {
-  const [cmd, ...rest] = argv;
-  const args = parseArgs(rest, { multi: ['me'], booleans: ['no-scrub', 'no-open', 'strict', 'json'] });
+  const [cmd, ...rest0] = argv;
+  // -o is the usual short form of --out (selfclone video -o talk.webm).
+  const rest = rest0.map((a) => (a === '-o' ? '--out' : a));
+  const args = parseArgs(rest, { multi: ['me'], booleans: ['no-scrub', 'no-open', 'strict', 'json', 'all'] });
   const dir = workDir(args);
   const p = (f) => path.join(dir, f);
 
@@ -66,7 +80,7 @@ async function main(argv) {
     case 'help':
     case '--help':
     case '-h':
-      out(HELP);
+      out(HELP());
       return;
     case '--version':
     case 'version':
@@ -197,6 +211,51 @@ async function main(argv) {
       return;
     }
 
+    case 'voicecheck': {
+      const file = args._[0];
+      if (!file) throw new Error('Usage: selfclone voicecheck <file|-> [--as message|post|email] [--json]. Pass - to read the draft from standard input.');
+      need(p('train.jsonl'), 'Run selfclone ingest first.');
+      if (args.as != null && !KINDS.includes(args.as)) throw new Error(`--as must be one of ${KINDS.join(', ')}, not "${args.as}".`);
+      const raw = file === '-' ? fs.readFileSync(0, 'utf8') : fs.readFileSync(file, 'utf8');
+      // A replies file ([{"id": "...", "reply": "..."}]) is checked as a set of drafts.
+      let draft = raw;
+      if (/^\s*[[{]/.test(raw)) {
+        try {
+          const set = parseReplies(raw);
+          if (set.size) draft = [...set.values()];
+        } catch {
+          // not JSON: check it as text
+        }
+      }
+      const train = readJsonl(p('train.jsonl'));
+      const info = fs.existsSync(p('ingest.json')) ? readJson(p('ingest.json')) : { name: null };
+      const r = voicecheck({ train, draft, kind: args.as, top: num(args, 'top', 6, 1, 26), seed: String(args.seed || 'selfclone') });
+      if (args.json) out(JSON.stringify(r, null, 2));
+      else out(voicecheckText(r, { name: info.name }));
+      if (args.min != null && r.voiceMatch < num(args, 'min', 0, 0, 100)) process.exitCode = 2;
+      return;
+    }
+
+    case 'export': {
+      const { writeExports, TARGET_NAMES } = await import('../src/export.mjs');
+      let cloneDir = args.clone;
+      if (!cloneDir) {
+        const outDir = path.resolve('out');
+        const found = fs.existsSync(outDir) ? fs.readdirSync(outDir).filter((d) => /-clone$/.test(d) && fs.existsSync(path.join(outDir, d, 'SKILL.md'))) : [];
+        if (found.length !== 1) throw new Error(found.length ? `Several clones in out/ (${found.join(', ')}). Pick one with --clone out/<slug>-clone.` : 'No clone found in out/. Distill one first, or pass --clone <folder>.');
+        cloneDir = path.join(outDir, found[0]);
+      }
+      const to = args.to && args.to !== true ? String(args.to) : 'all';
+      const fp = fs.existsSync(p('style.json')) ? readJson(p('style.json')) : null;
+      const report = fs.existsSync(p('report.json')) ? readJson(p('report.json')) : null;
+      const { written } = writeExports(cloneDir, { to, fp, report, maxChars: args.maxChars != null ? num(args, 'maxChars', 12000, 1000, 1e6) : null });
+      out(`Exported ${written.length} file${written.length === 1 ? '' : 's'} to ${relPath(path.join(cloneDir, 'export'))}/ (targets: ${TARGET_NAMES.join(', ')})`);
+      for (const w of written) out(`  ${path.basename(w.file)}: ${w.info}`);
+      if (!fp) out('  Note: no style.json in the workspace, so the voice rules were not ranked by the fingerprint. Run selfclone fingerprint (or pass --dir) for better exports.');
+      out('Every export starts with the AI clone disclosure. Keep it when you paste.');
+      return;
+    }
+
     case 'face': {
       const { startEnrolServer } = await import('../src/face/server.mjs');
       await startEnrolServer({ dir, port: num(args, 'port', 7319, 0, 65535), open: args.open !== false && !args.noOpen });
@@ -238,6 +297,16 @@ async function main(argv) {
       const { sayText, sayAudio } = await import('../src/face/server.mjs');
       const r = args.audio ? await sayAudio({ dir, file: args.audio }) : await sayText({ dir, text: args._.join(' ') });
       out(r.clients ? `Sent to ${r.clients} open avatar${r.clients === 1 ? '' : 's'}.` : 'Sent, but no avatar page is connected. Open the URL printed by selfclone serve.');
+      return;
+    }
+
+    case 'video': {
+      const { checkVideoArgs, exportVideo } = await import('../src/face/video.mjs');
+      const o = checkVideoArgs(args, { dir });
+      out(`Rendering ${relPath(o.out)} (${o.size} px, ${o.shape}, ${o.transparent ? 'transparent' : o.background}) from ${relPath(o.audio)}...`);
+      const r = await exportVideo(o, { log: (m) => out(m) });
+      out(`Wrote ${relPath(r.file)} (${Math.round(r.bytes / 1024)} KB, ${r.seconds.toFixed(1)} s, ${r.frames} frames) and ${path.basename(r.sidecar)}.`);
+      out('Every frame carries the AI CLONE label and the file is tagged as an AI clone. Use only your own voice, or a voice clone of yourself.');
       return;
     }
 

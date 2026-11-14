@@ -39,14 +39,55 @@ The skill asks about consent before it ingests anything and refuses the cases ab
   panel. The badge also records whether the face came from a photo or a clip.
 - **Always-visible "AI CLONE" badge.** It cannot be switched off in the page, and the face stops rendering if the
   badge is removed or hidden. This is a default, not a lock: anyone can edit an HTML file.
-- **No video export.** The avatar has no recording or export feature.
+- **Video only with a label.** The avatar page records nothing. `selfclone video` makes a video file only under
+  the rules in [Video Export](#video-export) below: a burned-in label, a checked consent record, your own audio,
+  provenance tags and a length cap.
 - **No puppeteering.** The face is driven only by text or audio. It cannot be driven by anyone's webcam, so it
   cannot be used as a live deepfake of the person in a video call.
 - **The face is not photoreal.** It is one frame warped in 2D, with a drawn mouth interior or, after a clip,
   small flat patches of the person's own mouth and eyes. It is easy to tell apart from video of the person, by
-  design: no video synthesis, no deep learning beyond the landmark detector used once at enrolment.
+  design: no generative video model, no deep learning beyond the landmark detector used once at enrolment.
 - **Honest scoring.** The fidelity score is computed by counting, on messages the clone never saw, and the
   report says what it does not measure.
+
+## Video Export
+
+**What changed.** selfclone used to have no video export at all. It now has one, `selfclone video`: the avatar
+rendered into a video file, lip-synced to a recording of your own voice, to sit in a corner of a screen recording
+or tutorial as a picture-in-picture presenter, a face on camera without the camera. The owner decided to allow it
+because it is an ordinary, useful thing to want (people who do not want to be on camera, or cannot be, still want
+a face on their tutorials), and because a video file leaves the page, where the page's badge cannot follow it. So
+the safeguards were built into the video itself, before the feature.
+
+**Why the label is burned in.** Article 50 of the EU AI Act (Regulation (EU) 2024/1689) requires that video which
+is artificially generated or manipulated and resembles a real person (a deep fake) be disclosed as such by
+whoever publishes it, and that AI-generated video be marked in a machine-readable way. Metadata alone is lost
+as soon as a file is re-encoded, trimmed or uploaded to a platform that strips tags, so the disclosure is part of
+the picture, and the tags are there as well.
+
+**The safeguards** (each one is covered by tests):
+
+- **A burned-in "AI CLONE" label on every frame**, over the chin, inside the face, so cropping a corner cannot
+  remove it: cropping it out means cutting into the face. It stays legible at the smallest size allowed (240 px:
+  12 px bold white letters on red). No flag turns it off. Every frame is checked for the label before it is
+  encoded, and if one lacks it nothing is written. The page is rebuilt from the avatar's data with selfclone's own
+  code, so editing the avatar's HTML does not remove it.
+- **A consent check.** Export refuses an avatar with no consent record, with no statement or date, or whose
+  record does not match the face in the file (the photo hash differs).
+- **Your own audio only.** The only input is an audio file, and there is no text-to-speech, so selfclone never
+  puts words in a voice that is not yours. Use only your own recorded voice, or a voice clone of yourself made
+  with a tool you are entitled to use. Never someone else's voice.
+- **Provenance.** The file carries metadata tags: a comment saying it is an AI clone made with selfclone, the
+  consent statement and date, and the selfclone version. A sidecar `<file>.provenance.json` holds the same plus
+  SHA-256 hashes of the video and the audio.
+- **A length cap.** 10 minutes by default (`--max-minutes`, at most 60): a tool for a tutorial, not for bulk
+  generation.
+- **Still no puppeteering and no live output.** The video is rendered offline from a file you give it; nothing
+  is streamed to a call.
+
+**What this does not stop.** Anyone can blur or paint over a label in a video editor, strip the tags, or film the
+screen. The label and the tags make honest use the easy default and dishonest use a deliberate act; they are not
+copy protection. Publishing a video with the label removed breaks these rules and, in the EU, the law.
 
 ## If You Find Misuse
 
