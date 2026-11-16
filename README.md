@@ -1,6 +1,6 @@
 <h1 align="center">selfclone</h1>
 
-<p align="center"><b>A Claude Code skill that turns any topic into an animated explainer video, on your own computer.<br>It also clones how you write, and scores the clone on your real messages.</b></p>
+<p align="center"><b>Turn one photo of yourself into a cartoon host, and let Claude make explainer videos on any topic starring you.<br>On your own computer. It also clones how you write, and scores the clone on your real messages.</b></p>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-0065FD?style=flat-square" alt="License: MIT"></a>
@@ -8,6 +8,22 @@
   <a href="SKILL.md"><img src="https://img.shields.io/badge/Agent%20Skills-compatible-0065FD?style=flat-square" alt="Agent Skills compatible"></a>
   <a href="#explainer-videos-on-any-topic"><img src="https://img.shields.io/badge/runs%20on-CPU%2C%20no%20GPU-0065FD?style=flat-square" alt="Runs on the CPU, no GPU"></a>
 </p>
+
+## Star In Your Own Explainers
+
+<p align="center">
+  <img src="docs/media/your-host.gif" width="100%" alt="A photo on the left, an arrow, and on the right the cartoon host drawn from it, waving and saying: I was drawn from one photo, and now I can host your explainer.">
+</p>
+
+One photo of your face becomes a drawn character that talks, points, waves and lip-syncs, and hosts any explainer
+you ask Claude for. Or ask for random fictional people, or nobody on screen.
+
+```bash
+selfclone character --photo me.jpg --consent "This is my own face. Your Name" --name "Your Name"
+selfclone explainer scenes.json --character .selfclone/character.json
+```
+
+<sub>The photo here is the Mona Lisa, a public domain painting, standing in for yours. A real face needs its owner's consent.</sub>
 
 <p align="center">
   <a href="docs/media/showreel.mp4"><img src="docs/media/showreel.gif" width="100%" alt="A showreel of ten animated explainers made with selfclone: a host explaining neural networks, a pilot and a passenger talking about lift, compound interest growing in a bar chart, two characters discussing vaccines, a Manim proof of the Pythagorean theorem, a who-or-whom lesson at a chalkboard, a neuron firing, the Ship of Theseus, why the sky is blue, and Earth orbiting the Sun with its tilted axis."></a>
@@ -38,7 +54,7 @@
 
 selfclone is a Claude Code skill, and an agent skill that also runs in Codex and Cursor. It does two things.
 
-- **Explainer videos on any topic.** Ask for a video about anything. Claude writes the script, picks a host and lays out the scenes, then the skill animates and voices them on your computer. The host can be a drawn character of you, random fictional people, or nobody at all. No GPU and no image model.
+- **Explainer videos on any topic, starring you.** Ask for a video about anything. Claude writes the script and lays out the scenes, then the skill animates and voices them on your computer. The host is a cartoon of you drawn from one photo, random fictional people, or nobody at all. No GPU and no image model.
 - **A writing clone of you.** Give it your own chat exports. It distills them into a persona skill that writes the way you write and gives it a talking face, then measures how close it gets with a score computed by counting, not by asking a model to grade itself.
 
 Everything runs locally. The only network use is downloading the voice model and the face landmarker once.
@@ -50,7 +66,7 @@ Everything runs locally. The only network use is downloading the voice model and
 /plugin install selfclone@selfclone
 ```
 
-Then ask: "make an explainer video about how vaccines work", or "clone me" and point Claude at your exports. Or paste this into Claude Code:
+Then ask: "make me a character from me.jpg and an explainer video about how vaccines work", or "clone me" and point Claude at your exports. Or paste this into Claude Code:
 
 ```
 Clone https://github.com/logitsolutionsai/selfclone into ~/.claude/skills/selfclone, run npm install there, then make me a one-minute explainer video about black holes.
