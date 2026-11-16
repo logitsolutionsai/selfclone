@@ -1,6 +1,6 @@
 ---
 name: selfclone
-description: Clone a person's writing voice and way of thinking from their own chat exports into a persona skill, optionally give it a talking face from a 10-second clip or one selfie, and measure how close it gets with a deterministic style score that no language model grades. Use when the user says "clone me", "distill myself", "make a persona of me", "make a skill that writes like me", "give my clone a face", "make my clone talk", "test my clone", "how close is my clone", "does this sound like me", "check this draft against my voice" or "export my clone to ChatGPT", or brings WhatsApp, Telegram, Slack, Discord, Instagram, Messenger, LinkedIn, iMessage, Reddit, Google Chat, X, email, Word, blog or notes exports to build a persona. Only for the user themself or a person who gave written consent; never public figures' private data, never minors. Also for Voice CI and the Voice Passport: "lint this changelog in my voice", "make my style card", "set up a voice kit for this repo".
+description: Clone a person's writing voice and way of thinking from their own chat exports into a persona skill, optionally give it a talking face from a 10-second clip or one selfie, and measure how close it gets with a deterministic style score that no language model grades. Use when the user says "clone me", "distill myself", "make a persona of me", "make a skill that writes like me", "give my clone a face", "make my clone talk", "test my clone", "how close is my clone", "does this sound like me", "check this draft against my voice" or "export my clone to ChatGPT", or brings chat, email, blog or notes exports (WhatsApp, Slack, Telegram and more) to build a persona. Also animated explainer videos on any topic: "make an explainer video". Only for the user themself or a person who gave written consent; never public figures' private data, never minors. Also for Voice CI and the Voice Passport: "lint this changelog in my voice", "make my style card", "set up a voice kit for this repo".
 ---
 
 # selfclone
@@ -213,11 +213,10 @@ SC video --audio voice.wav -o presenter.webm                                    
 SC video --audio voice.wav --shape square --background "#1e1e1e" -o presenter.mp4   # for tools without transparency
 ```
 
-Every frame carries an "AI CLONE" label over the chin that no option removes, the file is tagged as an AI clone
-with a `.provenance.json` beside it, and videos are capped at 10 minutes (`--max-minutes`, at most 60). Only the
-user's own voice: a recording of them, or a voice clone of themself. Never use someone else's voice, and do not
-make speech for them with a text-to-speech voice that is not theirs; the command takes audio only. Tell them to
-keep the label visible when they publish (the EU AI Act, Article 50, requires disclosure).
+Videos are capped at 10 minutes (`--max-minutes`, at most 60) and carry no label. Only the user's own voice: a
+recording of them, or a voice clone of themself. Never use someone else's voice, and do not make speech for them
+with a text-to-speech voice that is not theirs; the command takes audio only. If they publish it where the EU AI
+Act applies, they should say it is an AI clone in the post (Article 50).
 
 ### 9. Install The Clone
 
@@ -236,6 +235,156 @@ This writes ready-to-paste files: `system-prompt.md` (any model), `chatgpt-instr
 AGENTS.md or Cursor rules section for commit messages, PRs and docs, under 6,000 bytes) and `persona.json`.
 Each is fitted to its limit with the voice rules that carry the most signal first, and each starts with the AI
 clone disclosure. Tell the user to keep that line when they paste.
+
+## Explainer Videos (Studio)
+
+Use this when the user wants an animated explainer on any topic: a lesson, a product walkthrough, a story, a
+debate. No GPU and no image model: characters are drawn SVG rigs, the voice is Kokoro on the CPU by default,
+maths can be drawn by Manim, and every frame is rendered in headless Chrome by parallel workers. Every video is
+ready to post. The flow is: ask how the video should be hosted, script it, write
+`scenes.json`, preview the stills, then render. `examples/showcase/` holds ten finished scene files, one per
+field and host mode; read the closest one before writing a new file.
+
+1. **Who is on screen?** Ask the user. There are three choices:
+   - **Their own character.** Needs a clear, straight-on photo or a short clip, and their consent:
+     `SC character --photo me.jpg --consent "This is my own face. <Full Name>" --name "<Full Name>" --hair <style>`.
+     Look at the photo yourself and pick `--hair` (short, bun, updo, long, curly, bald, ponytail, afro, wild,
+     sidepart, headscarf, buzz), `--facial-hair` (none, mustache, beard, stubble, goatee), `--glasses` and
+     `--outfit` (sweater, labcoat, suit, tshirt, hoodie). Read the preview sheet `.selfclone/character.png`, and
+     fix the JSON if the hair, colours or glasses are wrong. The same consent rules as the face apply.
+   - **A random fictional person.** Write `"character": "random:<any seed>"` in the cast, or run
+     `SC character --random <seed>` to see one first. Different seeds give different people. Never describe a
+     random character as a real person.
+   - **Nobody.** Leave out the cast, or render with `--no-host`. The narrator speaks off screen.
+2. **Script.** Get the facts right first: look things up, and never invent numbers or quotes. Use one idea per
+   scene and two or three short sentences each; the default pauses give about 130 words a minute. Write numbers
+   and years as words in `say` ("eighteen ninety-six") and show the digits on screen. For a dialogue, give each
+   line a speaker and let the guest ask the questions a viewer would ask. If the user has a writing clone,
+   draft in their voice and run `SC voicecheck`.
+3. **Storyboard.** `SC explainer init --topic "<topic>" --host own|random|dialogue|none [--aspect 9:16]` writes a
+   valid starter `scenes.json` to build on. Pick one strong visual per scene, choosing the device for the field:
+   - processes and history: props (`{"prop": "..."}`, list below) and drawings that draw themselves;
+   - quantities: charts (`{"chart": {"type": "bar|line|pie", "values": [...], "labels": [...]}}`) and counters;
+   - maths and physics: a Manim block (equations, graphs, geometry);
+   - feelings and questions: moods, bubbles, a host gesture.
+
+   Change the backdrop, the transition and the camera from scene to scene. Draw anything the library lacks as a
+   small SVG: flat shapes, an outline of `#2a2346` about 4 to 5 units wide, a few bright fills. No scripts,
+   images or external links in SVG (they are refused), and give gradient or clip ids a unique prefix per item.
+4. **Preview, then render.** `SC explainer scenes.json --preview` writes three stills per scene in seconds
+   (`explainer.preview.png`) and prints storyboard warnings: overlapping items, items off the frame or under
+   the captions, items covering a character, empty or rushed scenes. Look at the sheet, fix what it and the
+   warnings show, preview again, then render. The narration and Manim
+   frames are cached, so another render after a visual fix does not speak or draw again.
+
+   ```bash
+   SC explainer scenes.json                                  # Kokoro af_heart, or each cast member's voice
+   SC explainer scenes.json --voice kokoro:bm_george         # default voice: af_bella, bf_emma, am_michael...
+   SC explainer scenes.json --voice elevenlabs:<voice_id>    # needs ELEVENLABS_API_KEY
+   SC explainer scenes.json --voice openai:alloy             # needs OPENAI_API_KEY
+   SC explainer scenes.json --audio my-narration.wav         # a recording, aligned to its pauses
+   SC explainer scenes.json --music calm.mp3 --no-host       # music ducked under the voice; nobody on screen
+   ```
+
+   For Shorts, Reels or TikTok render with `--aspect 9:16` (or `1:1`) and lay the scenes out for the tall frame:
+   one character low in the frame, items stacked in the upper half, larger `w`. Captions sit over the torso.
+
+   `--html` writes an interactive version instead: one self-contained page that plays the explainer with its
+   sound, with play and pause, a scrubber, a chapter per scene and a captions switch, to share or embed.
+
+   Rendering writes `.selfclone/explainer.mp4` and an `.srt` caption file. Check a few
+   frames before you say it is done (`ffmpeg -ss 12 -i explainer.mp4 -frames:v 1 f.png`).
+
+```json
+{
+  "title": "How do vaccines work?",
+  "cast": {
+    "host": { "character": "character.json", "voice": "kokoro:af_bella" },
+    "guest": { "character": "random:sam", "voice": "kokoro:am_adam", "body": "full" }
+  },
+  "music": "calm-loop.mp3",
+  "scenes": [
+    {
+      "say": [{ "who": "host", "text": "Hello! Ever wondered how a tiny shot protects you?" },
+              { "who": "guest", "text": "Honestly, I just close my eyes." }],
+      "background": "#7fb6d6", "backdrop": "clouds", "particles": "dust",
+      "characters": { "host": { "x": 0.27, "enter": "rise" }, "guest": { "x": 0.76, "enter": "walk-right" } },
+      "camera": { "from": { "zoom": 1.1, "x": 0.4 }, "keys": [{ "line": 1, "zoom": 1, "x": 0.5, "dur": 1.5 }] },
+      "items": [
+        { "prop": "question", "x": 0.52, "y": 0.22, "w": 0.09, "line": 0, "at": 1.5, "loop": "wobble" },
+        { "bubble": "Really?", "who": "guest", "line": 1, "style": "thought" },
+        { "chart": { "type": "line", "values": [2, 30, 95, 50], "labels": ["0", "wk 1", "wk 2", "mo 2"] }, "x": 0.6, "y": 0.55, "w": 0.5, "at": 4 }
+      ],
+      "transition": "push",
+      "hold": 0.5
+    },
+    {
+      "say": "The formula is A equals P times one plus r, to the n.",
+      "characters": false,
+      "manim": { "code": "class F(Scene):\n    def construct(self):\n        self.play(Write(MathTex(r'A = P(1+r)^n', color=INK).scale(2)))" }
+    }
+  ]
+}
+```
+
+- **Cast and lines.** `cast` maps names to `{character, voice, body}`. `character` is a file, `"random"` or
+  `"random:<seed>"`. `body` is `bust` (head and shoulders) or `full` (with legs, for walking). Use `"character":
+  "file.json"` at the top level for a single host. A line is text (said by the first character on screen) or
+  `{"who": "<name>|narrator", "text": "..."}`. Each speaker's mouth moves only on its own lines, and listeners
+  turn to whoever is speaking.
+- **Placement.** Positions are fractions of the frame: an item's `x`, `y` is its centre; a character stands on
+  `y` (chosen for you so its hands stay in frame). Several characters spread across the frame unless you place
+  them. `characters` maps cast names to placements; `"characters": false` (or `"character": false`) shows nobody.
+- **Timing.** Anything with a time takes `line` (a 0-based sentence index: when that sentence starts) plus `at`
+  seconds after it, or `at` seconds from the scene start.
+- **A character.**
+  - Style: `gesture` (rest, point, wave, explain, present, shrug, think, thumbs, count; add `-left` for the other
+    arm), `mood` (neutral, happy, surprised, serious, sad, curious), `look` (-1 to 1, or a cast name), `scale`,
+    `flip`, and `name` (a name tag that slides in for the first few seconds).
+  - Movement: `enter` (rise, slide-left, slide-right, pop, walk-left, walk-right), and `walk` (`{x, at|line,
+    dur}`, or a list of them) to cross the scene with a walk cycle.
+  - Timed changes: `cues` (`[{line, at, gesture, mood, look}]`).
+  - Without gesture cues it picks gestures from its words (hello means wave; this or look means point; a
+    question means shrug; imagine means think; every or whole means present; but or because means explain;
+    great or exactly means thumbs up; two or second means counting on two fingers). It
+    sets moods the same way, points at items that land beside it, glances at every new item, nods and lifts its
+    brows on stressed words, blinks and breathes. `"auto": false` keeps it still.
+- **Items.**
+  - Kinds: `text`, `svg`, `prop` (with `color`), `chart` (with `unit`; `$` goes before the number), `bubble`
+    (`who`, `style` speech or thought), `image` (a local .png, .jpg, .webp or .gif).
+  - `enter`: pop, fade, write (the default for text), draw (strokes first, then fills), grow (charts), zoom,
+    slide-left/right/up/down, none.
+  - Life: `loop` (float, bob, wobble, pulse, spin, shake), `move` (`{x, y, at, dur}`), `exit` (`at`/`line`,
+    `anim`), `mark` (underline, circle, box, strike, with `markColor` and `markAt`), and text `count`
+    (`{"from": 0, "to": 5730}` with `{n}` in the text).
+  - `"look": false` stops the glance; `"sound": false` silences it.
+- **Props:** lightbulb, brain, atom, globe, book, clock, hourglass, heart, star, check, cross, arrow, question,
+  exclamation, magnifier, gear, rocket, phone, laptop, coin, money, house, tree, sun, moon, cloud, rain,
+  lightning, fire, drop, leaf, flask, dna, microscope, battery, lock, key, flag, trophy, calendar, mail, chat,
+  thought, person, people, car, plane, pin, camera, music, pencil, document, target, puzzle, shield, bell, cup,
+  apple, cell, planet, magnet, wifi, cpu, chart.
+- **Manim** (maths). `"manim": {"code": "<Python with a Scene class>", "scene": "<class>", "w": 1, "x": 0.5,
+  "y": 0.5, "at": 0}` renders with a transparent background, laid into the scene, frame for frame.
+  - Colours: use `INK` (dark), `RED`, `BLUE`, `GOLD` and `GREEN`, which are predefined; Manim's default white
+    is invisible on a light background.
+  - Fit the length: let the animation last about as long as the scene's narration. The last frame stays on
+    screen after it ends.
+  - Setup: Manim must be installed (`pip install manim`, or set `SELFCLONE_MANIM`), with LaTeX for `MathTex`.
+- **Scenery.** `backdrop` is one of clouds, stars, dots, grass, city, room, grid, waves, chalkboard or notebook, or `{"image":
+  "bg.jpg", "dim": 0.2}`. It moves slower than the camera. `particles` (dust, sparkles, bubbles, snow) drift in
+  front.
+- **Title cards.** `"title": "Chapter 2: Light"` on a scene writes big handwritten words in the middle (above the
+  host when there is one) and underlines them by hand.
+- **Camera and transitions.** Give the camera either `from` and `to`, or `keys` (each moves to its `zoom`, `x`,
+  `y` over `dur`). Transitions into a scene: cut, fade, wipe, push, zoom, iris.
+- **Sound.** Pops, whooshes, pencil scratches and chimes are synthesised to match the animation (`"sfx": false`
+  or `--no-sfx` drops them). `music` (or `--music`) loops a track the user has the rights to, ducked under the
+  voice; `"music": "ambient"` (or `--music ambient`) generates a soft pad bed instead.
+- **Captions.** `"captions": "words"` lights up each word as it is spoken (good for Shorts); `false` hides them.
+- **Kokoro voices.** American: af_heart, af_bella, af_nicole, af_sarah, af_sky, af_nova, af_river, af_jessica,
+  af_kore, af_aoede, af_alloy, am_michael, am_adam, am_eric, am_liam, am_onyx, am_echo, am_fenrir, am_puck.
+  British: bf_emma, bf_isabella, bf_alice, bf_lily, bm_george, bm_lewis, bm_daniel, bm_fable. Give each cast
+  member a different voice. `"captions": false` hides the burned-in captions; the `.srt` is always written.
 
 ## Voice Check Any Draft
 

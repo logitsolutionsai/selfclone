@@ -7,7 +7,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { checkVideoArgs, checkConsent, checkLength, labelCoverage, labelOk, provenanceComment, VIDEO_LIMITS } from '../../src/face/video.mjs';
+import { checkVideoArgs, checkConsent, checkLength, VIDEO_LIMITS } from '../../src/face/video.mjs';
 import { readAvatarData, buildAvatarHtml } from '../../src/face/build.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -87,39 +87,6 @@ test('video consent check: needs a record, a statement, a date, and the hash of 
   delete noHash.consent.photoSha256;
   assert.throws(() => checkConsent(noHash), /does not match the face/);
   assert.throws(() => readAvatarData('<html>not an avatar</html>'), /not a selfclone avatar/);
-});
-
-test('provenance comment names the tool, says it is an AI clone, and quotes the consent', () => {
-  const c = provenanceComment({ statement: 'This is my own face. Test Person', date: '2026-11-14T09:00:00.000Z' });
-  assert.match(c, /^AI CLONE: /);
-  assert.match(c, /made with selfclone \d+\.\d+\.\d+/);
-  assert.match(c, /not a recording of the person/);
-  assert.match(c, /"This is my own face\. Test Person" \(2026-11-14\)/);
-});
-
-test('label check: finds the near-black label with white lettering, and nothing in its place', () => {
-  const w = 40;
-  const h = 20;
-  const img = { width: w, height: h, data: Buffer.alloc(w * h * 4) };
-  const fill = (fn) => {
-    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) img.data.set([...fn(x, y), 255], (y * w + x) * 4);
-  };
-  const ok = () => labelOk(labelCoverage(img, { x: 0, y: 0, width: w, height: h }));
-  const letters = (bg) => (x, y) => (y > 6 && y < 13 && x % 4 === 0 ? [255, 255, 255] : bg);
-  fill(letters([17, 17, 16])); // the label: #111110 with white letters
-  assert.ok(ok());
-  fill((x, y) => (y > 6 && y < 13 && x % 4 === 0 ? [246, 250, 244] : [26, 22, 25])); // the same after video encoding
-  assert.ok(ok());
-  fill(() => [190, 150, 90]); // skin, no label
-  assert.ok(!ok());
-  fill(() => [17, 17, 16]); // a near-black box with no lettering is not a label
-  assert.ok(!ok());
-  fill(letters([52, 32, 24])); // dark skin or a beard with bright highlights is not the label's neutral near-black
-  assert.ok(!ok());
-  fill(letters([217, 45, 32])); // nor is the old red label
-  assert.ok(!ok());
-  fill(() => [255, 255, 255]); // nor a white box
-  assert.ok(!ok());
 });
 
 test('CLI: selfclone video refuses without --audio, with text, and without a consented avatar', () => {

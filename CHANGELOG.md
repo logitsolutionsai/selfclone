@@ -1,6 +1,76 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 (2026-11-16)
+
+### Added: Studio, any topic, any cast
+
+- Videos carry no label: neither studio videos nor `selfclone video` burn one in, put AI tags in the file's
+  metadata (only "Made with selfclone" and the version) or write a sidecar file. The avatar page keeps its
+  AI CLONE badge, and `selfclone video` still refuses an avatar without a matching consent record.
+- Ten showcase explainers in `examples/showcase/`, one per field (AI, aerospace, finance, medicine, maths,
+  English, neurology, philosophy, physics as a 9:16 short, astronomy), each ending on a "Made with selfclone"
+  card; the README opens with their showreel.
+- Items can be timed from the end of a line (`lineEnd`) and drawn over the characters (`over`).
+- Captions have a dark outline, so they read over light backdrops and white clothes.
+- Three ways to host: your own drawn character, random fictional people (`selfclone character --random <seed>`
+  or `"random:<seed>"` in the cast), or nobody (`--no-host`).
+- Dialogue: a `cast` of named characters, each with its own voice and body. Lines name their speaker, only the
+  speaker's mouth moves, listeners turn to the speaker, and there are speech and thought bubbles.
+- Full-body characters with legs and a walk cycle (`walk`, `enter: walk-left|walk-right`).
+- Twelve hair styles, five facial hair options and five outfits (sweater, lab coat, suit with tie, t-shirt,
+  hoodie).
+- A hand-to-chin thinking pose.
+- Lip sync read from the text's phonemes (the phonemizer that comes with kokoro-js, or a letter table): closed
+  lips, F/V teeth, rounding, aligned to the voice's pauses.
+- Gestures and moods chosen from the words when there are no cues.
+- Hands kept in frame by default placement.
+- 60 props, animated bar, line and pie charts, image items and image backdrops.
+- Manim blocks for maths (LaTeX included), rendered with a transparent background and laid in frame by frame.
+- Recorded narration aligned to its pauses.
+- Kokoro pinned to a revision and hash-checked.
+- Parallel render workers (`--workers`, about twice as fast) and `--preview` stills with storyboard warnings
+  (overlaps, off-frame, under the captions, covering a character, empty or rushed scenes).
+- Painted backdrops from a prompt (`"backdrop": {"prompt": "..."}`, with OPENAI_API_KEY), cached.
+- `--aspect 9:16` and `1:1` frames; characters and text are sized to fit tall frames.
+- `"music": "ambient"`: a generated pad bed, ducked under the voice.
+- Head turns: the nose points the way the character looks, the far ear tucks behind the head and the back hair
+  shifts. Walking rocks the body. Chalkboard and notebook backdrops. Word-by-word captions (`"captions": "words"`).
+- `selfclone explainer init`: a starter scene file for any topic and host mode (own, random, dialogue, none).
+- Thumbs-up and counting gestures (also chosen from the words), name tags for characters (`name`), title cards
+  (`title` on a scene), and random characters whose clothes and hair always stand apart from their skin.
+- `--html`: an interactive, self-contained player page (sound, chapters per scene, scrubber, captions switch, Manim
+  as synced clips).
+
+### Added: Studio, explainer videos with a drawn host
+
+- `selfclone character --photo <img> | --video <clip> --consent "<statement>"`: a drawn SVG character from a face.
+  Proportions come from the MediaPipe landmarks found at enrolment, colours from small samples of the photo (a black
+  and white photo keeps its lightness and gets a skin tone from a ramp). Six hair styles, mustache or beard,
+  glasses. Writes `character.json` (with the consent record) and a preview sheet of every mouth shape, a blink and
+  the pointing pose.
+- `selfclone speak`: narration with Kokoro (local, CPU, the default; `kokoro-js` is an optional dependency, the
+  model is downloaded once), ElevenLabs (`ELEVENLABS_API_KEY`) or OpenAI (`OPENAI_API_KEY`).
+- `selfclone explainer <scenes.json>`: an MP4 explainer from a scene file (narration, background, character
+  placement and pose, camera move, SVG and handwritten items timed to sentences, cut or fade). Lip sync from the
+  narration's loudness and spectral centroid, on twos; blinks; line boil and paper grain from SVG noise. Rendered
+  in headless Chrome with the network blocked, about 15 frames a second on a laptop CPU. An `.srt` caption file
+  is written. Narration is cached by voice and text. `--audio` uses a recording (captions timed by text length).
+- The host is a rig: jointed arms with seven gestures (rest, point, wave, explain, present, shrug, think, each
+  mirrorable) blended over 0.45 s, three hand shapes, six moods (brows and a smile), a half-shut blink frame,
+  glances at new items with the features shifting like a head turn, small saccades, nods, brow lifts and hand
+  beats on stressed syllables, raised brows on questions, breathing, and entrances (rise, slide, pop). Without
+  cues it gestures on its own and points toward items that land beside it.
+- Items can draw themselves stroke by stroke (`draw`), zoom in, slide from any side, loop (float, bob, wobble,
+  pulse, spin, shake), move and exit. Times can be a sentence plus an offset. Camera paths with several keys.
+  Transitions: cut, fade, wipe, push, zoom, iris. Counters (`count`, a number that ticks up into the text) and
+  hand-drawn marks (`mark`: underline, circle, box, strike) that draw themselves onto an item.
+- Scenery drawn in code in each scene's colours: backdrops (clouds, stars, dots, grass, city, room, grid, waves)
+  with parallax and their own motion, and particles in front (dust, sparkles, bubbles, snow).
+- Synthesised sound effects (pop, whoosh, pencil scratch, chime) matched to the animation, and `--music` with
+  ducking under the voice.
+- The preview sheet shows mouths, blinks, moods, every gesture and the head turned.
+- Scene SVG with scripts, event handlers, images or external links is refused.
+- ETHICS.md: the rules for synthetic speech with a drawn host.
 
 ### Added: Voice CI
 
@@ -74,9 +144,8 @@
 
 - The avatar page, the Can You Tell page and the enrolment page use one neutral palette (warm greys) with a
   single blue accent for buttons, links, focus and selection; no status is shown by colour. A passing check shows
-  a check mark, a failing one a cross in a solid chip. The AI CLONE badge, on the page and burned into videos, is
-  a near-black chip with white letters and a faint white ring in both themes, and the video's frame check now
-  looks for that near-black fill with white lettering.
+  a check mark, a failing one a cross in a solid chip. The page's AI CLONE badge is a near-black chip with white
+  letters and a faint white ring in both themes.
 - Motion: buttons and reply cards react on pointer-down; game rounds slide out and in on springs that a second
   press retargets; the game's progress bar is a scaleX spring; About opens as a sheet anchored to its button and,
   under 600 px, as a bottom sheet you drag down to close; a thin line under the face tracks the speech. The
@@ -108,11 +177,10 @@
   picture-in-picture presenter for screen recordings and tutorials, lip-synced to your own recorded voice (or a
   voice clone of yourself), rendered frame by frame in headless Chrome on a paused clock and encoded with
   ffmpeg: a round or square WebM (VP9 with alpha) or MP4 (H.264), 240 to 1080 px, with your audio. This reverses
-  the earlier "no video export" rule, with safeguards built first: an "AI CLONE" label burned into every frame
-  over the chin (checked on every frame, no option to remove it), a consent check bound to the face's photo
-  hash, audio input only (no text-to-speech), provenance tags plus a `.provenance.json` with the video's
-  SHA-256, and a 10-minute cap (`--max-minutes`, at most 60). `ETHICS.md` explains the change and why the label
-  is burned in (EU AI Act, Article 50). `tools/make-video-overlay.mjs` makes `docs/media/video-overlay.gif`.
+  the earlier "no video export" rule, with safeguards built first: a consent check bound to the face's photo
+  hash, audio input only (no text-to-speech), and a 10-minute cap (`--max-minutes`, at most 60). `ETHICS.md`
+  explains the change and the publisher's duty to disclose (EU AI Act, Article 50).
+  `tools/make-video-overlay.mjs` makes `docs/media/video-overlay.gif`.
 
 ### Changed
 

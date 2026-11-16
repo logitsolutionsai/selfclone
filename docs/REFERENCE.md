@@ -22,7 +22,7 @@ node scripts/selfclone.mjs bake --video me.mp4 --consent "This is my own face. Y
 node scripts/selfclone.mjs bake --photo me.jpg --consent "This is my own face. Your Name" --name "Your Name"
 node scripts/selfclone.mjs serve           # then, from another terminal:
 node scripts/selfclone.mjs say "hello, I am an AI clone"
-node scripts/selfclone.mjs video --audio my-voice.wav -o presenter.webm   # labelled picture-in-picture clip
+node scripts/selfclone.mjs video --audio my-voice.wav -o presenter.webm   # picture-in-picture clip
 ```
 
 | Command | What it does |
@@ -40,7 +40,7 @@ node scripts/selfclone.mjs video --audio my-voice.wav -o presenter.webm   # labe
 | `bake --photo <img>` or `bake --video <clip>`, with `--consent "<statement>"` | Bakes `avatar.html` in headless Chrome. Options: `--name "Full Name"`, `--glasses auto\|yes\|no`, `--out file` |
 | `serve [--port 7320] [--no-open]` | Serves the avatar so other commands can make it speak |
 | `say "text"` or `say --audio <file>` | Makes the open avatar speak |
-| `video --audio <file> [-o out.webm\|out.mp4] [--avatar file] [--size 480] [--shape circle\|square] [--background transparent\|#hex] [--max-minutes 10]` | Renders the avatar lip-synced to your own recorded voice as a video, with an "AI CLONE" label burned into every frame, provenance tags and a `.provenance.json` sidecar. Refuses without a valid consent record or without audio |
+| `video --audio <file> [-o out.webm\|out.mp4] [--avatar file] [--size 480] [--shape circle\|square] [--background transparent\|#hex] [--max-minutes 10]` | Renders the avatar lip-synced to your own recorded voice as a video. Refuses without a valid consent record or without audio |
 | `status` | Shows what is in `.selfclone/` |
 | `consent [--grant "<statement>" --scope <scopes>] [--revoke <scope>]` | The consent ledger for the writing features (`.selfclone/consent.json`); scopes `persona`, `local-lint`, `public-stylecard`, `avatar` |
 | `profile build [--out file] [--consent "<statement>"]` | The private `voice-profile.v1.json` from the training split only |

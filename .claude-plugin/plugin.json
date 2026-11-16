@@ -1,8 +1,8 @@
 {
   "name": "selfclone",
   "displayName": "selfclone",
-  "version": "0.1.0",
-  "description": "Clone how you write from your own chat exports, give the clone a talking face, and score it on your real messages. A Claude Code skill (agent skill) for Claude Code, Codex and Cursor.",
+  "version": "0.2.0",
+  "description": "Animated explainer videos on any topic, made by Claude Code on your own computer: your drawn character, random fictional people or no host, with lip-synced voices, props, charts and Manim maths. Plus a writing clone of you, scored on your real messages. A Claude Code skill (agent skill) for Claude Code, Codex and Cursor.",
   "author": {
     "name": "Logit Solutions AI",
     "url": "https://github.com/logitsolutionsai"
@@ -18,6 +18,13 @@
     "agent-skill",
     "codex",
     "cursor",
+    "explainer-video",
+    "animation",
+    "text-to-speech",
+    "kokoro",
+    "manim",
+    "video-generation",
+    "education",
     "ai-clone",
     "digital-twin",
     "persona",

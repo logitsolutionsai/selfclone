@@ -17,6 +17,7 @@ import { errorJson } from '../src/errors.mjs';
 // Paths are stored relative to the working folder, so workspace files never record a user's home or drive path.
 const relPath = (x) => path.relative(process.cwd(), path.resolve(x)).split(path.sep).join('/') || '.';
 
+const HAIR = 'short|bun|updo|long|curly|bald|ponytail|afro|wild|sidepart|headscarf|buzz';
 const HELP = () => `selfclone ${VERSION}: clone your writing style, give it a face, and measure how close it gets.
 
 Usage:
@@ -43,9 +44,30 @@ Usage:
   selfclone video --audio voice.wav [-o out.webm|out.mp4] [--avatar .selfclone/avatar.html]
       [--size 480] [--shape circle|square] [--background transparent|#hex] [--max-minutes 10]
                                                        A face on camera without the camera: the avatar
-                                                       lip-synced to your own recorded voice, labelled
-                                                       AI CLONE on every frame, for screen recordings
+                                                       lip-synced to your own recorded voice, for screen
+                                                       recordings
   selfclone status                                     Show what is in .selfclone/
+
+Studio (animated explainers with a drawn character; no GPU, no image model):
+  selfclone character --photo <img> --consent "<statement>"
+                                                       A drawn character from a face photo (or --video <clip>):
+      [--name "Full Name"] [--hair ${HAIR}]
+      [--facial-hair none|mustache|beard|stubble|goatee] [--glasses auto|yes|no]
+      [--outfit sweater|labcoat|suit|tshirt|hoodie] [--body bust|full] [--out .selfclone/character.json]
+                                                       character.json and a preview sheet (character.png)
+  selfclone character --random [seed]                  A random fictional person instead (no photo, nobody's likeness)
+  selfclone speak "<text>" | --file <script.txt> [--voice kokoro:af_heart] [--out narration.wav]
+                                                       Narration with Kokoro (local, default), elevenlabs:<voice_id>
+                                                       (ELEVENLABS_API_KEY) or openai:<voice> (OPENAI_API_KEY)
+  selfclone explainer init [--topic "..."] [--host own|random|dialogue|none] [--aspect 16:9|9:16] [--out scenes.json]
+                                                       A starter scene file to fill in
+  selfclone explainer <scenes.json> [--character file] [--voice kokoro:af_heart | --audio narration.wav]
+      [--music track.mp3] [--no-sfx] [--no-host] [--out .selfclone/explainer.mp4] [--fps 24] [--width 1280]
+      [--height 720] [--aspect 16:9|9:16|1:1] [--workers N] [--max-minutes 10] [--preview] [--html]
+                                                       Render an explainer video: your character, random people
+                                                       or no one on screen; lip-synced and captioned.
+                                                       --preview writes stills of every scene;
+                                                       --html writes an interactive player page instead
 
 Voice CI and Voice Passport (each has --help and --json):
   selfclone consent --grant "<statement>" --scope local-lint,public-stylecard
@@ -88,7 +110,7 @@ async function main(argv) {
   const [cmd, ...rest0] = argv;
   // -o is the usual short form of --out (selfclone video -o talk.webm).
   const rest = rest0.map((a) => (a === '-o' ? '--out' : a));
-  const args = parseArgs(rest, { multi: ['me'], booleans: ['no-scrub', 'no-open', 'strict', 'json', 'all', 'enforce', 'png', 'help', 'example'] });
+  const args = parseArgs(rest, { multi: ['me'], booleans: ['no-scrub', 'no-open', 'strict', 'json', 'all', 'enforce', 'png', 'help', 'example', 'keep-html', 'preview', 'html'] });
   const dir = workDir(args);
   const p = (f) => path.join(dir, f);
 
@@ -334,8 +356,115 @@ async function main(argv) {
       const o = checkVideoArgs(args, { dir });
       out(`Rendering ${relPath(o.out)} (${o.size} px, ${o.shape}, ${o.transparent ? 'transparent' : o.background}) from ${relPath(o.audio)}...`);
       const r = await exportVideo(o, { log: (m) => out(m) });
-      out(`Wrote ${relPath(r.file)} (${Math.round(r.bytes / 1024)} KB, ${r.seconds.toFixed(1)} s, ${r.frames} frames) and ${path.basename(r.sidecar)}.`);
-      out('Every frame carries the AI CLONE label and the file is tagged as an AI clone. Use only your own voice, or a voice clone of yourself.');
+      out(`Wrote ${relPath(r.file)} (${Math.round(r.bytes / 1024)} KB, ${r.seconds.toFixed(1)} s, ${r.frames} frames).`);
+      out('Use only your own voice, or a voice clone of yourself.');
+      return;
+    }
+
+    case 'character': {
+      const studio = await import('../src/studio/character.mjs');
+      if (args.body != null && !studio.BODIES.includes(args.body)) throw new Error(`--body must be one of ${studio.BODIES.join(', ')}.`);
+      if (args.random) {
+        // A fictional person: no photo, no likeness, so no consent statement is needed.
+        const { renderCharacterSheet } = await import('../src/studio/explainer.mjs');
+        const c = studio.randomCharacter(args.random === true ? String(Date.now()) : String(args.random));
+        if (args.hair) c.hairStyle = args.hair;
+        if (args.outfit) c.outfit = args.outfit;
+        if (args.facialHair) c.facialHair = args.facialHair;
+        studio.checkCharacter(c);
+        const outFile = args.out || p('character.json');
+        writeJson(outFile, c);
+        const sheet = outFile.replace(/\.json$/i, '') + '.png';
+        await renderCharacterSheet(c, sheet, { body: args.body || 'bust' });
+        out(`Wrote ${relPath(outFile)} (a fictional character: ${c.hairStyle} hair, ${c.outfit}, seed "${c.source.seed}") and ${relPath(sheet)}.`);
+        return;
+      }
+      if (!args.photo && !args.video) throw new Error('Usage: selfclone character --photo <img> --consent "<statement>"  (or --video <clip>, or --random for a fictional person)');
+      if (!args.consent || typeof args.consent !== 'string' || args.consent.trim().length < 8) {
+        throw new Error('Refusing to make a character without consent. Pass --consent "This is my own face, <Full Name>" (or the written consent of the person shown).');
+      }
+      const { characterFromMedia, HAIR_STYLES, FACIAL_HAIR, OUTFITS } = studio;
+      if (args.outfit != null && !OUTFITS.includes(args.outfit)) throw new Error(`--outfit must be one of ${OUTFITS.join(', ')}.`);
+      if (args.hair != null && !HAIR_STYLES.includes(args.hair)) throw new Error(`--hair must be one of ${HAIR_STYLES.join(', ')}.`);
+      if (args.facialHair != null && !FACIAL_HAIR.includes(args.facialHair)) throw new Error(`--facial-hair must be one of ${FACIAL_HAIR.join(', ')}.`);
+      const { renderCharacterSheet } = await import('../src/studio/explainer.mjs');
+      const outFile = args.out || p('character.json');
+      const { character } = await characterFromMedia({ photo: args.photo, video: args.video, consent: args.consent, name: args.name, hairStyle: args.hair, facialHair: args.facialHair, glasses: args.glasses, outfit: args.outfit });
+      writeJson(outFile, character);
+      const sheet = outFile.replace(/\.json$/i, '') + '.png';
+      await renderCharacterSheet(character, sheet, { body: args.body || 'bust' });
+      out(`Wrote ${relPath(outFile)} and the preview sheet ${relPath(sheet)}.`);
+      out(`  hair ${character.hairStyle}, facial hair ${character.facialHair}, glasses ${character.glasses ? 'yes' : 'no'}${character.source.grey ? '; the photo has no colour, so the skin tone was chosen from its lightness' : ''}.`);
+      out('  Look at the sheet and the photo; change hairStyle, facialHair, glasses or colours in the JSON if they are off.');
+      return;
+    }
+
+    case 'speak': {
+      const { narrate, splitSentences, writeWav, parseVoice, DEFAULT_VOICE } = await import('../src/studio/speech.mjs');
+      const text = args.file ? fs.readFileSync(args.file, 'utf8') : args._.join(' ');
+      const lines = splitSentences(text);
+      if (!lines.length) throw new Error('Usage: selfclone speak "<text>" | --file <script.txt> [--voice kokoro:af_heart] [--out narration.wav]');
+      const voice = args.voice || DEFAULT_VOICE;
+      parseVoice(voice);
+      const outFile = args.out || p('narration.wav');
+      const n = await narrate([lines], voice, { log: (m) => out(m) });
+      writeWav(outFile, n.samples);
+      out(`Wrote ${relPath(outFile)} (${n.seconds.toFixed(1)} s, ${lines.length} sentences, ${voice}).`);
+      return;
+    }
+
+    case 'explainer': {
+      if (args._[0] === 'init') {
+        // A starter scene file for any topic, with every main device and placeholder lines.
+        const { scaffold } = await import('../src/studio/scaffold.mjs');
+        const outFile = args.out || 'scenes.json';
+        if (fs.existsSync(outFile)) throw new Error(`${outFile} already exists; pass --out for another name.`);
+        const spec = scaffold({ topic: args.topic || 'Your topic', host: args.host === false ? 'none' : args.host || 'random', aspect: args.aspect || '16:9' });
+        writeJson(outFile, spec);
+        out(`Wrote ${relPath(outFile)}: a starter with ${spec.scenes.length} scenes. Replace every TODO, then: selfclone explainer ${relPath(outFile)} --preview`);
+        return;
+      }
+      const file = args._[0];
+      if (!file) throw new Error('Usage: selfclone explainer <scenes.json> [--character file] [--voice kokoro:af_heart | --audio file] [--out file.mp4]');
+      need(file, 'Pass the path to a scene file.');
+      if (args.voice && args.audio) throw new Error('Pass either --voice or --audio, not both.');
+      const { renderExplainer, renderPreview, STUDIO_LIMITS: L } = await import('../src/studio/explainer.mjs');
+      const outFile = args.out || p('explainer.mp4');
+      if (!/\.mp4$/i.test(outFile)) throw new Error('The output must be an .mp4 file.');
+      const ASPECTS = { '16:9': [1280, 720], '9:16': [720, 1280], '1:1': [1080, 1080] };
+      const aspect = args.aspect == null ? '16:9' : String(args.aspect);
+      if (!ASPECTS[aspect]) throw new Error(`--aspect must be one of ${Object.keys(ASPECTS).join(', ')}.`);
+      const opts = {
+        scenesFile: file,
+        characterFile: args.character || null,
+        noHost: args.host === false,
+        out: outFile,
+        voice: args.voice,
+        audio: args.audio,
+        music: typeof args.music === 'string' ? args.music : null,
+        sfx: args.sfx !== false,
+        fps: num(args, 'fps', L.fps, L.minFps, L.maxFps),
+        // --aspect picks a frame for the platform: 16:9 (YouTube), 9:16 (Shorts, Reels, TikTok), 1:1 (feeds).
+        width: Math.round(num(args, 'width', ASPECTS[aspect][0], 320, 1920) / 2) * 2,
+        height: Math.round(num(args, 'height', ASPECTS[aspect][1], 240, 1920) / 2) * 2,
+        maxMinutes: num(args, 'maxMinutes', L.maxMinutes, 0.01, L.capMinutes),
+        cacheDir: p('studio'),
+        keepHtml: !!args.keepHtml,
+        workers: args.workers == null ? undefined : num(args, 'workers', 1, 1, L.maxWorkers),
+      };
+      if (args.html) {
+        const { exportHtmlPlayer } = await import('../src/studio/explainer.mjs');
+        const h = await exportHtmlPlayer(opts, { log: (m) => out(m) });
+        out(`Wrote ${relPath(h.file)} (${(h.bytes / 1048576).toFixed(1)} MB): an interactive player for a ${h.seconds.toFixed(1)} s explainer with ${h.scenes} chapters. Open it in a browser.`);
+        return;
+      }
+      if (args.preview) {
+        const pr = await renderPreview(opts, { log: (m) => out(m) });
+        out(`Wrote ${relPath(pr.file)}: ${pr.shots} stills (three per scene) of a ${pr.seconds.toFixed(1)} s video. Render without --preview for the video.`);
+        return;
+      }
+      const r = await renderExplainer(opts, { log: (m) => out(m) });
+      out(`Wrote ${relPath(r.file)} (${(r.bytes / 1048576).toFixed(1)} MB, ${r.seconds.toFixed(1)} s, ${r.frames} frames, rendered in ${Math.round(r.renderSeconds)} s by ${r.workers} workers) and ${path.basename(r.srtFile)}.`);
       return;
     }
 

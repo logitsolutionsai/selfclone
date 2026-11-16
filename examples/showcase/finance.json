@@ -1,0 +1,241 @@
+{
+ "title": "How does money grow?",
+ "cast": {
+  "host": {
+   "character": "random:money-5",
+   "voice": "kokoro:af_sarah"
+  }
+ },
+ "scenes": [
+  {
+   "say": [
+    "Put one thousand dollars away at seven percent a year.",
+    "After one year, you have one thousand and seventy."
+   ],
+   "background": "#8fc6a0",
+   "backdrop": "dots",
+   "title": "Compound interest",
+   "character": {
+    "x": 0.2,
+    "y": 1.0,
+    "scale": 0.85,
+    "enter": "rise"
+   },
+   "items": [
+    {
+     "prop": "coin",
+     "x": 0.58,
+     "y": 0.45,
+     "w": 0.12,
+     "at": 1.0,
+     "loop": "bob"
+    },
+    {
+     "text": "${n}",
+     "count": {
+      "from": 1000,
+      "to": 1070,
+      "dur": 1.6
+     },
+     "x": 0.78,
+     "y": 0.45,
+     "size": 0.12,
+     "line": 1
+    }
+   ]
+  },
+  {
+   "say": [
+    "The next year, you earn seven percent on everything, including last year's interest.",
+    "That is compound interest: interest on your interest."
+   ],
+   "background": "#f2ead6",
+   "backdrop": "notebook",
+   "transition": "push",
+   "character": {
+    "x": 0.18,
+    "y": 1.0,
+    "scale": 0.8
+   },
+   "items": [
+    {
+     "prop": "coin",
+     "x": 0.5,
+     "y": 0.4,
+     "w": 0.08,
+     "at": 1.0
+    },
+    {
+     "prop": "coin",
+     "x": 0.6,
+     "y": 0.4,
+     "w": 0.08,
+     "at": 1.4
+    },
+    {
+     "prop": "coin",
+     "x": 0.7,
+     "y": 0.4,
+     "w": 0.08,
+     "at": 1.8
+    },
+    {
+     "prop": "coin",
+     "x": 0.8,
+     "y": 0.4,
+     "w": 0.05,
+     "line": 0,
+     "at": 3.2,
+     "loop": "bob"
+    },
+    {
+     "text": "interest on interest",
+     "x": 0.65,
+     "y": 0.65,
+     "size": 0.07,
+     "line": 1,
+     "at": 0.8,
+     "mark": "underline"
+    }
+   ]
+  },
+  {
+   "say": [
+    "In ten years, your money nearly doubles.",
+    "In thirty years, it grows more than seven times."
+   ],
+   "background": "#7b6fc4",
+   "backdrop": "grid",
+   "transition": "wipe",
+   "character": {
+    "x": 0.17,
+    "y": 1.0,
+    "scale": 0.78
+   },
+   "items": [
+    {
+     "chart": {
+      "type": "bar",
+      "values": [
+       1000,
+       1967,
+       3870,
+       7612
+      ],
+      "labels": [
+       "today",
+       "10 years",
+       "20 years",
+       "30 years"
+      ],
+      "unit": "$"
+     },
+     "x": 0.6,
+     "y": 0.52,
+     "w": 0.56,
+     "at": 0.4
+    }
+   ]
+  },
+  {
+   "say": [
+    "A quick trick: divide seventy-two by the interest rate, and you get the years it takes to double."
+   ],
+   "background": "#f2ead6",
+   "transition": "fade",
+   "character": false,
+   "manim": {
+    "code": "class Rule(Scene):\n    def construct(self):\n        t = MathTex(r'\\frac{72}{7} \\approx 10', r'\\text{ years}', color=INK).scale(2.4)\n        self.play(Write(t), run_time=2)\n        self.play(Indicate(t[0], color=RED), run_time=1)\n        self.wait(1)\n"
+   },
+   "items": [
+    {
+     "text": "the rule of 72",
+     "x": 0.5,
+     "y": 0.18,
+     "size": 0.08,
+     "at": 0.3
+    }
+   ]
+  },
+  {
+   "say": [
+    "The secret ingredient is not money. It is time."
+   ],
+   "background": "#f2b84b",
+   "backdrop": "dots",
+   "particles": "sparkles",
+   "transition": "iris",
+   "character": {
+    "x": 0.5,
+    "y": 1.0,
+    "scale": 0.9,
+    "cues": [
+     {
+      "line": 0,
+      "gesture": "think",
+      "mood": "curious"
+     },
+     {
+      "line": 0,
+      "at": 1.8,
+      "gesture": "present",
+      "mood": "happy"
+     }
+    ]
+   },
+   "items": [
+    {
+     "prop": "hourglass",
+     "x": 0.18,
+     "y": 0.38,
+     "w": 0.12,
+     "at": 1.6,
+     "loop": "wobble"
+    },
+    {
+     "prop": "clock",
+     "x": 0.82,
+     "y": 0.38,
+     "w": 0.12,
+     "at": 2.0,
+     "loop": "float"
+    },
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1000 220\"><rect x=\"0\" y=\"0\" width=\"1000\" height=\"220\" rx=\"28\" fill=\"#1d1840\" opacity=\".9\"/></svg>",
+     "x": 0.5,
+     "y": 0.5,
+     "w": 0.66,
+     "lineEnd": 0,
+     "at": 0.15,
+     "enter": "fade",
+     "over": true,
+     "sound": false
+    },
+    {
+     "text": "Made with selfclone",
+     "x": 0.5,
+     "y": 0.464,
+     "size": 0.085,
+     "color": "#f6f1e6",
+     "lineEnd": 0,
+     "at": 0.3,
+     "over": true
+    },
+    {
+     "text": "github.com/logitsolutionsai/selfclone",
+     "x": 0.5,
+     "y": 0.545,
+     "size": 0.036,
+     "font": "sans",
+     "color": "#f2c14b",
+     "lineEnd": 0,
+     "at": 0.9,
+     "enter": "fade",
+     "over": true
+    }
+   ],
+   "hold": 2.6
+  }
+ ],
+ "music": "ambient"
+}

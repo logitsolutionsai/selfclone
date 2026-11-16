@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/logitsolutionsai/selfclone/schemas/studio-scenes.v1.schema.json",
+  "title": "selfclone studio scene file, version 1",
+  "description": "An animated explainer: who is on screen, what is said, and what appears when. selfclone explainer checks every field again (checkScenes) with plain error messages; this schema is for editor completion.",
+  "type": "object",
+  "required": ["scenes"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "title": { "type": "string", "maxLength": 200 },
+    "voice": { "$ref": "#/$defs/voice" },
+    "character": { "type": "string", "description": "A character file for a single host, or \"random\" / \"random:<seed>\"." },
+    "host": { "type": "boolean", "description": "false: nobody on screen." },
+    "cast": {
+      "type": "object",
+      "propertyNames": { "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,23}$", "not": { "const": "narrator" } },
+      "additionalProperties": {
+        "type": "object",
+        "required": ["character"],
+        "properties": {
+          "character": { "anyOf": [{ "type": "string" }, { "type": "object" }], "description": "A character file, \"random\", \"random:<seed>\" or a character object." },
+          "voice": { "$ref": "#/$defs/voice" },
+          "body": { "enum": ["bust", "full"] }
+        }
+      }
+    },
+    "music": { "type": "string", "description": "A music file the user has the rights to, or \"ambient\" for a generated bed." },
+    "musicVolume": { "type": "number", "minimum": 0, "maximum": 1 },
+    "sfx": { "type": "boolean" },
+    "captions": { "enum": [true, false, "words"] },
+    "scenes": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/scene" } }
+  },
+  "$defs": {
+    "voice": { "type": "string", "pattern": "^(kokoro|elevenlabs|openai)(:.+)?$", "description": "kokoro:af_heart (default), elevenlabs:<voice_id>, openai:<voice>." },
+    "frac": { "type": "number", "minimum": -0.5, "maximum": 1.5 },
+    "when": {
+      "type": "object",
+      "properties": { "line": { "type": "integer", "minimum": 0 }, "lineEnd": { "type": "integer", "minimum": 0 }, "at": { "type": "number" } }
+    },
+    "line": {
+      "anyOf": [
+        { "type": "string" },
+        { "type": "object", "required": ["text"], "properties": { "who": { "type": "string" }, "text": { "type": "string" } } }
+      ]
+    },
+    "gesture": { "pattern": "^(rest|idle|point|wave|explain|present|shrug|think|thumbs|count)(-left)?$", "type": "string" },
+    "mood": { "enum": ["neutral", "happy", "surprised", "serious", "sad", "curious"] },
+    "look": { "anyOf": [{ "type": "number", "minimum": -1, "maximum": 1 }, { "type": "string" }] },
+    "placement": {
+      "type": "object",
+      "properties": {
+        "x": { "$ref": "#/$defs/frac" }, "y": { "type": "number" }, "scale": { "type": "number", "minimum": 0.2, "maximum": 3 },
+        "body": { "enum": ["bust", "full"] }, "gesture": { "$ref": "#/$defs/gesture" }, "mood": { "$ref": "#/$defs/mood" },
+        "look": { "$ref": "#/$defs/look" }, "flip": { "type": "boolean" }, "auto": { "type": "boolean" },
+        "name": { "type": "string", "maxLength": 40 },
+        "enter": { "enum": ["none", "slide-left", "slide-right", "rise", "pop", "walk-left", "walk-right"] },
+        "walk": { "anyOf": [{ "$ref": "#/$defs/walk" }, { "type": "array", "items": { "$ref": "#/$defs/walk" } }] },
+        "cues": {
+          "type": "array",
+          "items": { "allOf": [{ "$ref": "#/$defs/when" }], "properties": { "gesture": { "$ref": "#/$defs/gesture" }, "mood": { "$ref": "#/$defs/mood" }, "look": { "$ref": "#/$defs/look" } } }
+        }
+      }
+    },
+    "walk": { "allOf": [{ "$ref": "#/$defs/when" }], "required": ["x"], "properties": { "x": { "$ref": "#/$defs/frac" }, "dur": { "type": "number" } } },
+    "camkey": { "type": "object", "properties": { "zoom": { "type": "number", "minimum": 1, "maximum": 4 }, "x": { "type": "number", "minimum": 0, "maximum": 1 }, "y": { "type": "number", "minimum": 0, "maximum": 1 }, "line": { "type": "integer" }, "at": { "type": "number" }, "dur": { "type": "number" } } },
+    "item": {
+      "type": "object",
+      "properties": {
+        "svg": { "type": "string" }, "text": { "type": "string" }, "prop": { "type": "string" }, "bubble": { "type": "string" }, "image": { "type": "string" },
+        "chart": {
+          "type": "object", "required": ["type", "values"],
+          "properties": { "type": { "enum": ["bar", "line", "pie"] }, "values": { "type": "array", "items": { "type": "number" }, "minItems": 1, "maxItems": 24 }, "labels": { "type": "array", "items": { "type": "string" } }, "colors": { "type": "array", "items": { "type": "string" } }, "unit": { "type": "string" }, "showValues": { "type": "boolean" } }
+        },
+        "x": { "$ref": "#/$defs/frac" }, "y": { "$ref": "#/$defs/frac" }, "w": { "type": "number" }, "size": { "type": "number" },
+        "line": { "type": "integer", "minimum": 0 }, "lineEnd": { "type": "integer", "minimum": 0 }, "at": { "type": "number" }, "over": { "type": "boolean" },
+        "enter": { "enum": ["pop", "fade", "write", "draw", "grow", "zoom", "slide-left", "slide-right", "slide-up", "slide-down", "none"] },
+        "loop": { "enum": ["none", "float", "bob", "wobble", "pulse", "spin", "shake"] },
+        "exit": { "anyOf": [{ "type": "number" }, { "type": "object", "properties": { "line": { "type": "integer" }, "at": { "type": "number" }, "anim": { "enum": ["fade", "pop", "slide-left", "slide-right", "slide-up", "slide-down"] } } }] },
+        "move": { "type": "object", "properties": { "x": { "$ref": "#/$defs/frac" }, "y": { "$ref": "#/$defs/frac" }, "line": { "type": "integer" }, "at": { "type": "number" }, "dur": { "type": "number" } } },
+        "mark": { "enum": ["none", "underline", "circle", "box", "strike"] }, "markColor": { "type": "string" }, "markAt": { "type": "number" },
+        "count": { "type": "object", "required": ["to"], "properties": { "from": { "type": "number" }, "to": { "type": "number" }, "dur": { "type": "number" }, "decimals": { "type": "integer" } } },
+        "who": { "type": "string" }, "style": { "enum": ["speech", "thought"] },
+        "color": { "type": "string" }, "font": { "enum": ["hand", "sans"] }, "scale": { "type": "number" }, "rotate": { "type": "number" },
+        "look": { "type": "boolean" }, "sound": { "type": "boolean" }
+      }
+    },
+    "scene": {
+      "type": "object",
+      "required": ["say"],
+      "properties": {
+        "say": { "anyOf": [{ "type": "string" }, { "type": "array", "items": { "$ref": "#/$defs/line" } }] },
+        "title": { "type": "string", "maxLength": 80 }, "titleColor": { "type": "string" },
+        "background": { "anyOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" }, "maxItems": 2 }] },
+        "backdrop": {
+          "anyOf": [
+            { "enum": ["none", "clouds", "stars", "dots", "grass", "city", "room", "grid", "waves", "chalkboard", "notebook"] },
+            { "type": "object", "properties": { "image": { "type": "string" }, "prompt": { "type": "string", "maxLength": 400 }, "dim": { "type": "number", "minimum": 0, "maximum": 0.9 } } }
+          ]
+        },
+        "particles": { "enum": ["none", "dust", "sparkles", "bubbles", "snow"] },
+        "character": { "anyOf": [{ "const": false }, { "$ref": "#/$defs/placement" }] },
+        "characters": { "anyOf": [{ "const": false }, { "type": "object", "additionalProperties": { "anyOf": [{ "const": false }, { "$ref": "#/$defs/placement" }] } }] },
+        "camera": { "type": "object", "properties": { "from": { "$ref": "#/$defs/camkey" }, "to": { "$ref": "#/$defs/camkey" }, "keys": { "type": "array", "items": { "$ref": "#/$defs/camkey" } } } },
+        "items": { "type": "array", "items": { "$ref": "#/$defs/item" } },
+        "manim": { "type": "object", "required": ["code"], "properties": { "code": { "type": "string" }, "scene": { "type": "string" }, "x": { "type": "number" }, "y": { "type": "number" }, "w": { "type": "number" }, "line": { "type": "integer" }, "at": { "type": "number" } } },
+        "transition": { "enum": ["cut", "fade", "wipe", "push", "zoom", "iris"] },
+        "hold": { "type": "number", "minimum": 0, "maximum": 20 }
+      }
+    }
+  }
+}

@@ -1,0 +1,279 @@
+{
+ "title": "How does a neural network learn?",
+ "cast": {
+  "host": {
+   "character": "random:nn-host-3",
+   "voice": "kokoro:am_michael"
+  }
+ },
+ "scenes": [
+  {
+   "say": [
+    "A neural network is a stack of tiny calculators, called neurons.",
+    "Each one weighs its inputs, adds them up, and passes the result on."
+   ],
+   "background": "#7b6fc4",
+   "backdrop": "grid",
+   "title": "Neural networks",
+   "titleColor": "#f6f1e6",
+   "character": {
+    "x": 0.2,
+    "y": 1.0,
+    "scale": 0.85,
+    "enter": "rise",
+    "name": "Your guide"
+   },
+   "items": [
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 410 250\"><line x1=\"40\" y1=\"61.7\" x2=\"150\" y2=\"53.8\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"40\" y1=\"61.7\" x2=\"150\" y2=\"101.2\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"40\" y1=\"61.7\" x2=\"150\" y2=\"148.8\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"40\" y1=\"61.7\" x2=\"150\" y2=\"196.2\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"40\" y1=\"125.0\" x2=\"150\" y2=\"53.8\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"40\" y1=\"125.0\" x2=\"150\" y2=\"101.2\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"40\" y1=\"125.0\" x2=\"150\" y2=\"148.8\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"40\" y1=\"125.0\" x2=\"150\" y2=\"196.2\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"40\" y1=\"188.3\" x2=\"150\" y2=\"53.8\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"40\" y1=\"188.3\" x2=\"150\" y2=\"101.2\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"40\" y1=\"188.3\" x2=\"150\" y2=\"148.8\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"40\" y1=\"188.3\" x2=\"150\" y2=\"196.2\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"150\" y1=\"53.8\" x2=\"260\" y2=\"53.8\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"150\" y1=\"53.8\" x2=\"260\" y2=\"101.2\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"150\" y1=\"53.8\" x2=\"260\" y2=\"148.8\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"150\" y1=\"53.8\" x2=\"260\" y2=\"196.2\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"150\" y1=\"101.2\" x2=\"260\" y2=\"53.8\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"150\" y1=\"101.2\" x2=\"260\" y2=\"101.2\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"150\" y1=\"101.2\" x2=\"260\" y2=\"148.8\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"150\" y1=\"101.2\" x2=\"260\" y2=\"196.2\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"150\" y1=\"148.8\" x2=\"260\" y2=\"53.8\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"150\" y1=\"148.8\" x2=\"260\" y2=\"101.2\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"150\" y1=\"148.8\" x2=\"260\" y2=\"148.8\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"150\" y1=\"148.8\" x2=\"260\" y2=\"196.2\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"150\" y1=\"196.2\" x2=\"260\" y2=\"53.8\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"150\" y1=\"196.2\" x2=\"260\" y2=\"101.2\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"150\" y1=\"196.2\" x2=\"260\" y2=\"148.8\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"150\" y1=\"196.2\" x2=\"260\" y2=\"196.2\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"260\" y1=\"53.8\" x2=\"370\" y2=\"77.5\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"260\" y1=\"53.8\" x2=\"370\" y2=\"172.5\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"260\" y1=\"101.2\" x2=\"370\" y2=\"77.5\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"260\" y1=\"101.2\" x2=\"370\" y2=\"172.5\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"260\" y1=\"148.8\" x2=\"370\" y2=\"77.5\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"260\" y1=\"148.8\" x2=\"370\" y2=\"172.5\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"260\" y1=\"196.2\" x2=\"370\" y2=\"77.5\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><line x1=\"260\" y1=\"196.2\" x2=\"370\" y2=\"172.5\" stroke=\"#6b6688\" stroke-width=\"2.5\"/><circle cx=\"40\" cy=\"61.7\" r=\"17\" fill=\"#5b8fd6\" stroke=\"#2a2346\" stroke-width=\"4\"/><circle cx=\"40\" cy=\"125.0\" r=\"17\" fill=\"#5b8fd6\" stroke=\"#2a2346\" stroke-width=\"4\"/><circle cx=\"40\" cy=\"188.3\" r=\"17\" fill=\"#5b8fd6\" stroke=\"#2a2346\" stroke-width=\"4\"/><circle cx=\"150\" cy=\"53.8\" r=\"17\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"4\"/><circle cx=\"150\" cy=\"101.2\" r=\"17\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"4\"/><circle cx=\"150\" cy=\"148.8\" r=\"17\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"4\"/><circle cx=\"150\" cy=\"196.2\" r=\"17\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"4\"/><circle cx=\"260\" cy=\"53.8\" r=\"17\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"4\"/><circle cx=\"260\" cy=\"101.2\" r=\"17\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"4\"/><circle cx=\"260\" cy=\"148.8\" r=\"17\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"4\"/><circle cx=\"260\" cy=\"196.2\" r=\"17\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"4\"/><circle cx=\"370\" cy=\"77.5\" r=\"17\" fill=\"#e2604f\" stroke=\"#2a2346\" stroke-width=\"4\"/><circle cx=\"370\" cy=\"172.5\" r=\"17\" fill=\"#e2604f\" stroke=\"#2a2346\" stroke-width=\"4\"/></svg>",
+     "x": 0.64,
+     "y": 0.56,
+     "w": 0.5,
+     "line": 0,
+     "at": 1.5,
+     "enter": "draw"
+    }
+   ]
+  },
+  {
+   "say": [
+    "Show it a picture of a handwritten seven, and it makes a guess.",
+    "At first, it guesses one."
+   ],
+   "background": "#5b8fd6",
+   "backdrop": "dots",
+   "transition": "push",
+   "character": {
+    "x": 0.2,
+    "y": 1.0,
+    "scale": 0.85
+   },
+   "items": [
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 120 160\"><rect x=\"6\" y=\"6\" width=\"108\" height=\"148\" rx=\"8\" fill=\"#f6f1e6\" stroke=\"#2a2346\" stroke-width=\"5\"/><path d=\"M30,40 L90,40 L52,130\" fill=\"none\" stroke=\"#2a2346\" stroke-width=\"12\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>",
+     "x": 0.45,
+     "y": 0.45,
+     "w": 0.12,
+     "at": 0.6,
+     "enter": "draw"
+    },
+    {
+     "prop": "arrow",
+     "x": 0.6,
+     "y": 0.45,
+     "w": 0.1,
+     "line": 0,
+     "at": 2.0,
+     "enter": "slide-left"
+    },
+    {
+     "text": "1 ?",
+     "x": 0.76,
+     "y": 0.45,
+     "size": 0.14,
+     "line": 1,
+     "at": 0.2,
+     "loop": "wobble"
+    },
+    {
+     "prop": "cross",
+     "x": 0.87,
+     "y": 0.3,
+     "w": 0.07,
+     "line": 1,
+     "at": 1.0
+    }
+   ]
+  },
+  {
+   "say": [
+    "So we measure how wrong it was, with a number called the loss.",
+    "Then every weight gets nudged a little, in the direction that shrinks the loss."
+   ],
+   "background": "#8fc6a0",
+   "backdrop": "grid",
+   "transition": "wipe",
+   "character": {
+    "x": 0.18,
+    "y": 1.0,
+    "scale": 0.8
+   },
+   "items": [
+    {
+     "text": "loss",
+     "x": 0.62,
+     "y": 0.16,
+     "size": 0.09,
+     "line": 0,
+     "at": 1.6,
+     "mark": "circle"
+    },
+    {
+     "chart": {
+      "type": "line",
+      "values": [
+       9,
+       7.2,
+       5.1,
+       3.8,
+       2.6,
+       1.9,
+       1.4,
+       1.1,
+       0.9
+      ],
+      "labels": [
+       "start",
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       "trained"
+      ],
+      "showValues": false
+     },
+     "x": 0.62,
+     "y": 0.56,
+     "w": 0.54,
+     "line": 1,
+     "at": 0.4
+    }
+   ]
+  },
+  {
+   "say": [
+    "This trick is called backpropagation.",
+    "Repeat it millions of times, and the guesses get good."
+   ],
+   "background": "#7fb6d6",
+   "backdrop": "clouds",
+   "transition": "zoom",
+   "character": {
+    "x": 0.2,
+    "y": 1.0,
+    "scale": 0.85
+   },
+   "items": [
+    {
+     "text": "backpropagation",
+     "x": 0.64,
+     "y": 0.16,
+     "size": 0.08,
+     "at": 0.3,
+     "mark": "underline"
+    },
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 120 160\"><rect x=\"6\" y=\"6\" width=\"108\" height=\"148\" rx=\"8\" fill=\"#f6f1e6\" stroke=\"#2a2346\" stroke-width=\"5\"/><path d=\"M30,40 L90,40 L52,130\" fill=\"none\" stroke=\"#2a2346\" stroke-width=\"12\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>",
+     "x": 0.5,
+     "y": 0.5,
+     "w": 0.1,
+     "line": 1,
+     "at": 0.8
+    },
+    {
+     "prop": "arrow",
+     "x": 0.64,
+     "y": 0.5,
+     "w": 0.09,
+     "line": 1,
+     "at": 1.3,
+     "enter": "slide-left"
+    },
+    {
+     "text": "7 ✓",
+     "x": 0.8,
+     "y": 0.5,
+     "size": 0.14,
+     "line": 1,
+     "at": 1.8,
+     "color": "#2f6b3a"
+    },
+    {
+     "prop": "check",
+     "x": 0.8,
+     "y": 0.3,
+     "w": 0.07,
+     "line": 1,
+     "at": 2.4
+    }
+   ]
+  },
+  {
+   "say": [
+    "That is all learning is, for a machine: lots of tiny corrections."
+   ],
+   "background": "#7b6fc4",
+   "backdrop": "stars",
+   "particles": "sparkles",
+   "transition": "iris",
+   "character": {
+    "x": 0.5,
+    "y": 1.0,
+    "scale": 0.9,
+    "cues": [
+     {
+      "line": 0,
+      "gesture": "present",
+      "mood": "happy"
+     }
+    ]
+   },
+   "items": [
+    {
+     "prop": "brain",
+     "x": 0.2,
+     "y": 0.35,
+     "w": 0.14,
+     "at": 0.5,
+     "loop": "float"
+    },
+    {
+     "prop": "cpu",
+     "x": 0.8,
+     "y": 0.35,
+     "w": 0.12,
+     "at": 1.0,
+     "loop": "float"
+    },
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1000 220\"><rect x=\"0\" y=\"0\" width=\"1000\" height=\"220\" rx=\"28\" fill=\"#1d1840\" opacity=\".9\"/></svg>",
+     "x": 0.5,
+     "y": 0.5,
+     "w": 0.66,
+     "lineEnd": 0,
+     "at": 0.15,
+     "enter": "fade",
+     "over": true,
+     "sound": false
+    },
+    {
+     "text": "Made with selfclone",
+     "x": 0.5,
+     "y": 0.464,
+     "size": 0.085,
+     "color": "#f6f1e6",
+     "lineEnd": 0,
+     "at": 0.3,
+     "over": true
+    },
+    {
+     "text": "github.com/logitsolutionsai/selfclone",
+     "x": 0.5,
+     "y": 0.545,
+     "size": 0.036,
+     "font": "sans",
+     "color": "#f2c14b",
+     "lineEnd": 0,
+     "at": 0.9,
+     "enter": "fade",
+     "over": true
+    }
+   ],
+   "hold": 2.6
+  }
+ ],
+ "music": "ambient"
+}

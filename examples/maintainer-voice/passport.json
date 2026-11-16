@@ -2,7 +2,7 @@
   "audience": "public",
   "disclaimer": "AI-derived writing-style summary; not identity proof.",
   "evidenceBand": "500+",
-  "generatedBy": "selfclone/0.1.0",
+  "generatedBy": "selfclone/0.2.0",
   "habits": [
     "Usually concise in developer discussions",
     "Uses direct questions sparingly",
@@ -16,7 +16,7 @@
     "No exact message counts",
     "Rounded and bucketed tendencies only"
   ],
-  "projectionDigest": "sha256:5acc918d3042ac57924bd674cf0f8bf4eca4075be6e5cddb5e549c8b007beeed",
+  "projectionDigest": "sha256:7d67cc43fc358a07ef4c777843afef376b758cab7600de8e6f8613d366bb889c",
   "registers": [
     {
       "casing": "mostly lowercase",

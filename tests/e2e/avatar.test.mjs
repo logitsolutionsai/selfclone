@@ -10,7 +10,6 @@ import { bakeFromPhoto } from '../../src/face/bake.mjs';
 import { launchChrome } from '../../src/face/chrome.mjs';
 import { startAvatarServer, sayText, sayAudio } from '../../src/face/server.mjs';
 import { OUT, FIXTURE, ROOT, decodePng, meanDiff, makeWav, sleep } from './helpers.mjs';
-import { labelCoverage, labelOk } from '../../src/face/video.mjs';
 
 const AVATAR = path.join(OUT, 'avatar.html');
 const FAKE = 'http://avatar.local/avatar.html';
@@ -168,24 +167,18 @@ test('the badge is a near-black chip with white letters on the photo in both the
   }
 });
 
-test('the video label check finds the chin label in a rendered export frame, and fails when it is clipped away', async () => {
+test('the export frame that selfclone video records has the face and no badge', async () => {
   const { page } = await openOffline('?export=circle&controls=0&tts=0&idle=0&blink=0&seed=video');
   try {
     await page.setViewportSize({ width: 320, height: 320 });
     await sleep(400);
-    const box = await page.evaluate(() => {
-      const r = document.getElementById('badge').getBoundingClientRect();
-      return { x: r.left, y: r.top, width: r.width, height: r.height };
-    });
-    const frame = async (name) => decodePng(await page.screenshot({ clip: { x: 0, y: 0, width: 320, height: 320 }, path: path.join(OUT, name) }));
-    const withLabel = labelCoverage(await frame('evidence-export-label.png'), box);
-    assert.ok(labelOk(withLabel), `label found: fill ${withLabel.fill.toFixed(2)}, white ${withLabel.white.toFixed(2)}`);
-    // clip-path hides the label from the frame without tripping the page's own guard (it checks display,
-    // visibility, opacity and size), so only the frame check stands between this frame and the encoder.
-    await page.evaluate(() => document.getElementById('badge').style.setProperty('clip-path', 'inset(50%)'));
-    await sleep(1300);
-    const without = labelCoverage(await frame('evidence-export-nolabel.png'), box);
-    assert.ok(!labelOk(without), `no label: fill ${without.fill.toFixed(2)}, white ${without.white.toFixed(2)}`);
+    const st = await page.evaluate(() => ({
+      badge: (() => { const b = document.getElementById('badge'); return b ? getComputedStyle(b).display : 'none'; })(),
+      frames: window.selfclone.state().frames,
+    }));
+    await page.screenshot({ clip: { x: 0, y: 0, width: 320, height: 320 }, path: path.join(OUT, 'evidence-export-frame.png') });
+    assert.equal(st.badge, 'none', 'no badge in the export frame');
+    assert.ok(st.frames > 3, 'the face renders without the badge');
   } finally {
     await page.close();
   }

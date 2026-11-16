@@ -57,6 +57,13 @@ flowchart LR
 | `face/lib/detect.js` | in-browser detection, live checks, crop, the clip collector and the video bake |
 | `face/lib/runtime.js` | avatar renderer, animation, speech and audio |
 | `face/avatar.html`, `face/enrol.html`, `face/bake.html` | page templates |
+| `src/studio/character.mjs` | the drawn character: parameters from landmarks and photo colours, the layered SVG |
+| `src/studio/speech.mjs` | narration: Kokoro, ElevenLabs, OpenAI or a file; sentence assembly and WAV |
+| `src/studio/scenes.mjs` | scene-file checks and the timeline: absolute times, camera keys, the host's gestures, moods and glances |
+| `src/studio/tracks.mjs` | per-frame tracks from the narration: mouth shapes, blinks, emphasis |
+| `src/studio/sfx.mjs` | synthesised sound effects and the mix |
+| `src/studio/page.mjs` | the frame page and the preview sheet, with the rig code they share |
+| `src/studio/explainer.mjs` | narration, the render, the encode (music ducking) and the frame count check |
 | `templates/` | clone skill templates; `templates/maintainer-kit/` for `kit init`; the synthetic example profile |
 | `src/cli-next.mjs`, `src/errors.mjs` | the Voice CI and Voice Passport commands, their help, structured errors and exit codes |
 | `src/consent.mjs` | the consent ledger with scopes and revocation |
@@ -281,19 +288,107 @@ site, and uploaded audio gets an unguessable address.
 
 ## Video Export
 
-`selfclone video` (`src/face/video.mjs`) turns a baked avatar into a labelled clip for screen recordings and
-tutorials. The page is rebuilt from the avatar's embedded data with the current runtime, so an edited
-`avatar.html` cannot drop the label. ffmpeg decodes the user's audio; Node measures loudness and spectral
+`selfclone video` (`src/face/video.mjs`) turns a baked avatar into a clip for screen recordings and tutorials.
+The page is rebuilt from the avatar's embedded data with the current runtime. ffmpeg decodes the user's audio; Node measures loudness and spectral
 centroid every 10 ms with the same mapping the live audio mode uses (`sayFeatures()`); headless Chrome renders
-each frame on a paused clock (`?export=circle|square`, label on the chin); the raw frames are piped back to
+each frame on a paused clock (`?export=circle|square`, the face only); the raw frames are piped back to
 ffmpeg, which writes WebM VP9 with alpha (transparent background) or MP4 H.264, with the original audio muxed in.
 
-Safeguards, each covered by `tests/unit/video.test.mjs` and `tests/e2e/video.test.mjs`: every frame is checked
-for the "AI CLONE" label before encoding and a missing label aborts the export; the consent record must have a
-statement and a date, and its photo SHA-256 must match the embedded face; there is no text input, only the
-user's own audio; the file carries provenance tags and a `<file>.provenance.json` sidecar with SHA-256 hashes of
-the video and the audio; and `--max-minutes` caps the length (default 10, at most 60). The policy behind these
+Safeguards, each covered by `tests/unit/video.test.mjs` and `tests/e2e/video.test.mjs`: the consent record must
+have a statement and a date, and its photo SHA-256 must match the embedded face; there is no text input, only the
+user's own audio; and `--max-minutes` caps the length (default 10, at most 60). The policy behind these
 rules is in [`ETHICS.md`](../ETHICS.md).
+
+## Studio (Explainer Videos)
+
+`selfclone character` runs the same headless bake as `bake --photo` (or `--video`) to get the 478 landmarks and
+the crop, decodes the crop with ffmpeg, and turns them into a small parameter file: face aspect, eye spacing and
+height, nose and mouth height, mouth width (each a ratio measured on the landmarks), and colours sampled as
+medians of small discs (cheeks and forehead for skin, above the hairline for hair, the lip bodies, the shoulders
+and the collar). A photo whose skin and lips have almost no saturation is treated as black and white: hair and
+clothes keep their lightness, the skin tone comes from a six-step ramp. `characterSvg()` draws the character in a
+600 x 720 box from those numbers and a hair style; every mouth shape (rest, small, wide, open, round, pucker), both
+eye states and both poses are groups in the one SVG, ids prefixed per instance.
+
+The character is a rig. The torso holds two jointed arms (the upper arm turns at the shoulder, the forearm at the
+elbow, three hand shapes are swapped), with the shoulders drawn again over the tops of the arms so they come out
+from under the jacket. A gesture is a pair of angles and a hand per arm (`GESTURES`); the page blends from one
+to the next over 0.45 s. The face's features are one group that shifts toward where the host looks while the hair
+fringe shifts less and the irises more, which reads as a head turn. The brows rotate and lift per mood
+(`MOOD_FACES`).
+
+`buildTimeline` resolves every `line` + `at` into seconds and adds the host's automatic behaviour: a gesture per
+sentence from a seeded pool, a point toward items that land at least 0.15 of the width to its side (dropped
+after 1.5 s), and a glance at every item. Gesture events have priorities (written cues, then points, then
+sentence gestures); of two closer than 0.8 s, the higher one stays. `emphasisTrack` finds loudness peaks in the
+top fifth of the speech, at least 0.45 s apart, and turns each into a short bump that the page uses for a nod, a
+brow lift and a beat of the gesturing hand.
+
+`selfclone explainer` checks the scene file (`checkScenes`), gets the narration, measures loudness and spectral
+centroid every 10 ms with the same code as `selfclone video`, and builds two tracks per frame: the mouth shape
+(loudness relative to the 90th percentile of voiced frames picks the opening, the centroid relative to its median
+picks round or wide; rest outside spoken lines; held for two frames at 24 fps) and blinks (seeded, every 2.2 to
+5.5 s). The page (`explainerHtml`) holds every scene as DOM and SVG and exposes `studio.render(frame)`, a pure
+function of the frame number: camera transform, item entrances, the character's mouth, eyes, head tilt and bob
+(on twos), the caption and the line-boil seed (an `feTurbulence` displacement on items and the character, three
+seeds cycled at 8 a second). Paper grain and a soft-light mottle are fixed noise tiles above the scenes.
+
+Scenery (`backdrops.mjs`) is generated SVG, seeded by the title and scene: the backdrop is drawn 1.3 times the
+frame and moved at 45% of the camera's shift and zoom, so it lags behind like a far layer; particles are moved a
+little more than the camera. Parts that live on their own carry a class the page animates on twos (drift,
+twinkle, float, roll).
+
+Sound effects are synthesised from the timeline (`sfx.mjs`: a pitch-dropping sine for a pop, swept band noise
+for a whoosh, bursts of high-passed noise for pencil strokes, two sine partials for a chime), mixed under the
+narration and soft-clipped. A music track is looped, faded and compressed by the narration as a sidechain in
+ffmpeg, so it dips while the narrator speaks.
+
+Narration is spoken one sentence at a time, trimmed of edge silence and joined with fixed pauses (0.35 s before a
+scene's first line, 0.3 s between lines, 0.45 s after the last plus the scene's `hold`), so every caption and cue
+time is exact. It is cached under `.selfclone/studio/` by a hash of the voice, the lines and the holds.
+
+Rendering uses headless Chrome with `--disable-gpu` (SVG filters are several times faster in software than
+through SwiftShader) and the network blocked. Each frame is captured as JPEG and piped to ffmpeg (H.264 and AAC).
+The encoded file's frames are then counted with ffprobe; a mismatch deletes the output.
+
+### Cast, Dialogue And The Rest Of The Studio
+
+- **Cast.** `checkScenes` reads a cast (zero or more named characters, each a file, `random:<seed>` or an object,
+  with a voice and a bust or full body) and normalises every line to `{who, text}`. `buildTimeline` gives each
+  character on screen its own gestures, moods, glances, walk keys and listening looks (toward whoever speaks).
+  `castTracks` builds mouth, blink and emphasis tracks per speaker from only that speaker's lines.
+- **Random people.** `randomCharacter(seed)` draws skin, hair colour and style, outfit, facial hair, glasses and
+  face proportions from natural ranges; its consent record says it is fictional.
+- **Full body and walking.** The full body adds a waist, a belt and jointed legs to the same rig. While a
+  character's x changes, the page drives a 1.7-steps-a-second cycle: thighs swing, knees bend on the forward
+  leg, arms swing opposite and the body bobs.
+- **Lip sync from text.** `phonemeSegments` turns each line into IPA with the phonemizer that comes with
+  kokoro-js, clause by clause so the pauses survive, and maps the sounds to visemes; without the phonemizer,
+  `mouthTrack` uses the photo avatar's letter table (`textToVisemes`). It aligns them to the audio piecewise, matching the text's commas and stops to silences in the
+  voice, and lets loudness open or close the mouth.
+- **Props and charts.** `props.mjs` holds 60 props as 100 x 100 SVG in the house style. `charts.mjs` draws bar,
+  line and pie charts whose parts carry classes the page grows in turn.
+- **Manim.** `manim.mjs` finds Manim (`SELFCLONE_MANIM`, selfclone's own venv, or `manim` / `python -m manim`)
+  and renders each block to a transparent WebM at the video's frame rate. ffmpeg splits it into PNG frames,
+  cached by code and size, and the page shows them frame by frame; the render waits for each image to decode.
+- **Parallel rendering.** Every frame is a pure function of its number, so `renderExplainer` splits the frames
+  into runs, one page per worker, each encoding its own H.264 segment. ffmpeg joins them without re-encoding and
+  adds the sound; the frames of the joined file are then counted.
+- **Preview.** `renderPreview` renders three stills per scene into one sheet, so Claude can check a storyboard in
+  seconds.
+- **Storyboard warnings.** `lint.mjs` estimates each item's box from its viewBox, font size or chart shape. It
+  warns about overlaps (ignoring items on the same centre, which are layered on purpose), items off the frame,
+  under the captions or over a character, and empty or rushed scenes.
+- **Aspect.** Characters and text are sized against `min(height, 1.2 x width)`, so a 9:16 frame keeps them inside
+  its width; in tall frames the captions sit a little higher, over the presenter's torso.
+- **Interactive player.** `exportHtmlPlayer` reuses the frame page with a player around it. The sound
+  (narration, effects, ducked music) is embedded as AAC; each Manim block becomes a transparent WebM clip that
+  stays within 0.2 s of the sound. Every animation frame renders the frame for the sound's current time, so the
+  page plays, pauses, scrubs and jumps to chapters with no separate animation code.
+- **Ambient music.** `ambientMusic` synthesises a I-V-vi-IV pad (detuned voices, slow swells, two echo taps, a
+  soft limiter), which the mix ducks like any music.
+- **Kokoro.** It is fetched at a pinned Hugging Face revision, and the model file is checked against a pinned
+  SHA-256 before use.
 
 ## Testing
 

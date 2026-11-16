@@ -5,10 +5,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
 import { bakeFromPhoto } from '../../src/face/bake.mjs';
 import { readAvatarData } from '../../src/face/build.mjs';
-import { labelCoverage, labelOk } from '../../src/face/video.mjs';
+import { countFrames } from '../../src/studio/explainer.mjs';
 import { VERSION } from '../../src/util.mjs';
 import { OUT, ROOT, FIXTURE, makeWav } from './helpers.mjs';
 
@@ -52,7 +51,7 @@ before(async () => {
   };
 });
 
-test('video: a transparent round WebM at the smallest size, labelled on every frame, tagged, with audio', (t) => {
+test('video: a transparent round WebM at the smallest size, with audio, no label and no sidecar', (t) => {
   const file = path.join(WS, 'pip.webm');
   const r = run(['video', '--audio', WAV, '--avatar', AVATAR, '--size', '240', '-o', file]);
   t.diagnostic(r.stdout.trim());
@@ -69,33 +68,12 @@ test('video: a transparent round WebM at the smallest size, labelled on every fr
   t.diagnostic(`duration ${dur} s, ${fs.statSync(file).size} bytes`);
   assert.ok(Math.abs(dur - 3) < 0.12, `duration ${dur}`);
   const tags = Object.fromEntries(Object.entries(info.format.tags || {}).map(([k, x]) => [k.toLowerCase(), x]));
-  assert.match(tags.comment, /^AI CLONE: this video shows an AI clone made with selfclone/);
-  assert.equal(tags.selfclone_consent, CONSENT);
-  assert.ok(Number.isFinite(Date.parse(tags.selfclone_consent_date)));
-  assert.equal(tags.selfclone_version, VERSION);
-  assert.equal(tags.selfclone_ai_generated, 'true');
-  // The sidecar holds the same and the hash of the file.
-  const prov = JSON.parse(fs.readFileSync(`${file}.provenance.json`, 'utf8'));
-  assert.equal(prov.video.sha256, createHash('sha256').update(fs.readFileSync(file)).digest('hex'));
-  assert.equal(prov.consent.statement, CONSENT);
-  assert.equal(prov.tool.version, VERSION);
-  assert.equal(prov.comment, tags.comment);
-  assert.equal(prov.label.burnedIn, true);
-  assert.equal(prov.audio.sha256, createHash('sha256').update(fs.readFileSync(WAV)).digest('hex'));
-  // The label: in the first, middle and last frames, over the chin, inside the circle, legible size.
-  const n = prov.video.frames;
+  assert.equal(tags.comment, `Made with selfclone ${VERSION}`);
+  assert.ok(!Object.keys(tags).some((k) => /ai_generated|label|consent/.test(k)), `no AI, label or consent tags: ${Object.keys(tags).join(', ')}`);
+  assert.ok(!fs.existsSync(`${file}.provenance.json`), 'no sidecar file');
+  const n = countFrames(file);
   assert.equal(n, 90);
-  const box = prov.label.box;
-  t.diagnostic(`label box ${JSON.stringify(box)}, font ${prov.label.fontPx} px`);
-  assert.ok(box.height >= 14 && prov.label.fontPx >= 12, 'legible at 240 px');
-  assert.ok(box.y > 0.55 * 240 && box.y + box.height < 0.97 * 240, 'on the lower face, away from the corners');
-  assert.ok(Math.abs(box.x + box.width / 2 - 120) < 0.15 * 240, 'centred on the face');
-  const [first, mid, last] = frames(file, 240, [0, Math.floor(n / 2), n - 1], true);
-  for (const [name, f] of [['first', first], ['middle', mid], ['last', last]]) {
-    const c = labelCoverage(f, box);
-    t.diagnostic(`${name} frame label: fill ${c.fill.toFixed(2)}, white ${c.white.toFixed(2)}`);
-    assert.ok(labelOk(c), `label in the ${name} frame`);
-  }
+  const [mid] = frames(file, 240, [Math.floor(n / 2)], true);
   // Transparent outside the circle, opaque inside.
   const alpha = (f, x, y) => f.data[(y * 240 + x) * 4 + 3];
   assert.equal(alpha(mid, 3, 3), 0, 'corner is transparent');
@@ -104,18 +82,15 @@ test('video: a transparent round WebM at the smallest size, labelled on every fr
   // The mouth opens while there is sound. The test waveform is loud from 0.05 to 0.25 s, 0.5 to 0.75 s,
   // 1.0 to 1.25 s and so on, and silent in between: compare a frame late in each silence with a frame in
   // the next burst. The head also nods while talking, so the measure is the number of dark pixels (the
-  // opening) inside a generous box around the lips, which a small shift of the face does not change.
+  // opening) inside a box a little larger than the lips, which a small shift of the face does not change; a
+  // larger box would take in the dark shadow under the painting's jaw.
   const pairs = [[13, 20], [28, 35], [43, 50]];
   const got = frames(file, 240, pairs.flat(), true);
-  const m = regionAt(240, [61, 291, 0, 17, 37, 267, 84, 314, 13, 14], 0.1);
-  // The near-black chin label (and its 1 px ring) can reach into the bottom of that box; it does not move, so
-  // its pixels are left out of the count.
-  const inLabel = (x, y) => x >= box.x - 2 && x < box.x + box.width + 2 && y >= box.y - 2 && y < box.y + box.height + 2;
+  const m = regionAt(240, [61, 291, 0, 17, 37, 267, 84, 314, 13, 14], 0.05);
   const dark = (f) => {
     let c = 0;
     for (let y = m.y; y < m.y + m.h; y++) {
       for (let x = m.x; x < m.x + m.w; x++) {
-        if (inLabel(x, y)) continue;
         const o = (y * 240 + x) * 4;
         if (0.299 * f.data[o] + 0.587 * f.data[o + 1] + 0.114 * f.data[o + 2] < 60) c++;
       }
@@ -130,7 +105,7 @@ test('video: a transparent round WebM at the smallest size, labelled on every fr
   evidence(file, 19, 'evidence-video-speaking.png', true);
 });
 
-test('video: an MP4 with a solid background, square, tagged, labelled', (t) => {
+test('video: an MP4 with a solid background, square, with no label', (t) => {
   const file = path.join(WS, 'pip.mp4');
   const r = run(['video', '--audio', WAV, '--avatar', AVATAR, '--size', '320', '--shape', 'square', '--background', '#1e1e1e', '-o', file]);
   assert.equal(r.status, 0, r.stderr);
@@ -141,12 +116,8 @@ test('video: an MP4 with a solid background, square, tagged, labelled', (t) => {
   assert.ok(info.streams.some((s) => s.codec_type === 'audio' && s.codec_name === 'aac'));
   assert.ok(Math.abs(Number(info.format.duration) - 3) < 0.12, `duration ${info.format.duration}`);
   const tags = Object.fromEntries(Object.entries(info.format.tags || {}).map(([k, x]) => [k.toLowerCase(), x]));
-  assert.match(tags.comment, /AI clone made with selfclone/);
-  assert.equal(tags.selfclone_consent, CONSENT);
-  assert.equal(tags.selfclone_version, VERSION);
-  const prov = JSON.parse(fs.readFileSync(`${file}.provenance.json`, 'utf8'));
-  const [mid] = frames(file, 320, [45], false);
-  assert.ok(labelOk(labelCoverage(mid, prov.label.box)), 'label in the middle frame');
+  assert.equal(tags.comment, `Made with selfclone ${VERSION}`);
+  assert.ok(!fs.existsSync(`${file}.provenance.json`), 'no sidecar file');
   evidence(file, 45, 'evidence-video-mp4.png', false);
   t.diagnostic(`mp4 ${fs.statSync(file).size} bytes`);
 });
@@ -162,5 +133,5 @@ test('video refuses a face whose consent does not match it, and audio over the l
   const r2 = run(['video', '--audio', WAV, '--avatar', AVATAR, '--max-minutes', '0.02', '-o', out]);
   assert.equal(r2.status, 1);
   assert.match(r2.stderr, /the limit is 0.02 minutes/);
-  assert.ok(!fs.existsSync(out) && !fs.existsSync(`${out}.provenance.json`), 'nothing written');
+  assert.ok(!fs.existsSync(out), 'nothing written');
 });

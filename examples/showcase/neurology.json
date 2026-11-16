@@ -1,0 +1,281 @@
+{
+ "title": "How do neurons talk?",
+ "cast": {
+  "host": {
+   "character": "random:neuro-8",
+   "voice": "kokoro:af_heart"
+  }
+ },
+ "scenes": [
+  {
+   "say": [
+    "Your brain has about eighty-six billion neurons.",
+    "And right now, they are talking to each other."
+   ],
+   "background": "#d98aa8",
+   "backdrop": "dots",
+   "title": "Neurons",
+   "character": {
+    "x": 0.2,
+    "y": 1.0,
+    "scale": 0.85,
+    "enter": "rise",
+    "name": "Dr. Okoro"
+   },
+   "items": [
+    {
+     "prop": "brain",
+     "x": 0.62,
+     "y": 0.45,
+     "w": 0.18,
+     "at": 0.6,
+     "loop": "pulse"
+    },
+    {
+     "text": "{n}",
+     "count": {
+      "from": 0,
+      "to": 86000000000,
+      "dur": 2.4
+     },
+     "x": 0.62,
+     "y": 0.72,
+     "size": 0.07,
+     "line": 0,
+     "at": 0.4
+    }
+   ]
+  },
+  {
+   "say": [
+    "A neuron is a cell with short branches that listen, and one long wire that speaks."
+   ],
+   "background": "#f2ead6",
+   "backdrop": "notebook",
+   "transition": "push",
+   "character": {
+    "x": 0.14,
+    "y": 1.0,
+    "scale": 0.72
+   },
+   "items": [
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 520 200\"><g fill=\"none\" stroke=\"#2a2346\" stroke-width=\"5\" stroke-linecap=\"round\">\n<path d=\"M90,100 L30,50 M90,100 L20,105 M90,100 L35,160 M60,72 L40,30 M55,128 L60,175\"/>\n<path d=\"M120,100 L440,100\" stroke-width=\"9\"/>\n<path d=\"M440,100 L490,60 M440,100 L500,100 M440,100 L490,140\"/></g>\n<g fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"3\"><rect x=\"150\" y=\"88\" width=\"40\" height=\"24\" rx=\"12\"/><rect x=\"205\" y=\"88\" width=\"40\" height=\"24\" rx=\"12\"/><rect x=\"260\" y=\"88\" width=\"40\" height=\"24\" rx=\"12\"/><rect x=\"315\" y=\"88\" width=\"40\" height=\"24\" rx=\"12\"/><rect x=\"370\" y=\"88\" width=\"40\" height=\"24\" rx=\"12\"/></g>\n<circle cx=\"100\" cy=\"100\" r=\"34\" fill=\"#d98aa8\" stroke=\"#2a2346\" stroke-width=\"5\"/><circle cx=\"100\" cy=\"100\" r=\"11\" fill=\"#b58ad6\" stroke=\"#2a2346\" stroke-width=\"3\"/></svg>",
+     "x": 0.6,
+     "y": 0.45,
+     "w": 0.72,
+     "at": 0.5,
+     "enter": "draw"
+    },
+    {
+     "text": "listen",
+     "x": 0.3,
+     "y": 0.2,
+     "size": 0.06,
+     "at": 2.6,
+     "color": "#7a3b4a"
+    },
+    {
+     "text": "speak",
+     "x": 0.82,
+     "y": 0.2,
+     "size": 0.06,
+     "at": 3.6,
+     "color": "#7a3b4a"
+    }
+   ]
+  },
+  {
+   "say": [
+    "A signal races down the wire as a tiny electrical pulse,",
+    "at up to about one hundred and twenty meters per second."
+   ],
+   "background": "#f2ead6",
+   "backdrop": "notebook",
+   "transition": "fade",
+   "character": {
+    "x": 0.14,
+    "y": 1.0,
+    "scale": 0.72
+   },
+   "items": [
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 520 200\"><g fill=\"none\" stroke=\"#2a2346\" stroke-width=\"5\" stroke-linecap=\"round\">\n<path d=\"M90,100 L30,50 M90,100 L20,105 M90,100 L35,160 M60,72 L40,30 M55,128 L60,175\"/>\n<path d=\"M120,100 L440,100\" stroke-width=\"9\"/>\n<path d=\"M440,100 L490,60 M440,100 L500,100 M440,100 L490,140\"/></g>\n<g fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"3\"><rect x=\"150\" y=\"88\" width=\"40\" height=\"24\" rx=\"12\"/><rect x=\"205\" y=\"88\" width=\"40\" height=\"24\" rx=\"12\"/><rect x=\"260\" y=\"88\" width=\"40\" height=\"24\" rx=\"12\"/><rect x=\"315\" y=\"88\" width=\"40\" height=\"24\" rx=\"12\"/><rect x=\"370\" y=\"88\" width=\"40\" height=\"24\" rx=\"12\"/></g>\n<circle cx=\"100\" cy=\"100\" r=\"34\" fill=\"#d98aa8\" stroke=\"#2a2346\" stroke-width=\"5\"/><circle cx=\"100\" cy=\"100\" r=\"11\" fill=\"#b58ad6\" stroke=\"#2a2346\" stroke-width=\"3\"/></svg>",
+     "x": 0.6,
+     "y": 0.45,
+     "w": 0.72
+    },
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 40 40\"><circle cx=\"20\" cy=\"20\" r=\"14\" fill=\"#f6e27a\" stroke=\"#2a2346\" stroke-width=\"3\"/></svg>",
+     "x": 0.36,
+     "y": 0.45,
+     "w": 0.04,
+     "at": 0.6,
+     "loop": "pulse",
+     "move": {
+      "x": 0.86,
+      "at": 0.9,
+      "dur": 2.0
+     }
+    },
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 40 40\"><circle cx=\"20\" cy=\"20\" r=\"14\" fill=\"#f6e27a\" stroke=\"#2a2346\" stroke-width=\"3\"/></svg>",
+     "x": 0.36,
+     "y": 0.45,
+     "w": 0.04,
+     "line": 1,
+     "at": 0.2,
+     "loop": "pulse",
+     "move": {
+      "x": 0.86,
+      "line": 1,
+      "at": 0.5,
+      "dur": 2.0
+     }
+    },
+    {
+     "text": "up to 120 m/s",
+     "x": 0.6,
+     "y": 0.75,
+     "size": 0.07,
+     "line": 1,
+     "at": 0.6,
+     "mark": "underline"
+    }
+   ]
+  },
+  {
+   "say": [
+    "At the end, it crosses a tiny gap called the synapse,",
+    "carried by chemicals called neurotransmitters."
+   ],
+   "background": "#7b6fc4",
+   "backdrop": "grid",
+   "transition": "zoom",
+   "character": {
+    "x": 0.14,
+    "y": 1.0,
+    "scale": 0.72
+   },
+   "camera": {
+    "from": {
+     "zoom": 1.15,
+     "x": 0.6
+    },
+    "to": {
+     "zoom": 1.0
+    }
+   },
+   "items": [
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 420 260\"><path d=\"M20,40 C120,40 170,70 170,130 C170,190 120,220 20,220\" fill=\"#d98aa8\" stroke=\"#2a2346\" stroke-width=\"5\"/>\n<path d=\"M400,40 C300,40 250,70 250,130 C250,190 300,220 400,220\" fill=\"#b58ad6\" stroke=\"#2a2346\" stroke-width=\"5\"/>\n<circle cx=\"120\" cy=\"90\" r=\"7\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"2\"/><circle cx=\"138\" cy=\"90\" r=\"7\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"2\"/><circle cx=\"156\" cy=\"90\" r=\"7\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"2\"/><circle cx=\"120\" cy=\"116\" r=\"7\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"2\"/><circle cx=\"138\" cy=\"116\" r=\"7\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"2\"/><circle cx=\"156\" cy=\"116\" r=\"7\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"2\"/><circle cx=\"120\" cy=\"142\" r=\"7\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"2\"/><circle cx=\"138\" cy=\"142\" r=\"7\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"2\"/><circle cx=\"156\" cy=\"142\" r=\"7\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"2\"/>\n<g fill=\"#6aa34c\" stroke=\"#2a2346\" stroke-width=\"2\"><rect x=\"246\" y=\"82\" width=\"14\" height=\"12\" rx=\"3\"/><rect x=\"246\" y=\"108\" width=\"14\" height=\"12\" rx=\"3\"/><rect x=\"246\" y=\"134\" width=\"14\" height=\"12\" rx=\"3\"/><rect x=\"246\" y=\"160\" width=\"14\" height=\"12\" rx=\"3\"/></g></svg>",
+     "x": 0.6,
+     "y": 0.48,
+     "w": 0.5,
+     "at": 0.4,
+     "enter": "draw"
+    },
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 80 60\"><g fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"2\"><circle cx=\"15\" cy=\"20\" r=\"7\"/><circle cx=\"40\" cy=\"35\" r=\"7\"/><circle cx=\"62\" cy=\"18\" r=\"7\"/><circle cx=\"30\" cy=\"48\" r=\"6\"/></g></svg>",
+     "x": 0.55,
+     "y": 0.45,
+     "w": 0.06,
+     "line": 1,
+     "at": 0.2,
+     "move": {
+      "x": 0.62,
+      "line": 1,
+      "at": 0.4,
+      "dur": 1.4
+     },
+     "loop": "float"
+    },
+    {
+     "text": "synapse",
+     "x": 0.6,
+     "y": 0.15,
+     "size": 0.07,
+     "line": 0,
+     "at": 1.2,
+     "color": "#f6f1e6",
+     "mark": "circle",
+     "markColor": "#f2c14b"
+    }
+   ]
+  },
+  {
+   "say": [
+    "Every thought you have is billions of these little messages. Including this one!"
+   ],
+   "background": "#d98aa8",
+   "backdrop": "stars",
+   "particles": "sparkles",
+   "transition": "iris",
+   "character": {
+    "x": 0.5,
+    "y": 1.0,
+    "scale": 0.9,
+    "cues": [
+     {
+      "line": 0,
+      "gesture": "point",
+      "mood": "happy"
+     }
+    ]
+   },
+   "items": [
+    {
+     "prop": "brain",
+     "x": 0.2,
+     "y": 0.35,
+     "w": 0.13,
+     "at": 0.4,
+     "loop": "pulse"
+    },
+    {
+     "prop": "lightning",
+     "x": 0.8,
+     "y": 0.35,
+     "w": 0.1,
+     "at": 0.9,
+     "loop": "shake"
+    },
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1000 220\"><rect x=\"0\" y=\"0\" width=\"1000\" height=\"220\" rx=\"28\" fill=\"#1d1840\" opacity=\".9\"/></svg>",
+     "x": 0.5,
+     "y": 0.5,
+     "w": 0.66,
+     "lineEnd": 0,
+     "at": 0.15,
+     "enter": "fade",
+     "over": true,
+     "sound": false
+    },
+    {
+     "text": "Made with selfclone",
+     "x": 0.5,
+     "y": 0.464,
+     "size": 0.085,
+     "color": "#f6f1e6",
+     "lineEnd": 0,
+     "at": 0.3,
+     "over": true
+    },
+    {
+     "text": "github.com/logitsolutionsai/selfclone",
+     "x": 0.5,
+     "y": 0.545,
+     "size": 0.036,
+     "font": "sans",
+     "color": "#f2c14b",
+     "lineEnd": 0,
+     "at": 0.9,
+     "enter": "fade",
+     "over": true
+    }
+   ],
+   "hold": 2.6
+  }
+ ],
+ "music": "ambient"
+}

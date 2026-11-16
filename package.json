@@ -1,7 +1,7 @@
 {
   "name": "selfclone",
-  "version": "0.1.0",
-  "description": "Clone how you write from your own chat exports, give the clone a talking face, and score it on your real messages. A Claude Code skill (agent skill) for Claude Code, Codex and Cursor.",
+  "version": "0.2.0",
+  "description": "Animated explainer videos on any topic, made by Claude Code on your own computer: your drawn character, random fictional people or no host, with lip-synced voices, props, charts and Manim maths. Plus a writing clone of you, scored on your real messages. A Claude Code skill (agent skill) for Claude Code, Codex and Cursor.",
   "type": "module",
   "bin": {
     "selfclone": "scripts/selfclone.mjs"
@@ -20,7 +20,8 @@
     ".claude-plugin/",
     "README.md",
     "ETHICS.md",
-    "LICENSE"
+    "LICENSE",
+    "AGENTS.md"
   ],
   "scripts": {
     "test": "node --test --test-concurrency=4 \"tests/unit/*.test.mjs\"",
@@ -41,6 +42,13 @@
     "agent-skill",
     "codex",
     "cursor",
+    "explainer-video",
+    "animation",
+    "text-to-speech",
+    "kokoro",
+    "manim",
+    "video-generation",
+    "education",
     "ai-clone",
     "digital-twin",
     "persona",
@@ -59,5 +67,8 @@
   },
   "homepage": "https://github.com/logitsolutionsai/selfclone",
   "license": "MIT",
-  "author": "Logit Solutions AI"
+  "author": "Logit Solutions AI",
+  "optionalDependencies": {
+    "kokoro-js": "1.2.1"
+  }
 }

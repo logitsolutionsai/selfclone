@@ -55,7 +55,8 @@ test('passport page: offline, responsive at 390, 768 and 1440 px, light and dark
           const box = await btn.boundingBox();
           await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
           await page.mouse.down();
-          await page.waitForTimeout(120);
+          // Wait for the press to land (a busy machine can be slow to deliver it); the latency is checked below.
+          await page.waitForFunction(() => window.__press.down != null && window.__press.styled != null, null, { timeout: 1000 }).catch(() => {});
           const p = await page.evaluate(() => window.__press);
           assert.ok(p.down != null && p.styled != null, 'pointerdown scales the button');
           assert.ok(p.styled - p.down <= 50, `transform applied ${(p.styled - p.down).toFixed(1)} ms after pointerdown`);

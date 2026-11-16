@@ -25,8 +25,9 @@ The skill asks about consent before it ingests anything and refuses the cases ab
 
 ## Built-In Safeguards
 
-- **Local only.** Exports, the corpus, the photo or clip and the avatar stay on your computer. The only network
-  use is downloading the pinned MediaPipe files once for face enrolment.
+- **Local only.** Exports, the corpus, the photo or clip and the avatar stay on your computer. The network is
+  used to download the pinned MediaPipe files once for face enrolment and, for explainer videos, the Kokoro
+  voice model once. Narration text is sent out only if you choose a hosted voice (ElevenLabs or OpenAI).
 - **The enrolment clip is processed in memory and never stored.** The webcam clip is read frame by frame and
   is not recorded to a file; `selfclone bake --video` reads your file and copies it nowhere. Only one still
   frame and a few small patches of your own mouth and eyes (tens of kilobytes) are baked into the avatar. Frames
@@ -39,9 +40,8 @@ The skill asks about consent before it ingests anything and refuses the cases ab
   panel. The badge also records whether the face came from a photo or a clip.
 - **Always-visible "AI CLONE" badge.** It cannot be switched off in the page, and the face stops rendering if the
   badge is removed or hidden. This is a default, not a lock: anyone can edit an HTML file.
-- **Video only with a label.** The avatar page records nothing. `selfclone video` makes a video file only under
-  the rules in [Video Export](#video-export) below: a burned-in label, a checked consent record, your own audio,
-  provenance tags and a length cap.
+- **Video only under rules.** The avatar page records nothing. `selfclone video` makes a video file only under
+  the rules in [Video Export](#video-export) below: a checked consent record, your own audio and a length cap.
 - **No puppeteering.** The face is driven only by text or audio. It cannot be driven by anyone's webcam, so it
   cannot be used as a live deepfake of the person in a video call.
 - **The face is not photoreal.** It is one frame warped in 2D, with a drawn mouth interior or, after a clip,
@@ -56,38 +56,50 @@ The skill asks about consent before it ingests anything and refuses the cases ab
 rendered into a video file, lip-synced to a recording of your own voice, to sit in a corner of a screen recording
 or tutorial as a picture-in-picture presenter, a face on camera without the camera. The owner decided to allow it
 because it is an ordinary, useful thing to want (people who do not want to be on camera, or cannot be, still want
-a face on their tutorials), and because a video file leaves the page, where the page's badge cannot follow it. So
-the safeguards were built into the video itself, before the feature.
+a face on their tutorials).
 
-**Why the label is burned in.** Article 50 of the EU AI Act (Regulation (EU) 2024/1689) requires that video which
-is artificially generated or manipulated and resembles a real person (a deep fake) be disclosed as such by
-whoever publishes it, and that AI-generated video be marked in a machine-readable way. Metadata alone is lost
-as soon as a file is re-encoded, trimmed or uploaded to a platform that strips tags, so the disclosure is part of
-the picture, and the tags are there as well.
+**Disclosure is the publisher's job.** The video has no visible label and no AI tags in its metadata. Article 50 of
+the EU AI Act (Regulation (EU) 2024/1689) requires whoever publishes video that is artificially generated or
+manipulated and resembles a real person (a deep fake) to disclose it as such. If that is you, say so where you
+publish it.
 
 **The safeguards** (each one is covered by tests):
 
-- **A burned-in "AI CLONE" label on every frame**, over the chin, inside the face, so cropping a corner cannot
-  remove it: cropping it out means cutting into the face. It stays legible at the smallest size allowed (240 px:
-  12 px bold white letters on a near-black chip with a faint white ring). No flag turns it off. Every frame is
-  checked for the label before it is encoded, and if one lacks it nothing is written. The page is rebuilt from the
-  avatar's data with selfclone's own code, so editing the avatar's HTML does not remove it.
 - **A consent check.** Export refuses an avatar with no consent record, with no statement or date, or whose
   record does not match the face in the file (the photo hash differs).
 - **Your own audio only.** The only input is an audio file, and there is no text-to-speech, so selfclone never
   puts words in a voice that is not yours. Use only your own recorded voice, or a voice clone of yourself made
   with a tool you are entitled to use. Never someone else's voice.
-- **Provenance.** The file carries metadata tags: a comment saying it is an AI clone made with selfclone, the
-  consent statement and date, and the selfclone version. A sidecar `<file>.provenance.json` holds the same plus
-  SHA-256 hashes of the video and the audio.
 - **A length cap.** 10 minutes by default (`--max-minutes`, at most 60): a tool for a tutorial, not for bulk
   generation.
 - **Still no puppeteering and no live output.** The video is rendered offline from a file you give it; nothing
   is streamed to a call.
 
-**What this does not stop.** Anyone can blur or paint over a label in a video editor, strip the tags, or film the
-screen. The label and the tags make honest use the easy default and dishonest use a deliberate act; they are not
-copy protection. Publishing a video with the label removed breaks these rules and, in the EU, the law.
+**What this does not stop.** The consent check and the audio-only input make honest use the easy default; they are
+not copy protection. Anyone can edit the output in a video editor.
+
+## Explainer Videos (Studio)
+
+**What it is.** `selfclone explainer` makes short animated explainers with a synthetic voice reading a script. The
+people on screen are drawings: SVG characters drawn from a seed (random, fictional) or, with consent, a caricature
+whose proportions and colours come from your face photo. No image or video model is used, and nothing looks like
+footage of a real person. Studio videos carry no visible label and no AI tags, like any animated explainer.
+
+**The rules:**
+
+- **Consent for a real face.** `selfclone character --photo` refuses without a consent statement, which is stored in
+  the character. Same rule as the face: yourself, or a person whose written consent
+  you hold.
+- **Random characters are fictional.** A random character is drawn from a seed and is nobody's likeness; never
+  present one as a real person.
+- **Voices.** The default is a stock Kokoro voice, which is nobody's voice. A voice clone (an ElevenLabs voice,
+  say) must be your own or one whose owner gave written consent; the providers' own terms require it too.
+- **Do not put words in a real person's mouth** that they did not say or agree to, and do not present an
+  explainer as a statement by a real person. Where a platform asks you to disclose synthetic or altered content,
+  say that the narration is synthetic.
+- **Scene drawings cannot run code, but Manim code can.** Scene SVG with scripts, event handlers, images or external
+  links is refused, and the render page has the network blocked. A Manim block runs as Python on your computer, so
+  render only scene files you wrote or trust.
 
 ## If You Find Misuse
 

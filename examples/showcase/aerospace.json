@@ -1,0 +1,252 @@
+{
+ "title": "How do planes fly?",
+ "cast": {
+  "host": {
+   "character": "random:pilot-2",
+   "voice": "kokoro:bf_emma"
+  },
+  "guest": {
+   "character": "random:flyer-9",
+   "voice": "kokoro:am_eric",
+   "body": "full"
+  }
+ },
+ "scenes": [
+  {
+   "say": [
+    {
+     "who": "host",
+     "text": "A jumbo jet can weigh about four hundred tonnes."
+    },
+    {
+     "who": "guest",
+     "text": "So how does it stay up there?"
+    }
+   ],
+   "background": "#7fb6d6",
+   "backdrop": "clouds",
+   "particles": "dust",
+   "title": "How planes fly",
+   "characters": {
+    "host": {
+     "x": 0.24,
+     "enter": "rise",
+     "name": "Captain Lee"
+    },
+    "guest": {
+     "x": 0.8,
+     "scale": 0.78,
+     "enter": "walk-right",
+     "name": "Jo"
+    }
+   },
+   "items": [
+    {
+     "prop": "plane",
+     "x": 0.52,
+     "y": 0.4,
+     "w": 0.18,
+     "line": 0,
+     "at": 1.0,
+     "enter": "slide-right",
+     "loop": "float"
+    }
+   ]
+  },
+  {
+   "say": [
+    {
+     "who": "host",
+     "text": "Four forces act on every plane: lift, weight, thrust, and drag."
+    }
+   ],
+   "background": "#f2ead6",
+   "backdrop": "notebook",
+   "transition": "push",
+   "characters": {
+    "host": {
+     "x": 0.17,
+     "scale": 0.78
+    }
+   },
+   "items": [
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 420 300\"><path d=\"M120,150 C140,128 300,128 330,140 L360,150 L330,160 C300,172 140,172 120,150 Z\" fill=\"#eef0f4\" stroke=\"#2a2346\" stroke-width=\"5\"/>\n<path d=\"M210,148 L170,100 L200,100 L250,148 Z M210,152 L170,200 L200,200 L250,152 Z\" fill=\"#cfe0ea\" stroke=\"#2a2346\" stroke-width=\"4\"/>\n<g stroke-width=\"7\" stroke-linecap=\"round\" fill=\"none\"><path d=\"M230,95 L230,30\" stroke=\"#6aa34c\"/><path d=\"M230,205 L230,270\" stroke=\"#e2604f\"/><path d=\"M370,150 L410,150\" stroke=\"#5b8fd6\"/><path d=\"M110,150 L60,150\" stroke=\"#f2c14b\"/></g>\n<g font-family=\"'Ink Free','Segoe Print','Comic Sans MS',cursive\" font-size=\"24\" fill=\"#2a2346\"><text x=\"244\" y=\"40\">lift</text><text x=\"244\" y=\"280\">weight</text><text x=\"352\" y=\"128\">thrust</text><text x=\"40\" y=\"128\">drag</text></g></svg>",
+     "x": 0.6,
+     "y": 0.5,
+     "w": 0.58,
+     "at": 0.8,
+     "enter": "draw"
+    }
+   ]
+  },
+  {
+   "say": [
+    {
+     "who": "host",
+     "text": "The wing is curved and tilted, so it bends the oncoming air downward."
+    },
+    {
+     "who": "host",
+     "text": "Push air down, and the air pushes the wing up."
+    }
+   ],
+   "background": "#5b8fd6",
+   "backdrop": "clouds",
+   "transition": "wipe",
+   "characters": {
+    "host": {
+     "x": 0.17,
+     "scale": 0.78
+    }
+   },
+   "camera": {
+    "from": {
+     "zoom": 1.08,
+     "x": 0.6
+    },
+    "to": {
+     "zoom": 1.0
+    }
+   },
+   "items": [
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 460 220\"><g fill=\"none\" stroke=\"#f6f1e6\" stroke-width=\"5\" stroke-linecap=\"round\" opacity=\".95\">\n<path d=\"M10,70 C120,70 200,40 300,60 C360,72 400,110 450,140\"/><path d=\"M10,110 C110,110 200,120 300,130 C360,138 400,160 450,185\"/><path d=\"M10,160 C120,160 220,170 300,175 C360,180 400,195 450,210\"/></g>\n<path d=\"M90,118 C140,70 290,70 380,128 C300,118 170,120 90,118 Z\" fill=\"#eef0f4\" stroke=\"#2a2346\" stroke-width=\"5\" stroke-linejoin=\"round\"/></svg>",
+     "x": 0.62,
+     "y": 0.5,
+     "w": 0.6,
+     "at": 0.6,
+     "enter": "draw"
+    },
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 80 120\"><path d=\"M40,8 L72,50 L52,50 L52,112 L28,112 L28,50 L8,50 Z\" fill=\"#6aa34c\" stroke=\"#2a2346\" stroke-width=\"4\" stroke-linejoin=\"round\"/></svg>",
+     "x": 0.62,
+     "y": 0.2,
+     "w": 0.06,
+     "line": 1,
+     "at": 1.2,
+     "loop": "bob"
+    }
+   ]
+  },
+  {
+   "say": [
+    {
+     "who": "guest",
+     "text": "So faster means more lift?"
+    },
+    {
+     "who": "host",
+     "text": "Yes! Double the speed, and you get about four times the lift."
+    }
+   ],
+   "background": "#8fc6a0",
+   "backdrop": "grid",
+   "transition": "zoom",
+   "characters": {
+    "host": {
+     "x": 0.2,
+     "scale": 0.78
+    },
+    "guest": {
+     "x": 0.84,
+     "scale": 0.7
+    }
+   },
+   "items": [
+    {
+     "chart": {
+      "type": "bar",
+      "values": [
+       1,
+       4,
+       9
+      ],
+      "labels": [
+       "1× speed",
+       "2× speed",
+       "3× speed"
+      ],
+      "unit": "× lift"
+     },
+     "x": 0.52,
+     "y": 0.5,
+     "w": 0.42,
+     "line": 1,
+     "at": 0.3
+    }
+   ]
+  },
+  {
+   "say": [
+    {
+     "who": "host",
+     "text": "That is why planes race down the runway, until the wings can carry them."
+    }
+   ],
+   "background": "#f2b84b",
+   "backdrop": "city",
+   "transition": "iris",
+   "characters": {
+    "host": {
+     "x": 0.2,
+     "scale": 0.8
+    },
+    "guest": {
+     "x": 0.84,
+     "scale": 0.7
+    }
+   },
+   "items": [
+    {
+     "prop": "plane",
+     "x": 0.46,
+     "y": 0.66,
+     "w": 0.16,
+     "at": 0.5,
+     "move": {
+      "x": 0.7,
+      "y": 0.2,
+      "at": 1.5,
+      "dur": 3.2
+     }
+    },
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1000 220\"><rect x=\"0\" y=\"0\" width=\"1000\" height=\"220\" rx=\"28\" fill=\"#1d1840\" opacity=\".9\"/></svg>",
+     "x": 0.5,
+     "y": 0.5,
+     "w": 0.66,
+     "lineEnd": 0,
+     "at": 0.15,
+     "enter": "fade",
+     "over": true,
+     "sound": false
+    },
+    {
+     "text": "Made with selfclone",
+     "x": 0.5,
+     "y": 0.464,
+     "size": 0.085,
+     "color": "#f6f1e6",
+     "lineEnd": 0,
+     "at": 0.3,
+     "over": true
+    },
+    {
+     "text": "github.com/logitsolutionsai/selfclone",
+     "x": 0.5,
+     "y": 0.545,
+     "size": 0.036,
+     "font": "sans",
+     "color": "#f2c14b",
+     "lineEnd": 0,
+     "at": 0.9,
+     "enter": "fade",
+     "over": true
+    }
+   ],
+   "hold": 2.6
+  }
+ ],
+ "music": "ambient"
+}

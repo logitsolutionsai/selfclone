@@ -1,0 +1,265 @@
+{
+ "title": "The Ship of Theseus",
+ "cast": {
+  "host": {
+   "character": "random:sage-12",
+   "voice": "kokoro:bm_lewis"
+  },
+  "guest": {
+   "character": "random:sailor-4",
+   "voice": "kokoro:af_bella",
+   "body": "full"
+  }
+ },
+ "scenes": [
+  {
+   "say": [
+    {
+     "who": "host",
+     "text": "Imagine a wooden ship. Over the years, every plank is replaced, one by one."
+    }
+   ],
+   "background": "#7fb6d6",
+   "backdrop": "waves",
+   "title": "The Ship of Theseus",
+   "characters": {
+    "host": {
+     "x": 0.2,
+     "enter": "rise",
+     "scale": 0.85,
+     "name": "Your guide"
+    }
+   },
+   "items": [
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 380 200\"><path d=\"M190,120 L190,20\" stroke=\"#2a2346\" stroke-width=\"6\"/><path d=\"M195,25 L300,100 L195,100 Z\" fill=\"#f6f1e6\" stroke=\"#2a2346\" stroke-width=\"4\" stroke-linejoin=\"round\"/><path d=\"M20,120 L360,120 L320,190 L60,190 Z\" fill=\"#8a5a32\" stroke=\"#2a2346\" stroke-width=\"5\" stroke-linejoin=\"round\"/><rect x=\"60\" y=\"132\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#c98d55\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"112\" y=\"132\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#c98d55\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"164\" y=\"132\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#c98d55\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"216\" y=\"132\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#c98d55\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"268\" y=\"132\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#c98d55\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"80\" y=\"156\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#b07a3e\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"132\" y=\"156\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#b07a3e\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"184\" y=\"156\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#b07a3e\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"236\" y=\"156\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#b07a3e\" stroke=\"#2a2346\" stroke-width=\"2\"/></svg>",
+     "x": 0.64,
+     "y": 0.5,
+     "w": 0.42,
+     "at": 0.8,
+     "enter": "draw"
+    },
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 380 200\"><path d=\"M190,120 L190,20\" stroke=\"#2a2346\" stroke-width=\"6\"/><path d=\"M195,25 L300,100 L195,100 Z\" fill=\"#f6f1e6\" stroke=\"#2a2346\" stroke-width=\"4\" stroke-linejoin=\"round\"/><path d=\"M20,120 L360,120 L320,190 L60,190 Z\" fill=\"#8a5a32\" stroke=\"#2a2346\" stroke-width=\"5\" stroke-linejoin=\"round\"/><rect x=\"60\" y=\"132\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"112\" y=\"132\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"164\" y=\"132\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"216\" y=\"132\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"268\" y=\"132\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"80\" y=\"156\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"132\" y=\"156\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"184\" y=\"156\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"236\" y=\"156\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"2\"/></svg>",
+     "x": 0.64,
+     "y": 0.5,
+     "w": 0.42,
+     "at": 3.6,
+     "enter": "fade",
+     "loop": "bob"
+    }
+   ]
+  },
+  {
+   "say": [
+    {
+     "who": "guest",
+     "text": "So, is it still the same ship?"
+    },
+    {
+     "who": "host",
+     "text": "That puzzle comes to us from the Greek writer Plutarch, nearly two thousand years ago."
+    }
+   ],
+   "background": "#f2ead6",
+   "backdrop": "notebook",
+   "transition": "push",
+   "characters": {
+    "host": {
+     "x": 0.2,
+     "scale": 0.8
+    },
+    "guest": {
+     "x": 0.82,
+     "scale": 0.75,
+     "enter": "walk-right",
+     "name": "Kai"
+    }
+   },
+   "items": [
+    {
+     "bubble": "Same ship?",
+     "who": "guest",
+     "line": 0,
+     "at": 0.4,
+     "style": "thought"
+    },
+    {
+     "prop": "book",
+     "x": 0.5,
+     "y": 0.55,
+     "w": 0.12,
+     "line": 1,
+     "at": 1.0
+    }
+   ]
+  },
+  {
+   "say": [
+    {
+     "who": "host",
+     "text": "Now someone collects all the old planks, and builds them back into a ship."
+    },
+    {
+     "who": "host",
+     "text": "Which one is the real Ship of Theseus?"
+    }
+   ],
+   "background": "#7fb6d6",
+   "backdrop": "waves",
+   "transition": "wipe",
+   "characters": {
+    "host": {
+     "x": 0.5,
+     "scale": 0.8
+    }
+   },
+   "items": [
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 380 200\"><path d=\"M190,120 L190,20\" stroke=\"#2a2346\" stroke-width=\"6\"/><path d=\"M195,25 L300,100 L195,100 Z\" fill=\"#f6f1e6\" stroke=\"#2a2346\" stroke-width=\"4\" stroke-linejoin=\"round\"/><path d=\"M20,120 L360,120 L320,190 L60,190 Z\" fill=\"#8a5a32\" stroke=\"#2a2346\" stroke-width=\"5\" stroke-linejoin=\"round\"/><rect x=\"60\" y=\"132\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"112\" y=\"132\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"164\" y=\"132\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"216\" y=\"132\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"268\" y=\"132\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"80\" y=\"156\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"132\" y=\"156\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"184\" y=\"156\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"236\" y=\"156\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"2\"/></svg>",
+     "x": 0.2,
+     "y": 0.36,
+     "w": 0.3,
+     "at": 0.4,
+     "loop": "bob"
+    },
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 380 200\"><path d=\"M190,120 L190,20\" stroke=\"#2a2346\" stroke-width=\"6\"/><path d=\"M195,25 L300,100 L195,100 Z\" fill=\"#f6f1e6\" stroke=\"#2a2346\" stroke-width=\"4\" stroke-linejoin=\"round\"/><path d=\"M20,120 L360,120 L320,190 L60,190 Z\" fill=\"#6b5a4a\" stroke=\"#2a2346\" stroke-width=\"5\" stroke-linejoin=\"round\"/><rect x=\"60\" y=\"132\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#c98d55\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"112\" y=\"132\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#c98d55\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"164\" y=\"132\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#c98d55\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"216\" y=\"132\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#c98d55\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"268\" y=\"132\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#c98d55\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"80\" y=\"156\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#b07a3e\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"132\" y=\"156\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#b07a3e\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"184\" y=\"156\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#b07a3e\" stroke=\"#2a2346\" stroke-width=\"2\"/><rect x=\"236\" y=\"156\" width=\"46\" height=\"16\" rx=\"3\" fill=\"#b07a3e\" stroke=\"#2a2346\" stroke-width=\"2\"/></svg>",
+     "x": 0.8,
+     "y": 0.36,
+     "w": 0.3,
+     "at": 1.8,
+     "enter": "draw",
+     "loop": "bob"
+    },
+    {
+     "text": "?",
+     "x": 0.5,
+     "y": 0.08,
+     "size": 0.11,
+     "line": 1,
+     "at": 0.3,
+     "loop": "wobble"
+    }
+   ]
+  },
+  {
+   "say": [
+    {
+     "who": "guest",
+     "text": "Hmm. Maybe both of them, or neither?"
+    },
+    {
+     "who": "host",
+     "text": "Philosophers still argue about it. And it is not really about ships."
+    }
+   ],
+   "background": "#7b6fc4",
+   "backdrop": "stars",
+   "transition": "zoom",
+   "characters": {
+    "host": {
+     "x": 0.2,
+     "scale": 0.8
+    },
+    "guest": {
+     "x": 0.82,
+     "scale": 0.75
+    }
+   },
+   "items": [
+    {
+     "prop": "thought",
+     "x": 0.52,
+     "y": 0.3,
+     "w": 0.14,
+     "line": 0,
+     "at": 0.4,
+     "loop": "float"
+    }
+   ]
+  },
+  {
+   "say": [
+    {
+     "who": "host",
+     "text": "Many of the cells in your body are replaced over the years."
+    },
+    {
+     "who": "host",
+     "text": "So, are you still the same you?"
+    }
+   ],
+   "background": "#d98aa8",
+   "backdrop": "dots",
+   "particles": "dust",
+   "transition": "iris",
+   "characters": {
+    "host": {
+     "x": 0.5,
+     "scale": 0.9,
+     "cues": [
+      {
+       "line": 1,
+       "gesture": "shrug",
+       "mood": "curious"
+      }
+     ]
+    }
+   },
+   "items": [
+    {
+     "prop": "cell",
+     "x": 0.2,
+     "y": 0.3,
+     "w": 0.11,
+     "at": 0.6,
+     "loop": "float"
+    },
+    {
+     "prop": "person",
+     "x": 0.8,
+     "y": 0.3,
+     "w": 0.1,
+     "line": 1,
+     "at": 0.3
+    },
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1000 220\"><rect x=\"0\" y=\"0\" width=\"1000\" height=\"220\" rx=\"28\" fill=\"#1d1840\" opacity=\".9\"/></svg>",
+     "x": 0.5,
+     "y": 0.5,
+     "w": 0.66,
+     "lineEnd": 1,
+     "at": 0.15,
+     "enter": "fade",
+     "over": true,
+     "sound": false
+    },
+    {
+     "text": "Made with selfclone",
+     "x": 0.5,
+     "y": 0.464,
+     "size": 0.085,
+     "color": "#f6f1e6",
+     "lineEnd": 1,
+     "at": 0.3,
+     "over": true
+    },
+    {
+     "text": "github.com/logitsolutionsai/selfclone",
+     "x": 0.5,
+     "y": 0.545,
+     "size": 0.036,
+     "font": "sans",
+     "color": "#f2c14b",
+     "lineEnd": 1,
+     "at": 0.9,
+     "enter": "fade",
+     "over": true
+    }
+   ],
+   "hold": 2.6
+  }
+ ],
+ "music": "ambient"
+}

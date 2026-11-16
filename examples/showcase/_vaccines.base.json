@@ -1,0 +1,279 @@
+{
+  "title": "How do vaccines work?",
+  "cast": {
+    "host": {
+      "character": "random:nurse-maya",
+      "voice": "kokoro:af_bella"
+    },
+    "guest": {
+      "character": "random:curious-sam",
+      "voice": "kokoro:am_adam",
+      "body": "full"
+    }
+  },
+  "scenes": [
+    {
+      "say": [
+        {
+          "who": "host",
+          "text": "Hello! Ever wondered how a tiny shot protects you for years?"
+        },
+        {
+          "who": "guest",
+          "text": "Honestly, I just close my eyes and hope."
+        }
+      ],
+      "background": "#7fb6d6",
+      "backdrop": "clouds",
+      "particles": "dust",
+      "characters": {
+        "host": {
+          "x": 0.27,
+          "enter": "rise",
+          "name": "Maya, nurse"
+        },
+        "guest": {
+          "x": 0.76,
+          "enter": "walk-right",
+          "scale": 0.82,
+          "name": "Sam"
+        }
+      },
+      "items": [
+        {
+          "prop": "question",
+          "x": 0.52,
+          "y": 0.22,
+          "w": 0.09,
+          "line": 0,
+          "at": 1.5,
+          "loop": "wobble"
+        }
+      ]
+    },
+    {
+      "say": [
+        {
+          "who": "host",
+          "text": "Your body is guarded by an immune system, an army of cells that learns."
+        },
+        {
+          "who": "host",
+          "text": "But it can only fight what it recognizes."
+        }
+      ],
+      "background": "#d98aa8",
+      "backdrop": "dots",
+      "transition": "push",
+      "characters": {
+        "host": {
+          "x": 0.2,
+          "scale": 0.85
+        }
+      },
+      "camera": {
+        "from": {
+          "zoom": 1.1,
+          "x": 0.55
+        },
+        "to": {
+          "zoom": 1.0
+        }
+      },
+      "items": [
+        {
+          "prop": "shield",
+          "x": 0.5,
+          "y": 0.42,
+          "w": 0.13,
+          "at": 1.2,
+          "loop": "float"
+        },
+        {
+          "prop": "cell",
+          "x": 0.68,
+          "y": 0.35,
+          "w": 0.13,
+          "at": 2.0,
+          "loop": "bob"
+        },
+        {
+          "prop": "cell",
+          "x": 0.82,
+          "y": 0.55,
+          "w": 0.11,
+          "at": 2.6,
+          "loop": "bob",
+          "color": "#f2c14b"
+        },
+        {
+          "text": "learns",
+          "x": 0.62,
+          "y": 0.75,
+          "size": 0.08,
+          "line": 0,
+          "at": 3.2,
+          "mark": "underline"
+        },
+        {
+          "prop": "magnifier",
+          "x": 0.62,
+          "y": 0.5,
+          "w": 0.12,
+          "line": 1,
+          "enter": "zoom"
+        }
+      ]
+    },
+    {
+      "say": [
+        {
+          "who": "guest",
+          "text": "So the vaccine is like a wanted poster?"
+        },
+        {
+          "who": "host",
+          "text": "Exactly! It shows a harmless piece of the germ, so your body can practice."
+        }
+      ],
+      "background": "#f2c14b",
+      "backdrop": "room",
+      "transition": "wipe",
+      "characters": {
+        "host": {
+          "x": 0.22,
+          "scale": 0.82
+        },
+        "guest": {
+          "x": 0.8,
+          "scale": 0.7
+        }
+      },
+      "items": [
+        {
+          "svg": "<svg viewBox='0 0 120 150'><rect x='8' y='8' width='104' height='134' rx='6' fill='#f6efe0' stroke='#2a2346' stroke-width='5'/><text x='60' y='36' text-anchor='middle' font-family='Georgia,serif' font-size='20' font-weight='700' fill='#e2604f'>WANTED</text><circle cx='60' cy='86' r='30' fill='#8fc6a0' stroke='#2a2346' stroke-width='4'/><path d='M60,52 L60,44 M60,120 L60,128 M26,86 L18,86 M94,86 L102,86 M36,62 L30,56 M84,62 L90,56 M36,110 L30,116 M84,110 L90,116' stroke='#2a2346' stroke-width='4' stroke-linecap='round'/></svg>",
+          "x": 0.47,
+          "y": 0.42,
+          "w": 0.15,
+          "line": 0,
+          "at": 1.0,
+          "enter": "draw"
+        },
+        {
+          "bubble": "Wanted!",
+          "who": "guest",
+          "line": 0,
+          "at": 0.4,
+          "x": 0.64,
+          "y": 0.16
+        }
+      ]
+    },
+    {
+      "say": [
+        {
+          "who": "host",
+          "text": "After the shot, antibodies rise over a couple of weeks, then memory cells stay behind."
+        }
+      ],
+      "background": "#8fc6a0",
+      "backdrop": "grid",
+      "transition": "zoom",
+      "characters": {
+        "host": {
+          "x": 0.17,
+          "scale": 0.8
+        }
+      },
+      "items": [
+        {
+          "chart": {
+            "type": "line",
+            "values": [
+              2,
+              5,
+              30,
+              80,
+              95,
+              70,
+              55,
+              50
+            ],
+            "labels": [
+              "0",
+              "",
+              "wk 1",
+              "",
+              "wk 2",
+              "",
+              "",
+              "mo 2"
+            ]
+          },
+          "x": 0.6,
+          "y": 0.5,
+          "w": 0.6,
+          "at": 0.8
+        },
+        {
+          "text": "antibodies",
+          "x": 0.62,
+          "y": 0.13,
+          "size": 0.07,
+          "at": 0.4
+        }
+      ]
+    },
+    {
+      "say": [
+        {
+          "who": "guest",
+          "text": "And if the real germ shows up later?"
+        },
+        {
+          "who": "host",
+          "text": "Your body already knows it, and wins fast. That is the whole trick!"
+        }
+      ],
+      "background": "#7b6fc4",
+      "backdrop": "stars",
+      "particles": "sparkles",
+      "transition": "iris",
+      "characters": {
+        "host": {
+          "x": 0.27,
+          "scale": 0.82
+        },
+        "guest": {
+          "x": 0.75,
+          "scale": 0.72,
+          "walk": {
+            "x": 0.68,
+            "line": 1,
+            "dur": 1.0
+          }
+        }
+      },
+      "items": [
+        {
+          "prop": "trophy",
+          "x": 0.5,
+          "y": 0.3,
+          "w": 0.11,
+          "line": 1,
+          "at": 1.4,
+          "loop": "bob"
+        },
+        {
+          "prop": "check",
+          "x": 0.5,
+          "y": 0.6,
+          "w": 0.08,
+          "line": 1,
+          "at": 2.2
+        }
+      ],
+      "hold": 1.0
+    }
+  ]
+}

@@ -18,7 +18,7 @@ const OPT = {
   seed: qs.get('seed') || 'selfclone',
   // patches=0 draws the mouth the photo way even when the avatar was baked from a clip (for comparisons).
   patches: qs.get('patches') !== '0',
-  // export=circle|square: the frame `selfclone video` records (face only, label over the chin).
+  // export=circle|square: the frame `selfclone video` records (the face only, no controls and no badge).
   exportShape: /^(circle|square)$/.test(qs.get('export') || '') ? qs.get('export') : null,
   exportBg: /^#[0-9a-fA-F]{6}$/.test(qs.get('bg') || '') ? qs.get('bg') : null,
 };
@@ -27,20 +27,14 @@ const RAD = Math.PI / 180;
 
 const stage = document.getElementById('stage');
 // Export frame for `selfclone video`: the stage fills the window, round or square, on a transparent or
-// solid background, and the AI CLONE label moves from the corner onto the chin, inside the face, so
-// cropping a corner cannot remove it.
+// solid background, with only the face in it.
 if (OPT.exportShape) {
-  const L0 = DATA.landmarks;
-  const chin = L0[152];
   const st = document.createElement('style');
   const bg = OPT.exportBg || 'transparent';
   st.textContent = `html,body{background:${bg} !important;padding:0 !important;margin:0 !important;overflow:hidden}` +
     'main{max-width:none !important;margin:0 !important}' +
     `.stage{width:100vw !important;max-width:none !important;height:100vh;border-radius:${OPT.exportShape === 'circle' ? '50%' : '0'} !important;box-shadow:none !important;background:${bg} !important}` +
-    '#controls,#info,#speak,#scrim{display:none !important}' +
-    `.badge.export{left:${((100 * chin[0]) / S).toFixed(2)}%;top:${((100 * chin[1]) / S).toFixed(2)}%;transform:translate(-50%,-50%);` +
-    'font-size:max(12px,4.4vw);letter-spacing:.09em;padding:.36em .8em;border-radius:999px;line-height:1.15;white-space:nowrap;' +
-    'box-shadow:0 0 0 max(1px,.21vw) rgba(255,255,255,.25)}';
+    '#controls,#info,#speak,#scrim,#badge{display:none !important}';
   document.head.appendChild(st);
 }
 const cavity = document.getElementById('cavity');
@@ -77,16 +71,16 @@ for (const c of [cavity, faceCanvas]) {
 }
 const cav = cavity.getContext('2d');
 
-// ---- badge: always visible ----
+// ---- badge: always visible on the page (the export frame has none) ----
 function guardBadge() {
+  if (OPT.exportShape) return true;
   let b = document.getElementById('badge');
   if (!b || !stage.contains(b)) {
     b = document.createElement('div');
     b.id = 'badge';
     stage.appendChild(b);
   }
-  const cls = OPT.exportShape ? 'badge export' : 'badge';
-  if (b.className !== cls) b.className = cls;
+  if (b.className !== 'badge') b.className = 'badge';
   if (b.textContent !== 'AI CLONE') b.textContent = 'AI CLONE';
   const source = DATA.clip ? 'clip' : 'photo';
   if (b.dataset.source !== source) {
@@ -1453,7 +1447,7 @@ function fillInfo() {
     if (shapes.length) kept.push('mouth patches for ' + list(shapes));
     if (DATA.clip.blink) kept.push('closed-eye patches');
     set('infoClip', `${DATA.clip.frames} frames read; kept ${list(kept)}. Shapes without a patch use the drawn mouth.`);
-    set('infoNote', 'This is an AI clone, not the person and not a recording of them. It is one frame of a short clip warped in your browser, with small patches of the mouth and eyes from the same clip. The page works offline and records nothing; a video can be made only with selfclone video, from your own audio, with an AI CLONE label on every frame. It cannot be driven by another person\'s webcam.');
+    set('infoNote', 'This is an AI clone, not the person and not a recording of them. It is one frame of a short clip warped in your browser, with small patches of the mouth and eyes from the same clip. The page works offline and records nothing; a video can be made only with selfclone video, from your own audio. It cannot be driven by another person\'s webcam.');
   } else set('infoClip', 'None (one still photo)');
   set('infoHash', c.photoSha256 || '');
   set('infoTool', `${DATA.tool.name} ${DATA.tool.version}, baked ${new Date(DATA.tool.bakedAt).toLocaleDateString()}`);

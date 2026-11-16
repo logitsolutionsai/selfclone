@@ -3,8 +3,6 @@
 //                       under a fake clock, assembled with ffmpeg)
 //   avatar-page.png     the avatar page with its controls and consent panel
 //   game.png            the Can You Tell page from the fictional example
-//   app-light.webp,     the Can You Tell page alone at 1280 x 800 and 2x, light and dark, round 1 after the
-//   app-dark.webp       clone's reply was picked (the README's app image, the same state as the hero)
 //   enrol.png           the webcam enrolment page recording a clip (from the e2e evidence, if present)
 // Run: npm run gif   (needs Chrome or Edge, and ffmpeg on PATH)
 //      node tools/make-media.mjs --avatar-only   (just avatar-talking.gif and avatar-page.png)
@@ -170,33 +168,6 @@ try {
     await p3.waitForTimeout(800); // the tags and the verdict materialise on springs
     await p3.screenshot({ path: path.join(MEDIA, 'game.png') });
     await ctx.close();
-
-    // The README's app image: the page alone, cropped to its column, light and dark.
-    for (const scheme of ['light', 'dark']) {
-      const c = await browser.newContext({ viewport: { width: 1280, height: 800 }, colorScheme: scheme, deviceScaleFactor: 2 });
-      const p = await c.newPage();
-      await p.setContent(fs.readFileSync(gameFile, 'utf8'));
-      const real = await p.evaluate(() => JSON.parse(document.getElementById('rounds').textContent)[0].real);
-      await p.click(`button.reply >> nth=${1 - real}`);
-      await p.evaluate(() => document.activeElement && document.activeElement.blur());
-      await p.mouse.move(2, 2);
-      await p.waitForTimeout(800);
-      const clip = await p.evaluate(() => {
-        const m = document.querySelector('main').getBoundingClientRect();
-        const f = document.querySelector('footer').getBoundingClientRect();
-        return { x: Math.round(m.left - 48), y: 0, width: Math.round(m.width + 96), height: Math.min(800, Math.ceil(f.bottom + 32)) };
-      });
-      const png = path.join(WORK, `app-${scheme}.png`);
-      await p.screenshot({ path: png, clip });
-      await c.close();
-      const webp = path.join(MEDIA, `app-${scheme}.webp`);
-      for (const q of [90, 82, 74]) {
-        const r = spawnSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', png, '-c:v', 'libwebp', '-quality', String(q), '-compression_level', '6', webp], { encoding: 'utf8' });
-        if (r.status !== 0) throw new Error(`ffmpeg webp failed: ${r.stderr}`);
-        if (fs.statSync(webp).size < 300 * 1024) break;
-      }
-      if (fs.statSync(webp).size >= 300 * 1024) throw new Error(`${webp} is over 300 KB`);
-    }
   }
 } finally {
   await browser.close();

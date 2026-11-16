@@ -1,36 +1,47 @@
 <h1 align="center">selfclone</h1>
 
-<p align="center"><b>Claude Code skill: your writing clone, with a talking face, scored on your real messages.</b></p>
+<p align="center"><b>A Claude Code skill that turns any topic into an animated explainer video, on your own computer.<br>It also clones how you write, and scores the clone on your real messages.</b></p>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-0065FD?style=flat-square" alt="License: MIT"></a>
   <a href="SKILL.md"><img src="https://img.shields.io/badge/Claude%20Code-skill-0065FD?style=flat-square" alt="Claude Code skill"></a>
   <a href="SKILL.md"><img src="https://img.shields.io/badge/Agent%20Skills-compatible-0065FD?style=flat-square" alt="Agent Skills compatible"></a>
+  <a href="#explainer-videos-on-any-topic"><img src="https://img.shields.io/badge/runs%20on-CPU%2C%20no%20GPU-0065FD?style=flat-square" alt="Runs on the CPU, no GPU"></a>
 </p>
 
 <p align="center">
-  <a href="#install">Install</a> · <a href="#voice-ci">Voice CI</a> · <a href="#voice-passport">Voice Passport</a> · <a href="#before-and-after">Before And After</a> · <a href="#where-to-use-your-clone">Where To Use It</a> · <a href="#how-it-works">How It Works</a> · <a href="#proof">Proof</a> · <a href="#limits">Limits</a>
+  <a href="docs/media/showreel.mp4"><img src="docs/media/showreel.gif" width="100%" alt="A showreel of ten animated explainers made with selfclone: a host explaining neural networks, a pilot and a passenger talking about lift, compound interest growing in a bar chart, two characters discussing vaccines, a Manim proof of the Pythagorean theorem, a who-or-whom lesson at a chalkboard, a neuron firing, the Ship of Theseus, why the sky is blue, and Earth orbiting the Sun with its tilted axis."></a>
 </p>
+
+<p align="center"><sub>Ten explainers, ten fields, all made with selfclone. <a href="docs/media/showreel.mp4">Watch the showreel with sound</a>, or open a scene file below to see how each one was written.</sub></p>
+
+<table>
+  <tr>
+    <td width="20%" align="center"><a href="examples/showcase/neural-networks.json"><img src="docs/media/showcase/neural-networks.jpg" alt="A drawn host beside a neural network diagram"></a><br><sub><b>How does a neural network learn?</b><br>AI · one host</sub></td>
+    <td width="20%" align="center"><a href="examples/showcase/aerospace.json"><img src="docs/media/showcase/aerospace.jpg" alt="A captain and a passenger talking about how planes fly"></a><br><sub><b>How do planes fly?</b><br>Aerospace · dialogue</sub></td>
+    <td width="20%" align="center"><a href="examples/showcase/finance.json"><img src="docs/media/showcase/finance.jpg" alt="A host beside a bar chart of savings growing over thirty years"></a><br><sub><b>How does money grow?</b><br>Finance · Manim</sub></td>
+    <td width="20%" align="center"><a href="examples/showcase/medicine.json"><img src="docs/media/showcase/medicine.jpg" alt="Two characters discussing vaccines, with a wanted poster of a germ"></a><br><sub><b>How do vaccines work?</b><br>Medicine · dialogue</sub></td>
+    <td width="20%" align="center"><a href="examples/showcase/maths.json"><img src="docs/media/showcase/maths.jpg" alt="Squares drawn on the sides of a right triangle"></a><br><sub><b>Why is a² + b² = c²?</b><br>Maths · no host</sub></td>
+  </tr>
+  <tr>
+    <td width="20%" align="center"><a href="examples/showcase/english.json"><img src="docs/media/showcase/english.jpg" alt="A teacher at a chalkboard explaining who and whom"></a><br><sub><b>Who or whom?</b><br>English · chalkboard</sub></td>
+    <td width="20%" align="center"><a href="examples/showcase/neurology.json"><img src="docs/media/showcase/neurology.jpg" alt="A neuron with a signal travelling down its axon"></a><br><sub><b>How do neurons talk?</b><br>Neurology · one host</sub></td>
+    <td width="20%" align="center"><a href="examples/showcase/philosophy.json"><img src="docs/media/showcase/philosophy.jpg" alt="A host beside a wooden ship, under the title The Ship of Theseus"></a><br><sub><b>The Ship of Theseus</b><br>Philosophy · dialogue</sub></td>
+    <td width="20%" align="center"><a href="examples/showcase/physics.json"><img src="docs/media/showcase/physics.jpg" alt="A vertical video: a host below a chart of how strongly each colour of sunlight scatters"></a><br><sub><b>Why is the sky blue?</b><br>Physics · 9:16 short</sub></td>
+    <td width="20%" align="center"><a href="examples/showcase/astronomy.json"><img src="docs/media/showcase/astronomy.jpg" alt="The Sun shining on a tilted Earth"></a><br><sub><b>Why do we have seasons?</b><br>Astronomy · no host</sub></td>
+  </tr>
+</table>
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/media/hero-dark.webp">
-    <source media="(prefers-color-scheme: light)" srcset="docs/media/hero-light.webp">
-    <img src="docs/media/hero-light.webp" width="100%" alt="Chat exports from WhatsApp, Slack, Telegram and more beside the Can You Tell page selfclone built from its fictional Maya example, where the clone fooled the player, with the Mona Lisa test painting speaking as the avatar and a style match of 89% for the clone against 41% for the bare model.">
-  </picture>
+  <a href="#install">Install</a> · <a href="#explainer-videos-on-any-topic">Explainer Videos</a> · <a href="#voice-ci">Voice CI</a> · <a href="#voice-passport">Voice Passport</a> · <a href="#before-and-after">Before And After</a> · <a href="#how-it-works">How It Works</a> · <a href="#proof">Proof</a> · <a href="#limits">Limits</a>
 </p>
 
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/media/app-dark.webp">
-    <source media="(prefers-color-scheme: light)" srcset="docs/media/app-light.webp">
-    <img src="docs/media/app-light.webp" width="100%" alt="The Can You Tell page from the Maya example after the first pick, with the chosen reply outlined, the real one tagged Real, the clone's tagged AI clone, and the verdict that the clone fooled the player.">
-  </picture>
-</p>
+selfclone is a Claude Code skill, and an agent skill that also runs in Codex and Cursor. It does two things.
 
-selfclone is a Claude Code skill, and an agent skill that also runs in Codex and Cursor. Give it your own chat exports. It distills them into a persona skill that writes the way you write, gives that persona an offline talking face made from a 10-second clip (or one selfie), and measures how close the clone gets with a score computed by counting, not by asking a model to grade itself. Privacy-first: the tool runs on your computer, and Claude reads only the scrubbed distill pack it writes.
+- **Explainer videos on any topic.** Ask for a video about anything. Claude writes the script, picks a host and lays out the scenes, then the skill animates and voices them on your computer. The host can be a drawn character of you, random fictional people, or nobody at all. No GPU and no image model.
+- **A writing clone of you.** Give it your own chat exports. It distills them into a persona skill that writes the way you write and gives it a talking face, then measures how close it gets with a score computed by counting, not by asking a model to grade itself.
 
-The face in these images is the Mona Lisa, a public domain painting used as the test face. selfclone never ships or tests with photos or video of living people.
+Everything runs locally. The only network use is downloading the voice model and the face landmarker once.
 
 ## Install
 
@@ -39,13 +50,72 @@ The face in these images is the Mona Lisa, a public domain painting used as the 
 /plugin install selfclone@selfclone
 ```
 
-Then say "clone me" and point Claude at your exports. The skill walks through consent, ingest, distillation, testing and the optional face. Or paste this into Claude Code:
+Then ask: "make an explainer video about how vaccines work", or "clone me" and point Claude at your exports. Or paste this into Claude Code:
 
 ```
-Clone https://github.com/logitsolutionsai/selfclone into ~/.claude/skills/selfclone, then clone me from my chat exports in ~/Downloads.
+Clone https://github.com/logitsolutionsai/selfclone into ~/.claude/skills/selfclone, run npm install there, then make me a one-minute explainer video about black holes.
 ```
 
-You need Node 20 or newer. The only dependency is `playwright-core`, for `selfclone bake`; it uses the Chrome, Edge or Chromium you have and downloads no browser. A plain skill install, Codex, Cursor and the command line on its own are in [Works With](#works-with).
+You need Node 20 or newer and ffmpeg. Run `npm install` once in the skill folder. That installs `playwright-core`, which uses the Chrome, Edge or Chromium you already have and downloads no browser, and Kokoro, the voice. [Manim](https://www.manim.community/) is optional, for maths (`pip install manim`, plus LaTeX for equations). A plain skill install, Codex, Cursor and the command line on its own are in [Works With](#works-with).
+
+## Explainer Videos On Any Topic
+
+Ask Claude for an animated explainer about anything (vaccines, compound interest, the Pythagorean theorem, your
+product) and it writes the script and the scene file, previews it and renders it. No GPU and no image model:
+characters are drawn SVG rigs, the voice is [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) on the CPU
+(Apache-2.0, pinned and hash-checked), maths is drawn by [Manim](https://www.manim.community/) when it is
+installed, and frames are rendered in headless Chrome by parallel workers: a one-minute video takes about a
+minute on a laptop.
+
+**Who is on screen** is up to you:
+
+- **Your own character.** Drawn from one photo, with consent.
+- **Random fictional people.** `"character": "random:<seed>"`; different seeds give different people.
+- **Nobody.** Use `--no-host`, and a narrator speaks off screen.
+
+Characters can hold a dialogue, each in its own voice (Kokoro, ElevenLabs, OpenAI, or a recording).
+
+```bash
+selfclone character --photo me.jpg --consent "This is my own face. Your Name" --name "Your Name" --hair short
+selfclone character --random 42                                # or a random fictional person
+selfclone explainer init --topic "How vaccines work" --host dialogue   # a starter scenes.json to fill in
+selfclone explainer scenes.json --preview                      # three stills per scene, in seconds
+selfclone explainer scenes.json                                # the video and its .srt captions
+selfclone explainer scenes.json --no-host --music ambient      # nobody on screen, generated music under the voice
+selfclone explainer scenes.json --aspect 9:16                  # vertical, for Shorts, Reels and TikTok
+selfclone explainer scenes.json --html                         # an interactive player page: chapters, scrubber, CC
+```
+
+What the characters do:
+
+- **Body.** A rig with jointed arms, seven gestures (point, wave, explain, present, shrug, think with a hand at
+  the chin, rest) and an optional full body that walks.
+- **Face.** Six moods, eyes that glance at each new item and turn to whoever is speaking, nods and brow lifts on
+  stressed words, blinks and breathing.
+- **Mouth.** It is lip-read from the text (closed lips on M, B and P, teeth on the lip for F and V, rounded O and
+  U) and timed by the voice.
+- **Gestures from the words.** Without cues they gesture to fit what they say: wave on "hello", point on "look
+  at this", shrug at a question.
+
+What a scene can hold:
+
+- **Props.** 60 in one hand-drawn style.
+- **Charts.** Bar, line and pie charts that grow.
+- **Text.** Handwritten words that write themselves, counters, and underlines and circles drawn by hand.
+- **Other items.** Speech and thought bubbles, your own images, and SVG drawings that draw themselves stroke by
+  stroke.
+- **Maths.** Manim equations, graphs and geometry.
+- **Scenery and camera.** Drawn scenery (clouds, stars, hills, a city, a room, graph paper, waves) or your own
+  background image, moving slower than the camera, with dust or sparkles in front. Camera paths, and cut, fade,
+  wipe, push, zoom and iris transitions.
+- **Sound.** Synthesised sound effects, and music under the voice: yours, or a generated ambient bed.
+- **Checks.** `--preview` prints storyboard warnings (overlaps, off-frame items, crowded captions, rushed
+  scenes) with the stills, so the scene file can be fixed before the render. 16:9, 9:16 and 1:1 frames.
+
+What it is not: hand animation. Bodies move in 2D, a head turn is a shift of the face, and walking is a simple
+cycle. A real face needs consent, and a cloned voice must be your own or used with its owner's consent; see
+[ETHICS.md](ETHICS.md#explainer-videos-studio). The scene format is in [SKILL.md](SKILL.md#explainer-videos-studio),
+and the ten scene files above are in [`examples/showcase/`](examples/showcase).
 
 ## Voice CI
 
@@ -279,7 +349,7 @@ its loudness and brightness. From Claude Code: `selfclone serve`, then `selfclon
 patches on top: turns are capped at 6 degrees, the patches turn with the head as flat images, a shape between
 two recorded ones is a cross-fade, and a shape the clip missed falls back to the drawn mouth (the photo bake
 uses the drawn mouth for every shape). The page itself records nothing; a video comes only from
-`selfclone video` (below), labelled. Glasses switch blinking off so the frames do not warp. A straight-on face in even light with a still head works best; the enrolment page checks for it.
+`selfclone video` (below). Glasses switch blinking off so the frames do not warp. A straight-on face in even light with a still head works best; the enrolment page checks for it.
 
 The webcam enrolment page shows live checks (one face, facing the camera, enough light, close enough, and for
 a still frame mouth closed and eyes open, glasses) and will not bake without a ticked consent box and a typed
@@ -306,7 +376,7 @@ selfclone video --audio voice.wav --shape square --background "#1e1e1e" -o prese
 Options: `--size` from 240 to 1080 pixels (default 480), `--shape circle|square`, `--background transparent|#hex`,
 `--avatar` (default `.selfclone/avatar.html`) and `--max-minutes` (default 10, at most 60). Frames are rendered
 in headless Chrome on a paused clock, so the lip sync is frame-accurate and the same on every run, and your audio
-is the sound track. Each file gets a `.provenance.json` next to it.
+is the sound track.
 
 To put it on a screen recording, drop `presenter.webm` on a track above the recording in an editor that reads
 WebM transparency, or let ffmpeg do it (bottom right, 300 px wide, 40 px in, with your voice as the sound):
@@ -318,30 +388,28 @@ ffmpeg -i screen.mp4 -c:v libvpx-vp9 -i presenter.webm \
 ```
 
 <p align="center">
-  <img src="docs/media/video-overlay.gif" width="560" alt="A mock screen recording of a code editor with the round avatar in the bottom right corner, talking, an AI CLONE label on its chin">
+  <img src="docs/media/video-overlay.gif" width="560" alt="A mock screen recording of a code editor with the round avatar in the bottom right corner, talking">
 </p>
 
 The rules, enforced by the command:
 
-- **Every frame says AI CLONE.** The label sits over the chin, inside the face, so cropping a corner cannot remove
-  it, and it stays legible at 240 px. No flag turns it off. The EU AI Act (Article 50) requires AI-generated
-  video of a person to be disclosed as such; keep the label visible when you publish.
 - **Your own voice only.** A recording of yourself, or a voice clone of yourself. There is no text-to-speech, so
   the command never puts words in someone else's voice.
 - **Consent first.** The avatar's consent record must be present and must match its face, or export refuses.
-- **Tagged.** The file says it is an AI clone made with selfclone, with the consent statement, date and version,
-  in its metadata and in the `.provenance.json`, which also holds the video's SHA-256.
 - **Short.** Up to 10 minutes per video by default: a tool for tutorials, not for bulk generation.
+
+The video carries no label. The EU AI Act (Article 50) asks whoever publishes video that resembles a real person
+and was made with AI to disclose it, so say so where you publish if that applies to you.
 
 
 ## Privacy And Consent
 
-- **Local only.** No server, no account, no telemetry. The only network use is the one-time MediaPipe download for face enrolment, checked against pinned SHA-256 hashes. When Claude distills the clone it reads the distill pack, so the pack is sent to the model you use in Claude Code, as with any file Claude reads. The sealed set and the full corpus are not.
+- **Local only.** No server, no account, no telemetry. The network is used for the one-time MediaPipe download for face enrolment, checked against pinned SHA-256 hashes, and the one-time Kokoro voice model download for explainer videos. Narration text leaves your computer only if you pick a hosted voice (ElevenLabs or OpenAI). When Claude distills the clone it reads the distill pack, so the pack is sent to the model you use in Claude Code, as with any file Claude reads. The sealed set and the full corpus are not.
 - **A clip is never kept.** The enrolment clip is read in memory, frame by frame; it is not recorded to a file. Only one still frame and a few small patches of your mouth and eyes (about 30 KB) end up in the avatar.
 - **Scrubbed by default.** API keys, passwords (also in Portuguese, Spanish, French and German phrasings), PINs and door codes, card numbers (Luhn checked) and security codes, IBANs (checksum checked), named bank account numbers, US social security numbers, emails, phone numbers in common national formats, webhook links and URLs carrying tokens are replaced with placeholders such as `[EMAIL]` before anything is stored. It is a pattern matcher, not a guarantee: a password written as "it's hunter2" with no label around it gets through. `selfclone scrub <file>` shows what it would remove.
 - **Consent first.** The skill asks whose voice it is and refuses public figures' private data, minors and anyone without written consent. The bake refuses to run without a consent statement, and the consent record, including whether the face came from a photo or a clip, is embedded in the avatar.
 - **Always labelled.** The clone skill says it is an AI clone when asked. The avatar shows an "AI CLONE" badge that cannot be switched off in the page (the face stops rendering without it).
-- **No puppeteering, and every video is labelled.** The avatar can be driven only by text or audio, never by a webcam, so it cannot act as a live deepfake of you on a call. `selfclone video` renders offline from your own audio, burns an "AI CLONE" label into every frame, and refuses an avatar without a valid consent record; see [Use The Face In Videos](#use-the-face-in-videos).
+- **No puppeteering.** The avatar can be driven only by text or audio, never by a webcam, so it cannot act as a live deepfake of you on a call. `selfclone video` renders offline from your own audio and refuses an avatar without a valid consent record; see [Use The Face In Videos](#use-the-face-in-videos).
 
 Read [`ETHICS.md`](ETHICS.md) for the full rules.
 
@@ -351,7 +419,9 @@ Read [`ETHICS.md`](ETHICS.md) for the full rules.
 - **Small samples are noisy.** With fewer than about 20 sealed prompts, or very short replies, the function-word part of the score is noisy.
 - **It can be gamed.** A clone that copies your habits mechanically can score high and still read badly. Read the replies.
 - **Other languages, partly.** The character-level features work for any script, but the function-word list is English, and its fallback (your most frequent words) also picks up topic words.
-- **The face is one frame warped in 2D.** It is not photoreal, head turns are capped, and exported videos always carry the burned-in label; the details are in [The Face](#the-face).
+- **The face is one frame warped in 2D.** It is not photoreal, and head turns are capped; the details are in [The Face](#the-face).
+- **Explainers are drawn puppets.** Bodies move in 2D, a head turn is a shift of the face, and a scene is only as good
+  as its scene file: check the facts in the script and fix the storyboard warnings before the render.
 - **Voice CI and the passport measure surface style too.** Lint advice, the Voice Passport and drift count the same habits; they are not an AI-text detector, an authorship check or proof of identity, and the passport's privacy protections are heuristics, not a formal anonymity guarantee. More in [docs/LIMITATIONS.md](docs/LIMITATIONS.md) and [docs/THREAT-MODEL.md](docs/THREAT-MODEL.md).
 - **Browsers.** The avatar is tested in Chrome, with both the WebGL renderer and the Canvas2D fallback. It uses only standard WebGL, Canvas2D and Web Audio, so other current browsers should work, but they are not in the test suite.
 

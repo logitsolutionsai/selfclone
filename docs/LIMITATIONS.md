@@ -16,4 +16,24 @@
 ## Media Interpolation
 
 - **The face is one frame warped in 2D.** Head turns are capped, the drawn mouth (from a photo) looks cartoonish, and a clip only covers the mouth shapes it caught; see [The Face](../README.md#the-face).
-- **Exported videos always carry the AI CLONE label**, by design.
+
+## Explainer Videos
+
+- **2D, not hand animation.** Arms and legs rotate flat; a head turn is a shift of the features with the nose,
+  ears and hair following, not a redrawn profile; walking is a procedural cycle facing the camera. There is no full-body acting beyond the seven gestures.
+- **Likeness is a caricature.** Proportions and colours come from the photo; hair is one of twelve styles and the
+  outfit one of five, chosen by hand or by Claude.
+- **Gestures follow words, not meaning.** Without cues a character picks gestures and moods from keywords in its
+  own lines; it does not understand them.
+- **Lip sync is English-first.** The mouth shapes come from phonemes (the espeak-based phonemizer that comes with
+  kokoro-js), or from an English letter table without it, aligned to the voice's pauses and opened by its
+  loudness. Phonemes are timed by typical lengths within each clause, not measured from the audio.
+- **Recorded narration** is split into sentences at its longest pauses near where the text expects them; a
+  recording that runs sentences together without pauses falls back to timing by text length.
+- **Manim is optional and runs your Python.** A scene's Manim code runs as a normal Python program on your
+  machine, so only render scene files you trust. LaTeX cannot read paths with spaces, so on Windows profiles with a
+  space in the name the frames are rendered under `%ProgramData%\selfclone\manim`.
+- **Storyboard warnings are estimates.** Item sizes are guessed from the viewBox and font size, so a warning can
+  be a false alarm, and two items on the same centre are assumed to be layered on purpose.
+- **Painted backdrops need an OpenAI key** and send the prompt to OpenAI; everything else runs locally.
+- **Speed.** About 15 to 25 frames a second at 1280 x 720 with six workers on one laptop CPU.

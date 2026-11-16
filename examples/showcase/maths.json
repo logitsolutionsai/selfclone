@@ -1,0 +1,102 @@
+{
+ "title": "Why is a squared plus b squared equal to c squared?",
+ "voice": "kokoro:bm_george",
+ "scenes": [
+  {
+   "say": [
+    "Take any right triangle.",
+    "Call its short sides a and b, and its longest side c."
+   ],
+   "background": "#f2ead6",
+   "manim": {
+    "code": "class Tri(Scene):\n    def construct(self):\n        A, B, C = LEFT*2.5+DOWN*1.5, RIGHT*1.5+DOWN*1.5, LEFT*2.5+UP*1.5\n        tri = Polygon(A, B, C, color=INK, stroke_width=6, fill_color=GOLD, fill_opacity=0.6)\n        self.play(Create(tri), run_time=1.5)\n        ra = Square(0.35, color=INK).move_to(A + RIGHT*0.175 + UP*0.175)\n        self.play(Create(ra), run_time=0.4)\n        la = MathTex('a', color=INK).scale(1.4).next_to(Line(A, C), LEFT)\n        lb = MathTex('b', color=INK).scale(1.4).next_to(Line(A, B), DOWN)\n        lc = MathTex('c', color=RED).scale(1.4).move_to((B + C) / 2 + RIGHT*0.45 + UP*0.35)\n        self.wait(0.8)\n        self.play(Write(la), Write(lb), run_time=0.8)\n        self.play(Write(lc), run_time=0.6)\n        self.wait(1)\n"
+   }
+  },
+  {
+   "say": [
+    "Now build a square on each side.",
+    "Their areas are a squared, b squared, and c squared."
+   ],
+   "background": "#f2ead6",
+   "transition": "fade",
+   "manim": {
+    "code": "class Squares(Scene):\n    def construct(self):\n        A, B, C = LEFT*0.9 + DOWN*0.9, RIGHT*1.5 + DOWN*0.9, LEFT*0.9 + UP*0.9\n        tri = Polygon(A, B, C, color=INK, stroke_width=5, fill_color=GOLD, fill_opacity=0.6)\n        self.add(tri)\n        sa = Polygon(A, C, C + LEFT*1.8, A + LEFT*1.8, color=INK, stroke_width=4, fill_color=BLUE, fill_opacity=0.55)\n        sb = Polygon(A, B, B + DOWN*2.4, A + DOWN*2.4, color=INK, stroke_width=4, fill_color=GREEN, fill_opacity=0.55)\n        v = C - B\n        n = np.array([v[1], -v[0], 0])\n        sc = Polygon(B, C, C + n, B + n, color=INK, stroke_width=4, fill_color=RED, fill_opacity=0.55)\n        self.play(DrawBorderThenFill(sa), run_time=1)\n        self.play(DrawBorderThenFill(sb), run_time=1)\n        self.play(DrawBorderThenFill(sc), run_time=1)\n        self.wait(0.6)\n        self.play(Write(MathTex('a^2', color=INK).scale(1.3).move_to(sa)), Write(MathTex('b^2', color=INK).scale(1.3).move_to(sb)), Write(MathTex('c^2', color=INK).scale(1.3).move_to(sc)), run_time=1)\n        self.wait(1)\n",
+    "w": 0.95
+   }
+  },
+  {
+   "say": [
+    "The theorem says the two small squares, together, exactly fill the big one.",
+    "No matter how you stretch the triangle."
+   ],
+   "background": "#f2ead6",
+   "transition": "fade",
+   "manim": {
+    "code": "class Eq(Scene):\n    def construct(self):\n        eq = MathTex('a^2', '+', 'b^2', '=', 'c^2', color=INK).scale(2.6)\n        eq[0].set_color(BLUE); eq[2].set_color(GREEN); eq[4].set_color(RED)\n        self.play(Write(eq), run_time=2)\n        self.play(Indicate(eq[4], color=RED, scale_factor=1.3), run_time=1)\n        ex = MathTex('3^2 + 4^2 = 5^2', color=INK).scale(1.6).next_to(eq, DOWN, buff=0.9)\n        self.play(FadeIn(ex, shift=UP*0.3), run_time=1)\n        ex2 = MathTex('9 + 16 = 25', color=INK).scale(1.6).move_to(ex)\n        self.wait(0.8)\n        self.play(TransformMatchingTex(ex, ex2), run_time=1.2)\n        self.wait(1.5)\n"
+   }
+  },
+  {
+   "say": [
+    "Builders use it to make perfect corners: measure three, four, and five, and the angle is square."
+   ],
+   "background": "#9cc56b",
+   "backdrop": "grass",
+   "transition": "wipe",
+   "items": [
+    {
+     "prop": "house",
+     "x": 0.3,
+     "y": 0.45,
+     "w": 0.2,
+     "at": 0.4,
+     "enter": "draw"
+    },
+    {
+     "svg": "<svg viewBox='0 0 200 160'><path d='M20,140 L20,20 L180,140 Z' fill='#f6efe0' stroke='#2a2346' stroke-width='6' stroke-linejoin='round'/><rect x='20' y='118' width='22' height='22' fill='none' stroke='#2a2346' stroke-width='4'/><text x='4' y='86' font-family='Georgia,serif' font-size='26' fill='#2a2346'>3</text><text x='92' y='158' font-family='Georgia,serif' font-size='26' fill='#2a2346'>4</text><text x='106' y='70' font-family='Georgia,serif' font-size='26' fill='#e2604f'>5</text></svg>",
+     "x": 0.68,
+     "y": 0.47,
+     "w": 0.3,
+     "at": 1.8,
+     "enter": "draw",
+     "mark": "box",
+     "markAt": 3.0
+    },
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1000 220\"><rect x=\"0\" y=\"0\" width=\"1000\" height=\"220\" rx=\"28\" fill=\"#1d1840\" opacity=\".9\"/></svg>",
+     "x": 0.5,
+     "y": 0.5,
+     "w": 0.66,
+     "lineEnd": 0,
+     "at": 0.15,
+     "enter": "fade",
+     "over": true,
+     "sound": false
+    },
+    {
+     "text": "Made with selfclone",
+     "x": 0.5,
+     "y": 0.464,
+     "size": 0.085,
+     "color": "#f6f1e6",
+     "lineEnd": 0,
+     "at": 0.3,
+     "over": true
+    },
+    {
+     "text": "github.com/logitsolutionsai/selfclone",
+     "x": 0.5,
+     "y": 0.545,
+     "size": 0.036,
+     "font": "sans",
+     "color": "#f2c14b",
+     "lineEnd": 0,
+     "at": 0.9,
+     "enter": "fade",
+     "over": true
+    }
+   ],
+   "hold": 2.6
+  }
+ ],
+ "music": "ambient"
+}

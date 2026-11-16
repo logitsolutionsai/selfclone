@@ -1,0 +1,565 @@
+{
+ "title": "Why do some atoms glow?",
+ "voice": "kokoro:af_heart",
+ "scenes": [
+  {
+   "say": [
+    "Some atoms cannot sit still.",
+    "Deep inside, they are slowly falling apart."
+   ],
+   "background": "#7fb6d6",
+   "character": {
+    "x": 0.5,
+    "scale": 0.97,
+    "enter": "rise",
+    "mood": "happy",
+    "cues": [
+     {
+      "line": 0,
+      "gesture": "wave"
+     },
+     {
+      "line": 1,
+      "gesture": "explain",
+      "mood": "serious"
+     }
+    ]
+   },
+   "camera": {
+    "from": {
+     "zoom": 1
+    },
+    "to": {
+     "zoom": 1.08,
+     "y": 0.42
+    }
+   },
+   "items": [
+    {
+     "text": "?",
+     "x": 0.76,
+     "y": 0.3,
+     "size": 0.2,
+     "line": 1,
+     "at": 0.3,
+     "enter": "pop",
+     "loop": "wobble"
+    }
+   ],
+   "hold": 0.9,
+   "backdrop": "dots",
+   "particles": "dust"
+  },
+  {
+   "say": [
+    "In eighteen ninety-six, Henri Becquerel left uranium salts on a wrapped photographic plate.",
+    "In the dark, the plate fogged anyway."
+   ],
+   "background": "#e3a24a",
+   "character": false,
+   "transition": "push",
+   "camera": {
+    "from": {
+     "zoom": 1.25,
+     "x": 0.3,
+     "y": 0.55
+    },
+    "keys": [
+     {
+      "at": 2.2,
+      "zoom": 1.1,
+      "x": 0.55,
+      "y": 0.5,
+      "dur": 1.6
+     },
+     {
+      "line": 1,
+      "zoom": 1.2,
+      "x": 0.45,
+      "y": 0.55,
+      "dur": 1.5
+     }
+    ]
+   },
+   "items": [
+    {
+     "text": "1896",
+     "x": 0.2,
+     "y": 0.22,
+     "size": 0.16,
+     "at": 0.3
+    },
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 140 110\"><path d=\"M10,92 L24,46 L56,24 L94,30 L126,58 L120,94 Z\" fill=\"#b9c86a\" stroke=\"#2a2346\" stroke-width=\"5\" stroke-linejoin=\"round\"/><path d=\"M34,68 l16,-12 M70,46 l18,9 M78,78 l20,-7\" stroke=\"#2a2346\" stroke-width=\"3.5\" fill=\"none\" stroke-linecap=\"round\"/></svg>",
+     "x": 0.3,
+     "y": 0.6,
+     "w": 0.14,
+     "at": 0.6,
+     "loop": "shake",
+     "sound": false
+    },
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 220 160\"><rect x=\"8\" y=\"14\" width=\"204\" height=\"138\" rx=\"8\" fill=\"#3d3856\" stroke=\"#2a2346\" stroke-width=\"5\"/><rect x=\"24\" y=\"30\" width=\"172\" height=\"106\" fill=\"#e2dccb\" stroke=\"#2a2346\" stroke-width=\"3\"/><ellipse cx=\"86\" cy=\"84\" rx=\"40\" ry=\"26\" fill=\"#4e4766\" opacity=\".6\"/><ellipse cx=\"138\" cy=\"78\" rx=\"30\" ry=\"20\" fill=\"#4e4766\" opacity=\".5\"/><ellipse cx=\"110\" cy=\"96\" rx=\"22\" ry=\"12\" fill=\"#4e4766\" opacity=\".4\"/></svg>",
+     "x": 0.64,
+     "y": 0.52,
+     "w": 0.34,
+     "at": 2.0,
+     "enter": "draw"
+    },
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 240 240\"><g stroke=\"#f6e27a\" stroke-width=\"7\" stroke-linecap=\"round\" fill=\"none\"><line x1=\"190.0\" y1=\"120.0\" x2=\"225.0\" y2=\"120.0\"/><line x1=\"176.6\" y1=\"161.1\" x2=\"204.9\" y2=\"181.7\"/><line x1=\"141.6\" y1=\"186.6\" x2=\"152.4\" y2=\"219.9\"/><line x1=\"98.4\" y1=\"186.6\" x2=\"87.6\" y2=\"219.9\"/><line x1=\"63.4\" y1=\"161.1\" x2=\"35.1\" y2=\"181.7\"/><line x1=\"50.0\" y1=\"120.0\" x2=\"15.0\" y2=\"120.0\"/><line x1=\"63.4\" y1=\"78.9\" x2=\"35.1\" y2=\"58.3\"/><line x1=\"98.4\" y1=\"53.4\" x2=\"87.6\" y2=\"20.1\"/><line x1=\"141.6\" y1=\"53.4\" x2=\"152.4\" y2=\"20.1\"/><line x1=\"176.6\" y1=\"78.9\" x2=\"204.9\" y2=\"58.3\"/></g></svg>",
+     "x": 0.3,
+     "y": 0.6,
+     "w": 0.26,
+     "line": 1,
+     "enter": "fade",
+     "loop": "pulse"
+    }
+   ],
+   "hold": 0.6,
+   "backdrop": "room",
+   "particles": "none"
+  },
+  {
+   "say": [
+    "Marie Curie named this energy radioactivity.",
+    "With Pierre Curie, she discovered two new elements: polonium and radium."
+   ],
+   "background": "#7b6fc4",
+   "transition": "wipe",
+   "character": {
+    "x": 0.24,
+    "y": 0.97,
+    "scale": 0.9,
+    "look": 0.5,
+    "cues": [
+     {
+      "at": 1.0,
+      "gesture": "point"
+     },
+     {
+      "line": 1,
+      "gesture": "present",
+      "mood": "happy"
+     }
+    ]
+   },
+   "camera": {
+    "from": {
+     "zoom": 1
+    },
+    "to": {
+     "zoom": 1.04
+    }
+   },
+   "items": [
+    {
+     "text": "RADIOACTIVITY",
+     "x": 0.66,
+     "y": 0.24,
+     "size": 0.1,
+     "at": 1.0,
+     "color": "#f6f1e6",
+     "mark": "underline",
+     "markColor": "#f2c14b"
+    },
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 120 120\"><rect x=\"6\" y=\"6\" width=\"108\" height=\"108\" rx=\"10\" fill=\"#f6efe0\" stroke=\"#2a2346\" stroke-width=\"5\"/><text x=\"60\" y=\"82\" text-anchor=\"middle\" font-family=\"Georgia,serif\" font-size=\"54\" font-weight=\"700\" fill=\"#2a2346\">Po</text><text x=\"18\" y=\"32\" font-family=\"Georgia,serif\" font-size=\"20\" fill=\"#2a2346\">84</text></svg>",
+     "x": 0.58,
+     "y": 0.58,
+     "w": 0.14,
+     "line": 1,
+     "at": 1.4,
+     "loop": "bob"
+    },
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 120 120\"><rect x=\"6\" y=\"6\" width=\"108\" height=\"108\" rx=\"10\" fill=\"#e7f6c9\" stroke=\"#2a2346\" stroke-width=\"5\"/><text x=\"60\" y=\"82\" text-anchor=\"middle\" font-family=\"Georgia,serif\" font-size=\"54\" font-weight=\"700\" fill=\"#2a2346\">Ra</text><text x=\"18\" y=\"32\" font-family=\"Georgia,serif\" font-size=\"20\" fill=\"#2a2346\">88</text></svg>",
+     "x": 0.78,
+     "y": 0.58,
+     "w": 0.14,
+     "line": 1,
+     "at": 2.4,
+     "loop": "bob"
+    }
+   ],
+   "hold": 0.6,
+   "backdrop": "stars",
+   "particles": "sparkles"
+  },
+  {
+   "say": [
+    "An unstable nucleus breaks apart, and throws out energy as fast particles or rays."
+   ],
+   "background": "#d98aa8",
+   "character": false,
+   "transition": "zoom",
+   "camera": {
+    "from": {
+     "zoom": 1.3,
+     "x": 0.36,
+     "y": 0.48
+    },
+    "keys": [
+     {
+      "at": 1.6,
+      "zoom": 1,
+      "x": 0.5,
+      "y": 0.5,
+      "dur": 1.2
+     }
+    ]
+   },
+   "items": [
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 220 220\"><circle cx=\"110\" cy=\"110\" r=\"16\" fill=\"#5b8fd6\" stroke=\"#2a2346\" stroke-width=\"3.5\"/><circle cx=\"132\" cy=\"110\" r=\"16\" fill=\"#e2604f\" stroke=\"#2a2346\" stroke-width=\"3.5\"/><circle cx=\"88\" cy=\"110\" r=\"16\" fill=\"#5b8fd6\" stroke=\"#2a2346\" stroke-width=\"3.5\"/><circle cx=\"121\" cy=\"129\" r=\"16\" fill=\"#e2604f\" stroke=\"#2a2346\" stroke-width=\"3.5\"/><circle cx=\"99\" cy=\"129\" r=\"16\" fill=\"#5b8fd6\" stroke=\"#2a2346\" stroke-width=\"3.5\"/><circle cx=\"121\" cy=\"91\" r=\"16\" fill=\"#e2604f\" stroke=\"#2a2346\" stroke-width=\"3.5\"/><circle cx=\"99\" cy=\"91\" r=\"16\" fill=\"#5b8fd6\" stroke=\"#2a2346\" stroke-width=\"3.5\"/><circle cx=\"143\" cy=\"129\" r=\"16\" fill=\"#e2604f\" stroke=\"#2a2346\" stroke-width=\"3.5\"/><circle cx=\"77\" cy=\"129\" r=\"16\" fill=\"#5b8fd6\" stroke=\"#2a2346\" stroke-width=\"3.5\"/><circle cx=\"143\" cy=\"91\" r=\"16\" fill=\"#e2604f\" stroke=\"#2a2346\" stroke-width=\"3.5\"/><circle cx=\"77\" cy=\"91\" r=\"16\" fill=\"#5b8fd6\" stroke=\"#2a2346\" stroke-width=\"3.5\"/><circle cx=\"110\" cy=\"148\" r=\"16\" fill=\"#e2604f\" stroke=\"#2a2346\" stroke-width=\"3.5\"/><circle cx=\"110\" cy=\"72\" r=\"16\" fill=\"#5b8fd6\" stroke=\"#2a2346\" stroke-width=\"3.5\"/><circle cx=\"132\" cy=\"148\" r=\"16\" fill=\"#e2604f\" stroke=\"#2a2346\" stroke-width=\"3.5\"/><circle cx=\"88\" cy=\"148\" r=\"16\" fill=\"#5b8fd6\" stroke=\"#2a2346\" stroke-width=\"3.5\"/><circle cx=\"132\" cy=\"72\" r=\"16\" fill=\"#e2604f\" stroke=\"#2a2346\" stroke-width=\"3.5\"/><circle cx=\"88\" cy=\"72\" r=\"16\" fill=\"#5b8fd6\" stroke=\"#2a2346\" stroke-width=\"3.5\"/><circle cx=\"154\" cy=\"110\" r=\"16\" fill=\"#e2604f\" stroke=\"#2a2346\" stroke-width=\"3.5\"/><circle cx=\"66\" cy=\"110\" r=\"16\" fill=\"#5b8fd6\" stroke=\"#2a2346\" stroke-width=\"3.5\"/></svg>",
+     "x": 0.34,
+     "y": 0.48,
+     "w": 0.26,
+     "at": 0.1,
+     "enter": "draw",
+     "loop": "shake"
+    },
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 80 80\"><circle cx=\"30\" cy=\"30\" r=\"15\" fill=\"#e2604f\" stroke=\"#2a2346\" stroke-width=\"3.5\"/><circle cx=\"50\" cy=\"50\" r=\"15\" fill=\"#e2604f\" stroke=\"#2a2346\" stroke-width=\"3.5\"/><circle cx=\"50\" cy=\"30\" r=\"15\" fill=\"#5b8fd6\" stroke=\"#2a2346\" stroke-width=\"3.5\"/><circle cx=\"30\" cy=\"50\" r=\"15\" fill=\"#5b8fd6\" stroke=\"#2a2346\" stroke-width=\"3.5\"/></svg>",
+     "x": 0.45,
+     "y": 0.4,
+     "w": 0.07,
+     "at": 1.6,
+     "enter": "pop",
+     "move": {
+      "x": 0.74,
+      "y": 0.28,
+      "at": 1.7,
+      "dur": 0.6
+     }
+    },
+    {
+     "text": "alpha",
+     "x": 0.86,
+     "y": 0.28,
+     "size": 0.06,
+     "at": 2.2
+    },
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 40 40\"><circle cx=\"20\" cy=\"20\" r=\"11\" fill=\"#f2d14b\" stroke=\"#2a2346\" stroke-width=\"3.5\"/></svg>",
+     "x": 0.45,
+     "y": 0.5,
+     "w": 0.035,
+     "at": 2.3,
+     "enter": "pop",
+     "move": {
+      "x": 0.74,
+      "y": 0.5,
+      "at": 2.4,
+      "dur": 0.5
+     }
+    },
+    {
+     "text": "beta",
+     "x": 0.84,
+     "y": 0.5,
+     "size": 0.06,
+     "at": 2.8
+    },
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 320 60\"><path d=\"M0,30 q20,-26 40,0 t40,0 t40,0 t40,0 t40,0 t40,0 t40,0 t40,0\" stroke=\"#f6e27a\" stroke-width=\"7\" fill=\"none\" stroke-linecap=\"round\"/></svg>",
+     "x": 0.66,
+     "y": 0.7,
+     "w": 0.22,
+     "at": 3.1,
+     "enter": "draw"
+    },
+    {
+     "text": "gamma",
+     "x": 0.88,
+     "y": 0.7,
+     "size": 0.06,
+     "at": 3.7
+    }
+   ],
+   "hold": 0.8,
+   "backdrop": "grid",
+   "particles": "sparkles"
+  },
+  {
+   "say": [
+    "Each kind of atom has a half-life:",
+    "the time it takes for half of its atoms to change."
+   ],
+   "background": "#8fc6a0",
+   "transition": "iris",
+   "character": {
+    "x": 0.2,
+    "y": 0.96,
+    "scale": 0.85,
+    "cues": [
+     {
+      "line": 0,
+      "gesture": "think",
+      "mood": "curious"
+     },
+     {
+      "line": 1,
+      "gesture": "explain",
+      "mood": "neutral"
+     }
+    ]
+   },
+   "camera": {
+    "from": {
+     "zoom": 1
+    },
+    "to": {
+     "zoom": 1.03
+    }
+   },
+   "items": [
+    {
+     "text": "half-life",
+     "x": 0.5,
+     "y": 0.16,
+     "size": 0.09,
+     "at": 0.4,
+     "mark": "circle"
+    },
+    {
+     "chart": {
+      "type": "bar",
+      "values": [
+       100,
+       50,
+       25,
+       12.5
+      ],
+      "labels": [
+       "0",
+       "T",
+       "2T",
+       "3T"
+      ],
+      "unit": "%"
+     },
+     "x": 0.62,
+     "y": 0.6,
+     "w": 0.42,
+     "line": 1,
+     "look": false
+    }
+   ],
+   "manim": {
+    "code": "class Decay(Scene):\n    def construct(self):\n        f = MathTex(r'N(t) = N_0 \\left(\\tfrac{1}{2}\\right)^{t/T}', color=INK).scale(3.2)\n        self.play(Write(f), run_time=1.6)\n",
+    "x": 0.8,
+    "y": 0.2,
+    "w": 0.4,
+    "line": 1,
+    "at": 1.6
+   },
+   "hold": 0.6,
+   "backdrop": "grid",
+   "particles": "none"
+  },
+  {
+   "say": [
+    "Carbon fourteen has a half-life of about five thousand, seven hundred years,",
+    "so it can date ancient wood and bone."
+   ],
+   "background": "#e3a24a",
+   "character": false,
+   "transition": "push",
+   "camera": {
+    "from": {
+     "zoom": 1.1,
+     "x": 0.5,
+     "y": 0.3
+    },
+    "keys": [
+     {
+      "line": 1,
+      "zoom": 1.0,
+      "x": 0.5,
+      "y": 0.5,
+      "dur": 1.2
+     }
+    ]
+   },
+   "items": [
+    {
+     "text": "carbon-14 ≈ {n} years",
+     "count": {
+      "from": 0,
+      "to": 5730,
+      "dur": 2.2
+     },
+     "x": 0.5,
+     "y": 0.2,
+     "size": 0.09,
+     "at": 0.3,
+     "enter": "fade",
+     "mark": "underline",
+     "markAt": 3.0
+    },
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 160\"><ellipse cx=\"100\" cy=\"80\" rx=\"90\" ry=\"70\" fill=\"#c98d55\" stroke=\"#2a2346\" stroke-width=\"5\"/><ellipse cx=\"100\" cy=\"80\" rx=\"70\" ry=\"54.6\" fill=\"none\" stroke=\"#8a5a32\" stroke-width=\"3\"/><ellipse cx=\"100\" cy=\"80\" rx=\"52\" ry=\"40.6\" fill=\"none\" stroke=\"#8a5a32\" stroke-width=\"3\"/><ellipse cx=\"100\" cy=\"80\" rx=\"36\" ry=\"28.1\" fill=\"none\" stroke=\"#8a5a32\" stroke-width=\"3\"/><ellipse cx=\"100\" cy=\"80\" rx=\"20\" ry=\"15.6\" fill=\"none\" stroke=\"#8a5a32\" stroke-width=\"3\"/><circle cx=\"100\" cy=\"80\" r=\"5\" fill=\"#8a5a32\"/></svg>",
+     "x": 0.33,
+     "y": 0.58,
+     "w": 0.26,
+     "line": 1,
+     "enter": "draw"
+    },
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 220 80\"><path d=\"M40,30 C24,10 4,24 14,40 C4,56 24,70 40,50 L180,50 C196,70 216,56 206,40 C216,24 196,10 180,30 Z\" fill=\"#f3ead6\" stroke=\"#2a2346\" stroke-width=\"5\" stroke-linejoin=\"round\"/></svg>",
+     "x": 0.68,
+     "y": 0.6,
+     "w": 0.3,
+     "line": 1,
+     "at": 0.8,
+     "enter": "draw"
+    }
+   ],
+   "hold": 0.6,
+   "backdrop": "grass",
+   "particles": "none"
+  },
+  {
+   "say": [
+    "Today, radioactivity treats cancer, powers spacecraft, and guards homes in smoke detectors."
+   ],
+   "background": "#7fb6d6",
+   "character": false,
+   "transition": "fade",
+   "camera": {
+    "from": {
+     "zoom": 1.15,
+     "x": 0.25,
+     "y": 0.5
+    },
+    "keys": [
+     {
+      "at": 1.8,
+      "zoom": 1.15,
+      "x": 0.5,
+      "y": 0.5,
+      "dur": 1.0
+     },
+     {
+      "at": 3.2,
+      "zoom": 1.0,
+      "x": 0.5,
+      "y": 0.5,
+      "dur": 1.0
+     }
+    ]
+   },
+   "items": [
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 140 140\"><circle cx=\"70\" cy=\"70\" r=\"62\" fill=\"#f6f1e6\" stroke=\"#2a2346\" stroke-width=\"5\"/><path d=\"M56,28 h28 v28 h28 v28 h-28 v28 h-28 v-28 h-28 v-28 h28 Z\" fill=\"#e2604f\" stroke=\"#2a2346\" stroke-width=\"4\" stroke-linejoin=\"round\"/></svg>",
+     "x": 0.22,
+     "y": 0.5,
+     "w": 0.17,
+     "at": 1.0,
+     "loop": "float"
+    },
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 120 200\"><path d=\"M60,8 C90,40 92,110 84,150 L36,150 C28,110 30,40 60,8 Z\" fill=\"#eef0f4\" stroke=\"#2a2346\" stroke-width=\"5\"/><circle cx=\"60\" cy=\"70\" r=\"16\" fill=\"#5b8fd6\" stroke=\"#2a2346\" stroke-width=\"4\"/><path d=\"M36,120 L14,160 L38,150 Z M84,120 L106,160 L82,150 Z\" fill=\"#e2604f\" stroke=\"#2a2346\" stroke-width=\"4\" stroke-linejoin=\"round\"/><path d=\"M44,152 Q60,196 76,152 Z\" fill=\"#f2b84b\" stroke=\"#2a2346\" stroke-width=\"4\"/></svg>",
+     "x": 0.5,
+     "y": 0.48,
+     "w": 0.12,
+     "at": 2.0,
+     "enter": "slide-up",
+     "loop": "bob"
+    },
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 160 160\"><circle cx=\"80\" cy=\"80\" r=\"70\" fill=\"#f4f1ea\" stroke=\"#2a2346\" stroke-width=\"5\"/><circle cx=\"80\" cy=\"80\" r=\"44\" fill=\"none\" stroke=\"#2a2346\" stroke-width=\"3\"/><circle cx=\"106.0\" cy=\"80.0\" r=\"4\" fill=\"#2a2346\"/><circle cx=\"98.4\" cy=\"98.4\" r=\"4\" fill=\"#2a2346\"/><circle cx=\"80.0\" cy=\"106.0\" r=\"4\" fill=\"#2a2346\"/><circle cx=\"61.6\" cy=\"98.4\" r=\"4\" fill=\"#2a2346\"/><circle cx=\"54.0\" cy=\"80.0\" r=\"4\" fill=\"#2a2346\"/><circle cx=\"61.6\" cy=\"61.6\" r=\"4\" fill=\"#2a2346\"/><circle cx=\"80.0\" cy=\"54.0\" r=\"4\" fill=\"#2a2346\"/><circle cx=\"98.4\" cy=\"61.6\" r=\"4\" fill=\"#2a2346\"/><circle cx=\"120\" cy=\"120\" r=\"7\" fill=\"#e2604f\" stroke=\"#2a2346\" stroke-width=\"2\"/></svg>",
+     "x": 0.78,
+     "y": 0.5,
+     "w": 0.17,
+     "at": 3.3,
+     "loop": "float"
+    }
+   ],
+   "hold": 0.6,
+   "backdrop": "clouds",
+   "particles": "none"
+  },
+  {
+   "say": [
+    "Marie Curie became the first person to win two Nobel Prizes.",
+    "Her notebooks are still radioactive today."
+   ],
+   "background": "#7b6fc4",
+   "transition": "wipe",
+   "character": {
+    "x": 0.5,
+    "scale": 0.95,
+    "mood": "happy",
+    "cues": [
+     {
+      "line": 0,
+      "at": 0.4,
+      "gesture": "present"
+     },
+     {
+      "line": 1,
+      "gesture": "point",
+      "mood": "surprised"
+     },
+     {
+      "line": 1,
+      "at": 2.6,
+      "gesture": "wave",
+      "mood": "happy"
+     }
+    ]
+   },
+   "camera": {
+    "from": {
+     "zoom": 1.06
+    },
+    "to": {
+     "zoom": 1
+    }
+   },
+   "items": [
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 140 190\"><path d=\"M40,6 L70,70 L100,6 Z\" fill=\"#5b8fd6\" stroke=\"#2a2346\" stroke-width=\"4\" stroke-linejoin=\"round\"/><circle cx=\"70\" cy=\"118\" r=\"58\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"5\"/><circle cx=\"70\" cy=\"118\" r=\"40\" fill=\"none\" stroke=\"#b8862a\" stroke-width=\"4\"/><text x=\"70\" y=\"134\" text-anchor=\"middle\" font-family=\"Georgia,serif\" font-size=\"44\" font-weight=\"700\" fill=\"#8a5a1a\">N</text></svg>",
+     "x": 0.15,
+     "y": 0.42,
+     "w": 0.1,
+     "at": 1.2,
+     "loop": "wobble"
+    },
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 140 190\"><path d=\"M40,6 L70,70 L100,6 Z\" fill=\"#5b8fd6\" stroke=\"#2a2346\" stroke-width=\"4\" stroke-linejoin=\"round\"/><circle cx=\"70\" cy=\"118\" r=\"58\" fill=\"#f2c14b\" stroke=\"#2a2346\" stroke-width=\"5\"/><circle cx=\"70\" cy=\"118\" r=\"40\" fill=\"none\" stroke=\"#b8862a\" stroke-width=\"4\"/><text x=\"70\" y=\"134\" text-anchor=\"middle\" font-family=\"Georgia,serif\" font-size=\"44\" font-weight=\"700\" fill=\"#8a5a1a\">N</text></svg>",
+     "x": 0.27,
+     "y": 0.42,
+     "w": 0.1,
+     "at": 1.6,
+     "loop": "wobble"
+    },
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 260 220\"><ellipse cx=\"130\" cy=\"110\" rx=\"120\" ry=\"100\" fill=\"#d6f27a\" opacity=\".35\"/><ellipse cx=\"130\" cy=\"110\" rx=\"90\" ry=\"74\" fill=\"#d6f27a\" opacity=\".35\"/></svg>",
+     "x": 0.8,
+     "y": 0.48,
+     "w": 0.26,
+     "line": 1,
+     "enter": "fade",
+     "loop": "pulse",
+     "look": false
+    },
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 160\"><rect x=\"20\" y=\"16\" width=\"160\" height=\"128\" rx=\"8\" fill=\"#8a5a32\" stroke=\"#2a2346\" stroke-width=\"5\"/><rect x=\"34\" y=\"28\" width=\"134\" height=\"104\" fill=\"#f3ead6\" stroke=\"#2a2346\" stroke-width=\"3\"/><path d=\"M46,48 q30,-6 60,0 t50,0\" stroke=\"#6b6688\" stroke-width=\"3\" fill=\"none\"/><path d=\"M46,64 q30,-6 60,0 t50,0\" stroke=\"#6b6688\" stroke-width=\"3\" fill=\"none\"/><path d=\"M46,80 q30,-6 60,0 t50,0\" stroke=\"#6b6688\" stroke-width=\"3\" fill=\"none\"/><path d=\"M46,96 q30,-6 60,0 t50,0\" stroke=\"#6b6688\" stroke-width=\"3\" fill=\"none\"/><path d=\"M46,112 q30,-6 60,0 t50,0\" stroke=\"#6b6688\" stroke-width=\"3\" fill=\"none\"/></svg>",
+     "x": 0.8,
+     "y": 0.48,
+     "w": 0.2,
+     "line": 1,
+     "enter": "draw",
+     "mark": "circle",
+     "markAt": 1.6
+    }
+   ],
+   "hold": 1.2,
+   "backdrop": "stars",
+   "particles": "sparkles"
+  }
+ ]
+}

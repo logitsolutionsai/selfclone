@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
-export const VERSION = '0.1.0';
+export const VERSION = '0.2.0';
 
 export function sha1(text) {
   return createHash('sha1').update(String(text)).digest('hex');

@@ -1,0 +1,255 @@
+{
+ "title": "Who or whom?",
+ "cast": {
+  "host": {
+   "character": "random:teacher-21",
+   "voice": "kokoro:bm_george"
+  },
+  "guest": {
+   "character": "random:student-14",
+   "voice": "kokoro:af_nicole"
+  }
+ },
+ "captions": "words",
+ "scenes": [
+  {
+   "say": [
+    {
+     "who": "guest",
+     "text": "Who or whom? I never know which one to use."
+    },
+    {
+     "who": "host",
+     "text": "Here is a trick that works every time."
+    }
+   ],
+   "background": "#2f5a46",
+   "backdrop": "chalkboard",
+   "title": "Who or whom?",
+   "titleColor": "#f6f1e6",
+   "characters": {
+    "host": {
+     "x": 0.24,
+     "name": "Teacher"
+    },
+    "guest": {
+     "x": 0.78,
+     "scale": 0.78,
+     "name": "Alex"
+    }
+   }
+  },
+  {
+   "say": [
+    {
+     "who": "host",
+     "text": "Answer the question yourself, with he or him."
+    },
+    {
+     "who": "host",
+     "text": "If the answer is he, use who. If it is him, use whom."
+    }
+   ],
+   "background": "#2f5a46",
+   "backdrop": "chalkboard",
+   "transition": "fade",
+   "characters": {
+    "host": {
+     "x": 0.2,
+     "scale": 0.85
+    }
+   },
+   "items": [
+    {
+     "text": "he  →  who",
+     "x": 0.65,
+     "y": 0.35,
+     "size": 0.11,
+     "color": "#f6f1e6",
+     "line": 1,
+     "at": 0.5
+    },
+    {
+     "text": "him  →  whom",
+     "x": 0.65,
+     "y": 0.55,
+     "size": 0.11,
+     "color": "#f6f1e6",
+     "line": 1,
+     "at": 2.2,
+     "mark": "underline",
+     "markColor": "#f2c14b"
+    }
+   ]
+  },
+  {
+   "say": [
+    {
+     "who": "guest",
+     "text": "Who wrote this book?"
+    },
+    {
+     "who": "host",
+     "text": "He wrote it. He, so who!"
+    }
+   ],
+   "background": "#fbf7ec",
+   "backdrop": "notebook",
+   "transition": "wipe",
+   "characters": {
+    "host": {
+     "x": 0.17,
+     "scale": 0.8
+    },
+    "guest": {
+     "x": 0.84,
+     "scale": 0.72
+    }
+   },
+   "items": [
+    {
+     "text": "Who wrote this book?",
+     "x": 0.5,
+     "y": 0.3,
+     "size": 0.08,
+     "at": 0.3
+    },
+    {
+     "text": "He wrote it.",
+     "x": 0.5,
+     "y": 0.48,
+     "size": 0.08,
+     "line": 1,
+     "at": 0.2,
+     "color": "#3b5b8c",
+     "mark": "circle"
+    }
+   ]
+  },
+  {
+   "say": [
+    {
+     "who": "guest",
+     "text": "To who, or to whom, did you send the letter?"
+    },
+    {
+     "who": "host",
+     "text": "I sent it to him. Him, so whom!"
+    }
+   ],
+   "background": "#fbf7ec",
+   "backdrop": "notebook",
+   "transition": "push",
+   "characters": {
+    "host": {
+     "x": 0.17,
+     "scale": 0.8
+    },
+    "guest": {
+     "x": 0.84,
+     "scale": 0.72
+    }
+   },
+   "items": [
+    {
+     "text": "To who?",
+     "x": 0.38,
+     "y": 0.3,
+     "size": 0.08,
+     "at": 0.5,
+     "mark": "strike",
+     "markAt": 1.6
+    },
+    {
+     "text": "To whom?",
+     "x": 0.64,
+     "y": 0.3,
+     "size": 0.08,
+     "at": 1.6,
+     "color": "#2f6b3a"
+    },
+    {
+     "prop": "mail",
+     "x": 0.5,
+     "y": 0.55,
+     "w": 0.1,
+     "line": 1,
+     "at": 0.3,
+     "loop": "float"
+    }
+   ]
+  },
+  {
+   "say": [
+    {
+     "who": "host",
+     "text": "Remember: him and whom both end in M."
+    }
+   ],
+   "background": "#2f5a46",
+   "backdrop": "chalkboard",
+   "particles": "dust",
+   "transition": "iris",
+   "characters": {
+    "host": {
+     "x": 0.22,
+     "scale": 0.88,
+     "cues": [
+      {
+       "line": 0,
+       "gesture": "thumbs",
+       "mood": "happy"
+      }
+     ]
+    }
+   },
+   "items": [
+    {
+     "text": "hiM  =  whoM",
+     "x": 0.64,
+     "y": 0.4,
+     "size": 0.11,
+     "color": "#f6f1e6",
+     "at": 0.8,
+     "mark": "box",
+     "markColor": "#f2c14b"
+    },
+    {
+     "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1000 220\"><rect x=\"0\" y=\"0\" width=\"1000\" height=\"220\" rx=\"28\" fill=\"#1d1840\" opacity=\".9\"/></svg>",
+     "x": 0.5,
+     "y": 0.5,
+     "w": 0.66,
+     "lineEnd": 0,
+     "at": 0.15,
+     "enter": "fade",
+     "over": true,
+     "sound": false
+    },
+    {
+     "text": "Made with selfclone",
+     "x": 0.5,
+     "y": 0.464,
+     "size": 0.085,
+     "color": "#f6f1e6",
+     "lineEnd": 0,
+     "at": 0.3,
+     "over": true
+    },
+    {
+     "text": "github.com/logitsolutionsai/selfclone",
+     "x": 0.5,
+     "y": 0.545,
+     "size": 0.036,
+     "font": "sans",
+     "color": "#f2c14b",
+     "lineEnd": 0,
+     "at": 0.9,
+     "enter": "fade",
+     "over": true
+    }
+   ],
+   "hold": 2.6
+  }
+ ],
+ "music": "ambient"
+}
