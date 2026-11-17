@@ -214,18 +214,34 @@ export function countFrames(file) {
 
 const VIDEO_CODEC = ['-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '20', '-preset', 'medium'];
 
+/**
+ * The music under the voice, as an ffmpeg filter graph from [music] and [voice] to [a]. By default the
+ * music is pushed down by sidechain compression while the voice speaks. With `duck` ({db, lines: [[start,
+ * end]]}) it dips by exactly `db` dB during each spoken line instead (with short ramps either side) and
+ * stays at its own level in the pauses, so a bed with a beat stays audible.
+ */
+export function musicGraph({ musicIn, voiceIn, musicVolume, seconds, duck = null }) {
+  const fadeOut = Math.max(0, seconds - 2).toFixed(2);
+  const head = `${musicIn}aresample=48000,atrim=0:${seconds.toFixed(2)},volume=${musicVolume},afade=t=in:d=1.5,afade=t=out:st=${fadeOut}:d=2`;
+  if (duck && duck.lines && duck.lines.length) {
+    const g = Math.pow(10, -Math.max(0, duck.db) / 20).toFixed(4);
+    const on = duck.lines.map(([s, e]) => `clip((t-${(s - 0.15).toFixed(2)})/0.15,0,1)*clip((${(e + 0.25).toFixed(2)}-t)/0.25,0,1)`).join('+');
+    return `${head},volume='1-(1-${g})*min(1,${on})':eval=frame[m];${voiceIn}aresample=48000[v];[v][m]amix=inputs=2:duration=first:normalize=0[a]`;
+  }
+  return `${head}[m];${voiceIn}aresample=48000,asplit=2[v][key];[m][key]sidechaincompress=threshold=0.02:ratio=8:attack=15:release=350[duck];[v][duck]amix=inputs=2:duration=first:normalize=0[a]`;
+}
+
+/** The spoken lines to duck the music under, when the scene file sets "musicDuck" (dB). */
+const duckOf = (spec, nar) => (spec.musicDuck == null ? null : { db: spec.musicDuck, lines: nar.timings.flatMap((s) => s.lines.map((l) => [l.start, l.end])) });
+
 /** ffmpeg arguments for the final mux: the joined video, the mixed sound track, optional music ducked under the voice. */
-export function encodeArgs({ fps, audio, music, musicVolume, seconds, meta, out, video = null }) {
+export function encodeArgs({ fps, audio, music, musicVolume, seconds, meta, out, video = null, duck = null }) {
   const args = video ? ['-y', '-v', 'error', '-f', 'concat', '-safe', '0', '-i', video, '-i', audio] : ['-y', '-v', 'error', '-f', 'image2pipe', '-c:v', 'mjpeg', '-framerate', String(fps), '-i', '-', '-i', audio];
   let map = ['-map', '0:v:0', '-map', '1:a:0'];
   if (music) {
     args.push('-stream_loop', '-1', '-i', music);
-    // The music loops, fades in and out, and is pushed down (sidechain compression) while the voice speaks.
-    const fadeOut = Math.max(0, seconds - 2).toFixed(2);
-    args.push('-filter_complex',
-      `[2:a]aresample=48000,atrim=0:${seconds.toFixed(2)},volume=${musicVolume},afade=t=in:d=1.5,afade=t=out:st=${fadeOut}:d=2[m];` +
-      '[1:a]aresample=48000,asplit=2[v][key];[m][key]sidechaincompress=threshold=0.02:ratio=8:attack=15:release=350[duck];' +
-      '[v][duck]amix=inputs=2:duration=first:normalize=0[a]');
+    // The music loops, fades in and out, and sits under the voice (see musicGraph).
+    args.push('-filter_complex', musicGraph({ musicIn: '[2:a]', voiceIn: '[1:a]', musicVolume, seconds, duck }));
     map = ['-map', '0:v:0', '-map', '[a]'];
   }
   return [...args, ...map, ...(video ? ['-c:v', 'copy'] : VIDEO_CODEC), '-c:a', 'aac', '-b:a', '160k',
@@ -389,7 +405,7 @@ export async function renderExplainer(o, { log = () => {} } = {}) {
     });
     const list = path.join(segDir, 'list.txt');
     fs.writeFileSync(list, segs.map((f) => `file '${f.replace(/\\/g, '/')}'`).join('\n'));
-    const r = spawnSync('ffmpeg', encodeArgs({ fps, audio: audioFile, music, musicVolume: /ambient-[0-9a-f]{12}\.wav$/.test(String(music)) ? Math.max(spec.musicVolume, 0.8) : spec.musicVolume, seconds: nar.seconds, meta, out: tmp, video: list }), { encoding: 'utf8', maxBuffer: 1 << 26 });
+    const r = spawnSync('ffmpeg', encodeArgs({ fps, audio: audioFile, music, musicVolume: /ambient-[0-9a-f]{12}\.wav$/.test(String(music)) ? Math.max(spec.musicVolume, 0.8) : spec.musicVolume, seconds: nar.seconds, meta, out: tmp, video: list, duck: duckOf(spec, nar) }), { encoding: 'utf8', maxBuffer: 1 << 26 });
     if (r.status !== 0) throw new Error(`ffmpeg could not join the video: ${String(r.stderr).trim().split('\n').slice(-3).join(' ')}`);
     const got = countFrames(tmp);
     if (got !== frames) throw new Error(`The encoded video has ${got} frames; expected ${frames}.`);
@@ -425,9 +441,7 @@ export async function exportHtmlPlayer(o, { log = () => {} } = {}) {
   const vol = /ambient-[0-9a-f]{12}\.wav$/.test(String(music)) ? Math.max(spec.musicVolume, 0.8) : spec.musicVolume;
   const args = ['-y', '-v', 'error', '-i', audioFile];
   if (music) {
-    args.push('-stream_loop', '-1', '-i', music, '-filter_complex',
-      `[1:a]aresample=48000,atrim=0:${nar.seconds.toFixed(2)},volume=${vol},afade=t=in:d=1.5,afade=t=out:st=${Math.max(0, nar.seconds - 2).toFixed(2)}:d=2[m];` +
-      '[0:a]aresample=48000,asplit=2[v][key];[m][key]sidechaincompress=threshold=0.02:ratio=8:attack=15:release=350[duck];[v][duck]amix=inputs=2:duration=first:normalize=0[a]', '-map', '[a]');
+    args.push('-stream_loop', '-1', '-i', music, '-filter_complex', musicGraph({ musicIn: '[1:a]', voiceIn: '[0:a]', musicVolume: vol, seconds: nar.seconds, duck: duckOf(spec, nar) }), '-map', '[a]');
   }
   args.push('-c:a', 'aac', '-b:a', '128k', m4a);
   const a = spawnSync('ffmpeg', args, { encoding: 'utf8' });

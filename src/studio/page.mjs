@@ -105,6 +105,20 @@ const els=scenes.map((s,i)=>{
         return {sh,len,stroked:stroked&&len>0,a,b:a+.4,fo:parseFloat(cs.fillOpacity)||1};
       });
     }
+    const cr=rv.querySelector('svg.crowd');
+    if(cr){
+      // A crowd: each person's spot, pace and phase, when they hear the news and where they walk to.
+      const mem=[...cr.querySelectorAll('.cm')].map(g=>({g,f:g.querySelector('.cf'),b:g.querySelector('.cbad'),r:g.querySelector('.cring'),
+        i:dn(g,'i'),hx:dn(g,'hx'),hy:dn(g,'hy'),ph:dn(g,'ph'),sp:dn(g,'sp'),wa:dn(g,'wa'),s:dn(g,'s'),know:dn(g,'know'),ring:dn(g,'ring'),
+        gt:dn(g,'gt'),gd:dn(g,'gd'),gx:dn(g,'gx'),gy:dn(g,'gy'),dir:1}));
+      // People are drawn back to front, so whisper arcs find them by their number, not their place in the drawing.
+      const byI=[]; for(const m of mem) byI[m.i]=m;
+      const sh=it.crowdShift||{ring:0,spread:0,gather:0};
+      for(const m of mem){if(m.know>=0)m.know+=sh.spread;if(m.ring>=0)m.ring+=sh.ring;if(m.gt>=0)m.gt+=sh.gather}
+      o.crowd={mem,byI,arcs:[...cr.querySelectorAll('.cw')].map(p=>({p,a:dn(p,'a'),b:dn(p,'b'),t:dn(p,'t')+sh.spread}))};
+    }
+    const nw=rv.querySelector('svg.network');
+    if(nw){const av=(l,k)=>parseFloat(l.getAttribute(k));o.net=[...nw.querySelectorAll('.ne')].map(l=>({l,t:dn(l,'t'),len:Math.hypot(av(l,'x2')-av(l,'x1'),av(l,'y2')-av(l,'y1'))}))}
     if(it.enter==='grow'){
       const q=(c)=>[...rv.querySelectorAll('.'+c)];
       const line=rv.querySelector('.g-line');
@@ -188,6 +202,47 @@ function growProgress(o,k){
   g.labels.forEach(l=>{const i=l.hasAttribute('data-i')?+l.getAttribute('data-i'):n;l.setAttribute('opacity',String(g.bars.length||g.dots.length?(step(i)>.9?1:0):(k>.9?1:0)))});
 }
 
+// A crowd person's place d seconds after the crowd came in: wandering round their spot, or walking to
+// the gathering place and standing there. The third value is 1 while they walk there.
+function crowdAt(m,d){
+  const wx=(u)=>m.hx+Math.sin(u*m.sp+m.ph)*m.wa, wy=(u)=>m.hy+Math.sin(u*m.sp*.73+m.ph*1.7)*m.wa*.55;
+  if(m.gt<0||d<m.gt) return [wx(d),wy(d),0];
+  const u=ease(clamp((d-m.gt)/m.gd,0,1));
+  return [lerp(wx(m.gt),m.gx,u),lerp(wy(m.gt),m.gy,u),u<1?1:0];
+}
+function drawCrowd(C,d){
+  for(const m of C.mem){
+    const [x,y,going]=crowdAt(m,d), [px]=crowdAt(m,d-.1);
+    const v=Math.abs(x-px)*10, moving=going?1:clamp(v/25,0,1);
+    const bob=-Math.abs(Math.sin(d*9+m.ph))*(1.5+4.5*moving)*m.s;
+    m.g.setAttribute('transform','translate('+x.toFixed(1)+','+(y+bob).toFixed(1)+')');
+    const dir=x>px+.05?1:x<px-.05?-1:m.dir;
+    if(dir!==m.dir||!m.set){m.dir=dir;m.set=1;m.f.setAttribute('transform','scale('+(dir*m.s)+','+m.s+')')}
+    if(m.b){const u=m.know<0?0:clamp((d-m.know)/.35,0,1);
+      m.b.setAttribute('opacity',u>0?'1':'0');
+      if(u>0) m.b.setAttribute('transform','translate(0,'+((-96+Math.sin(d*3+m.ph)*3)*m.s).toFixed(1)+') scale('+((u<1?outBack(u):1)*m.s).toFixed(3)+')')}
+    if(m.r){const on=m.ring>=0&&d>=m.ring;m.r.setAttribute('opacity',on?String(.55+.45*Math.sin(d*5)):'0');
+      if(on) m.r.setAttribute('transform','scale('+m.s+') rotate('+((d*40)%360).toFixed(1)+' 0 -36)')}
+  }
+  for(const a of C.arcs){
+    const u=(d-a.t+.7)/.7;
+    if(u<0||u>1.5){a.p.setAttribute('opacity','0');continue}
+    const A=C.byI[a.a], B=C.byI[a.b]; if(!A||!B) continue;
+    const pa=crowdAt(A,d), pb=crowdAt(B,d);
+    const x1=pa[0], y1=pa[1]-62*A.s, x2=pb[0], y2=pb[1]-62*B.s;
+    const lift=Math.hypot(x2-x1,y2-y1)*.35+30;
+    a.p.setAttribute('d','M'+x1.toFixed(1)+','+y1.toFixed(1)+' Q'+((x1+x2)/2).toFixed(1)+','+(Math.min(y1,y2)-lift).toFixed(1)+' '+x2.toFixed(1)+','+y2.toFixed(1));
+    let L=0;try{L=a.p.getTotalLength()}catch(e){}
+    a.p.style.strokeDasharray=L+' '+L; a.p.style.strokeDashoffset=String(L*(1-clamp(u,0,1)));
+    a.p.setAttribute('opacity',String(u<=1?1:clamp(1-(u-1)/.5,0,1)));
+  }
+}
+function drawNet(N,d){
+  for(const e of N){const u=e.t<0?1:clamp((d-e.t)/.35,0,1);
+    e.l.setAttribute('opacity',u>0?'.85':'0');
+    if(u>0){e.l.style.strokeDasharray=e.len+' '+e.len;e.l.style.strokeDashoffset=String(e.len*(1-outCubic(u)))}}
+}
+
 function camAt(keys,t){
   let cur={zoom:keys[0].zoom,x:keys[0].x,y:keys[0].y};
   for(let k=1;k<keys.length;k++){
@@ -252,6 +307,8 @@ function drawScene(i,t,f){
     st.opacity=op;
     st.transform='translate(-50%,-50%) translate('+dx+'px,'+dy+'px) rotate('+rot+'deg) scale('+Math.max(0,sc)+')';
     o.rv.style.clipPath=clip;
+    if(o.crowd) drawCrowd(o.crowd,dt);
+    if(o.net) drawNet(o.net,dt);
     if(o.mark){const u=clamp((t-it.markT)/.5,0,1);o.mark.pth.style.strokeDashoffset=String(o.mark.len*(1-outCubic(u)))}
     if(o.num){const c=it.count, u=outCubic(clamp(dt/c.dur,0,1)), v=lerp(c.from,c.to,u);
       o.num.textContent=it.text.replace('{n}',v.toLocaleString('en-US',{minimumFractionDigits:c.decimals,maximumFractionDigits:c.decimals}))}
@@ -384,7 +441,7 @@ export function explainerHtml({ spec, timeline, cast, tracks, media = {}, manim 
     const tl = timeline[i];
     const items = s.items.map((it, k) => {
       let inner;
-      if (it.kind === 'svg' || it.kind === 'chart') inner = it.svg;
+      if (it.kind === 'svg' || it.kind === 'chart' || it.kind === 'crowd' || it.kind === 'network') inner = it.svg;
       else if (it.kind === 'image') inner = `<img src="${media[it.image]}" style="width:100%;height:auto;display:block;border-radius:6px">`;
       else if (it.kind === 'bubble') {
         const sp = tl.characters.find((c) => c.who === it.who);
@@ -394,8 +451,11 @@ export function explainerHtml({ spec, timeline, cast, tracks, media = {}, manim 
       else inner = `<div class="text" style="font-family:${it.font === 'hand' ? HAND : SANS};font-size:${Math.round(it.size * U)}px;color:${it.color}">${escapeHtml(it.text)}</div>`;
       const style = it.kind === 'text' || it.kind === 'tag' ? '' : `width:${Math.round(it.w * W)}px`;
       const mark = it.mark !== 'none' ? `<svg class="mark" data-kind="${it.mark}" style="position:absolute;inset:0;width:100%;height:100%;overflow:visible"><path fill="none" stroke="${it.markColor}" stroke-width="${Math.max(3, Math.round(H / 140))}" stroke-linecap="round" stroke-linejoin="round"/></svg>` : '';
-      return `<div class="item${it.kind === 'tag' || it.kind === 'bubble' || it.over ? ' over' : ''}" id="s${i}i${k}" style="${style}"><div class="reveal">${inner}</div>${mark}</div>`;
-    }).join('');
+      return { pin: !!it.pin, html: `<div class="item${it.kind === 'tag' || it.kind === 'bubble' || it.over ? ' over' : ''}" id="s${i}i${k}" style="${style}"><div class="reveal">${inner}</div>${mark}</div>` };
+    });
+    // Pinned items (titles, counters, labels) stay put on screen while the camera moves.
+    const hud = items.filter((x) => x.pin).map((x) => x.html).join('');
+    const worldItems = items.filter((x) => !x.pin).map((x) => x.html).join('');
     const chars = s.characters.map((c, k) => `<div class="char" id="s${i}c${k}">${characterSvg(cast[c.who], { id: `c${i}_${k}`, body: c.body })}</div>`).join('');
     const mnTag = player && player.manim[i] ? `video muted playsinline preload="auto" src="${player.manim[i]}"` : 'img';
     const mn = s.manim ? `<${mnTag} class="mn" id="s${i}m" style="left:${(s.manim.x - s.manim.w / 2) * W}px;top:${(s.manim.y - s.manim.w / 2) * H}px;width:${s.manim.w * W}px;height:${s.manim.w * H}px">${mnTag === 'img' ? '' : '</video>'}` : '';
@@ -407,14 +467,15 @@ export function explainerHtml({ spec, timeline, cast, tracks, media = {}, manim 
     }
     const pt = particlesSvg(s.particles, { width: W, height: H, seed: `${spec.title}:${i}` });
     return `<div class="scene" id="s${i}"><div class="bg" style="background:radial-gradient(ellipse at 50% 42%, ${mix(s.background[0], '#ffffff', 0.18)} 0%, ${s.background[0]} 45%, ${s.background[1]} 100%)"></div>` +
-      bd + `<div class="world" id="s${i}w">${mn}${items}${chars}</div>` + (pt ? `<div class="pt" id="s${i}p">${pt}</div>` : '') + '</div>';
+      bd + `<div class="world" id="s${i}w">${mn}${worldItems}${chars}</div>` + (hud ? `<div class="hud">${hud}</div>` : '') + (pt ? `<div class="pt" id="s${i}p">${pt}</div>` : '') + '</div>';
   }).join('');
   return `<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(spec.title)}</title><style>
 html,body{margin:0;width:${player ? '100%' : W + 'px'};height:${player ? '100%' : H + 'px'};overflow:hidden;background:#000}
 #frame{position:absolute;left:0;top:0;width:${W}px;height:${H}px;overflow:hidden;transform-origin:0 0}
 #stage{position:absolute;inset:0;overflow:hidden}
-.scene{position:absolute;inset:0;overflow:hidden;visibility:hidden;transform-origin:50% 50%}
+.scene{position:absolute;inset:0;overflow:hidden;visibility:hidden;transform-origin:50% 50%;isolation:isolate}
 .world{position:absolute;left:0;top:0;width:${W}px;height:${H}px;transform-origin:0 0}
+.hud{position:absolute;left:0;top:0;width:${W}px;height:${H}px;z-index:4}
 .bg{position:absolute;inset:0}
 .bd{position:absolute;left:-15%;top:-15%;width:130%;height:130%;transform-origin:50% 50%}
 .bd svg,.pt svg{width:100%;height:100%;display:block}

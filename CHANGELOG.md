@@ -1,5 +1,21 @@
 # Changelog
 
+## Unreleased
+
+### Added: crowds, networks, pinned items, exact music ducking
+
+- `crowd` items: small townspeople wandering round their spots (`count`, `homes`, `size`, `wander`, `speed`).
+  News can spread from one to the next (`spread`: a badge pops over each head, with a whisper arc from whoever
+  told them, nearest people first), a few can walk to one place (`gather`), and one can be ringed (`ring`).
+  The spread, the gathering and the ring can each start on a sentence (`line` / `lineEnd`). A soft pop plays
+  each time someone hears the news.
+- `network` items: a ring of faces whose ties appear one by one from one density to another (`from`, `to`,
+  ties / possible ties), so a reported figure such as 0.167 -> 0.74 is drawn exactly.
+- `"pin": true` on any item keeps it fixed on screen while the camera moves (titles, counters, labels).
+- `"musicDuck"` (dB): the music dips by exactly that much during each spoken line and stays at `musicVolume`
+  in the pauses, so a bed with a beat stays audible. Unset keeps the sidechain compression.
+- Each scene is its own stacking context, so a scene's pinned layer never shows over the next scene.
+
 ## 0.2.0 (2026-11-16)
 
 ### Added: Studio, any topic, any cast

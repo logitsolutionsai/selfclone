@@ -16,6 +16,8 @@ export function sfxEvents(timeline) {
       const kind = it.sound && SOUND_FOR_ENTER[it.enter];
       if (kind) ev.push({ t: it.t, kind, dur: kind === 'scribble' ? it.enterDur : 0.4 });
       if (it.sound && it.mark !== 'none') ev.push({ t: it.markT, kind: 'scribble', dur: 0.5 });
+      // A soft pop each time someone in a crowd hears the news.
+      if (it.sound && it.crowd && it.crowd.knowAt) for (const k of it.crowd.knowAt) ev.push({ t: it.t + k + ((it.crowdShift && it.crowdShift.spread) || 0), kind: 'pop', dur: 0.4 });
     }
   });
   return ev.sort((a, b) => a.t - b.t);

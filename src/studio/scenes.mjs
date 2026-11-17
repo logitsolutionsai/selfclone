@@ -12,6 +12,7 @@ import { splitSentences } from './speech.mjs';
 import { BACKDROPS, PARTICLES } from './backdrops.mjs';
 import { PROPS, propSvg } from './props.mjs';
 import { checkChart, chartSvg } from './charts.mjs';
+import { checkCrowd, crowdSvg, checkNetwork, networkSvg } from './crowd.mjs';
 
 export const ENTERS = ['pop', 'fade', 'write', 'draw', 'grow', 'zoom', 'slide-left', 'slide-right', 'slide-up', 'slide-down', 'none'];
 export const EXITS = ['fade', 'pop', 'slide-left', 'slide-right', 'slide-up', 'slide-down'];
@@ -184,9 +185,9 @@ export function checkScenes(spec) {
     const items = (Array.isArray(s.items) ? s.items : []).map((it, k) => {
       const w = `${at} item ${k + 1}`;
       if (!it || typeof it !== 'object') throw new Error(`${w} is not an object.`);
-      const kind = it.chart != null ? 'chart' : it.prop != null ? 'prop' : it.bubble != null ? 'bubble' : it.image != null ? 'image' : typeof it.svg === 'string' ? 'svg' : it.text != null ? 'text' : null;
-      if (!kind) throw new Error(`${w} needs "svg", "text", "prop", "chart", "bubble" or "image".`);
-      const defEnter = { chart: 'grow', text: 'write', bubble: 'pop' }[kind] || 'pop';
+      const kind = it.crowd != null ? 'crowd' : it.network != null ? 'network' : it.chart != null ? 'chart' : it.prop != null ? 'prop' : it.bubble != null ? 'bubble' : it.image != null ? 'image' : typeof it.svg === 'string' ? 'svg' : it.text != null ? 'text' : null;
+      if (!kind) throw new Error(`${w} needs "svg", "text", "prop", "chart", "bubble", "image", "crowd" or "network".`);
+      const defEnter = { chart: 'grow', text: 'write', bubble: 'pop', crowd: 'fade', network: 'fade' }[kind] || 'pop';
       const enter = oneOf(`${w} enter`, it.enter, defEnter, ENTERS);
       let exit = null;
       if (it.exit != null) {
@@ -213,12 +214,31 @@ export function checkScenes(spec) {
         look: it.look !== false && it.over !== true,
         sound: it.sound !== false,
         over: it.over === true,
+        // Pinned: drawn above the scene and not moved by the camera (titles, counters, labels).
+        pin: it.pin === true,
         // A hand-drawn mark that draws itself onto the item `markAt` seconds after it has come in.
         mark: oneOf(`${w} mark`, it.mark, 'none', MARKS),
         markColor: color(`${w} markColor`, it.markColor, '#e2604f'),
         markAt: num(`${w} markAt`, it.markAt, null, 0, 600),
       };
       if (enter === 'draw' && (kind === 'text' || kind === 'bubble' || kind === 'image')) throw new Error(`${w}: "draw" is for drawings; text uses "write".`);
+      if (enter === 'draw' && (kind === 'crowd' || kind === 'network')) throw new Error(`${w}: a ${kind} comes in with "fade", "pop" or another entrance, not "draw".`);
+      if (kind === 'crowd') {
+        const c = checkCrowd(w, it.crowd);
+        const { svg, knowAt } = crowdSvg(c);
+        // The ring, the spread and the gathering can each start on a sentence, like an item.
+        const anchors = {};
+        for (const key of ['ring', 'spread', 'gather']) {
+          const src = it.crowd[key];
+          if (src && typeof src === 'object' && (src.line != null || src.lineEnd != null)) anchors[key] = when(`${w} crowd ${key}`, { line: src.line, lineEnd: src.lineEnd, at: 0 });
+        }
+        return { kind: 'crowd', crowd: { ...c, knowAt, anchors }, svg, w: num(`${w} w`, it.w, 0.9, 0.1, 2), ...base };
+      }
+      if (kind === 'network') {
+        const n = checkNetwork(w, it.network);
+        const { svg, ties } = networkSvg(n);
+        return { kind: 'network', network: { ...n, ties }, svg, w: num(`${w} w`, it.w, 0.6, 0.1, 2), ...base };
+      }
       if (kind === 'prop') {
         const name = oneOf(`${w} prop`, it.prop, null, PROPS);
         return { kind: 'svg', prop: name, svg: propSvg(name, color(`${w} color`, it.color, null)), w: num(`${w} w`, it.w, 0.15, 0.02, 2), ...base };
@@ -309,6 +329,8 @@ export function checkScenes(spec) {
     character: cast.host ? (typeof cast.host.character === 'string' ? cast.host.character : null) : null,
     music: spec.music == null ? null : String(spec.music),
     musicVolume: num('musicVolume', spec.musicVolume, 0.12, 0, 1),
+    // How many dB the music dips while someone speaks; unset keeps the sidechain compression.
+    musicDuck: spec.musicDuck == null ? null : num('musicDuck', spec.musicDuck, null, 0, 40),
     sfx: spec.sfx !== false,
     captions: spec.captions === 'words' ? 'words' : spec.captions !== false,
     scenes,
@@ -388,6 +410,9 @@ export function buildTimeline(spec, timings) {
         markT: it.mark === 'none' ? null : t + (it.markAt ?? enterSeconds(it) + 0.2),
         exit: it.exit ? { anim: it.exit.anim, t: abs(it.exit) } : null,
         move: it.move ? { x: it.move.x ?? it.x, y: it.move.y ?? it.y, t: abs(it.move), dur: it.move.dur } : null,
+        // A crowd's ring, spread and gathering times are counted from the crowd's own start; a sentence
+        // anchor moves them to that sentence.
+        crowdShift: it.kind === 'crowd' ? Object.fromEntries(['ring', 'spread', 'gather'].map((k) => [k, it.crowd.anchors[k] ? abs(it.crowd.anchors[k]) - t : 0])) : undefined,
       };
     });
     const camera = s.camera.keys.length

@@ -26,6 +26,7 @@
     },
     "music": { "type": "string", "description": "A music file the user has the rights to, or \"ambient\" for a generated bed." },
     "musicVolume": { "type": "number", "minimum": 0, "maximum": 1 },
+    "musicDuck": { "type": "number", "minimum": 0, "maximum": 40, "description": "How many dB the music dips while someone speaks (it stays at musicVolume in the pauses). Unset: sidechain compression." },
     "sfx": { "type": "boolean" },
     "captions": { "enum": [true, false, "words"] },
     "scenes": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/scene" } }
@@ -72,7 +73,7 @@
           "properties": { "type": { "enum": ["bar", "line", "pie"] }, "values": { "type": "array", "items": { "type": "number" }, "minItems": 1, "maxItems": 24 }, "labels": { "type": "array", "items": { "type": "string" } }, "colors": { "type": "array", "items": { "type": "string" } }, "unit": { "type": "string" }, "showValues": { "type": "boolean" } }
         },
         "x": { "$ref": "#/$defs/frac" }, "y": { "$ref": "#/$defs/frac" }, "w": { "type": "number" }, "size": { "type": "number" },
-        "line": { "type": "integer", "minimum": 0 }, "lineEnd": { "type": "integer", "minimum": 0 }, "at": { "type": "number" }, "over": { "type": "boolean" },
+        "line": { "type": "integer", "minimum": 0 }, "lineEnd": { "type": "integer", "minimum": 0 }, "at": { "type": "number" }, "over": { "type": "boolean" }, "pin": { "type": "boolean", "description": "Stay fixed on screen while the camera moves (titles, counters, labels)." },
         "enter": { "enum": ["pop", "fade", "write", "draw", "grow", "zoom", "slide-left", "slide-right", "slide-up", "slide-down", "none"] },
         "loop": { "enum": ["none", "float", "bob", "wobble", "pulse", "spin", "shake"] },
         "exit": { "anyOf": [{ "type": "number" }, { "type": "object", "properties": { "line": { "type": "integer" }, "at": { "type": "number" }, "anim": { "enum": ["fade", "pop", "slide-left", "slide-right", "slide-up", "slide-down"] } } }] },
@@ -81,7 +82,26 @@
         "count": { "type": "object", "required": ["to"], "properties": { "from": { "type": "number" }, "to": { "type": "number" }, "dur": { "type": "number" }, "decimals": { "type": "integer" } } },
         "who": { "type": "string" }, "style": { "enum": ["speech", "thought"] },
         "color": { "type": "string" }, "font": { "enum": ["hand", "sans"] }, "scale": { "type": "number" }, "rotate": { "type": "number" },
-        "look": { "type": "boolean" }, "sound": { "type": "boolean" }
+        "look": { "type": "boolean" }, "sound": { "type": "boolean" },
+        "crowd": {
+          "type": "object",
+          "description": "Small townspeople wandering round their spots. News can spread from one to the next (a badge over each head, a whisper arc from whoever told them), a few can walk to one place, and one can be ringed.",
+          "properties": {
+            "count": { "type": "integer", "minimum": 1, "maximum": 80 }, "seed": { "type": "string" },
+            "h": { "type": "number", "description": "Height of the crowd's box as a fraction of its width." },
+            "size": { "type": "number", "description": "Height of one person as a fraction of the box width." },
+            "wander": { "type": "number" }, "speed": { "type": "number" },
+            "homes": { "type": "array", "description": "Each person's spot, [x, y] as fractions of the box.", "items": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 } },
+            "ring": { "anyOf": [{ "type": "integer" }, { "type": "object", "properties": { "who": { "type": "integer" }, "at": { "type": "number" }, "color": { "type": "string" } } }] },
+            "spread": { "type": "object", "properties": { "from": { "type": "integer" }, "to": { "type": "integer" }, "at": { "type": "number" }, "dur": { "type": "number" }, "badge": { "enum": ["heart", "star", "bulb", "dot", "mail", "question", "exclamation"] }, "color": { "type": "string" }, "whisper": { "type": "boolean" } } },
+            "gather": { "type": "object", "properties": { "who": { "type": "array", "items": { "type": "integer" } }, "count": { "type": "integer" }, "to": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 }, "at": { "type": "number" }, "dur": { "type": "number" } } }
+          }
+        },
+        "network": {
+          "type": "object",
+          "description": "A ring of faces with ties between them; new ties appear one by one from density \"from\" to density \"to\" (ties / possible ties).",
+          "properties": { "nodes": { "type": "integer", "minimum": 3, "maximum": 60 }, "from": { "type": "number" }, "to": { "type": "number" }, "at": { "type": "number" }, "dur": { "type": "number" }, "seed": { "type": "string" }, "color": { "type": "string" } }
+        }
       }
     },
     "scene": {
