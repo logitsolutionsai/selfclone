@@ -129,12 +129,13 @@ export function makePoints(n, opts = {}) {
   });
   const points = new THREE.Points(geo, mat);
   points.frustumCulled = false;
-  points.onBeforeRender = (r, s, cam) => { mat.uniforms.scale.value = pointScale(cam); };
+  // Sizes are world units seen through the camera that draws them, unless setFov() pinned a field of view.
+  let pinnedFov = null;
+  points.onBeforeRender = (r, s, cam) => { mat.uniforms.scale.value = pointScale(pinnedFov ? { fov: pinnedFov } : cam); };
   return {
     points, pos, col, size, alpha, n,
-    /** Tell the points the camera fov changed (keeps sizes in world units). */
-    /** Sizes follow the camera's fov automatically; kept for older scene code. */
-    setFov() {},
+    /** Size the points as if seen through this fov (degrees), whatever camera draws them; null follows the camera. */
+    setFov(fov) { pinnedFov = fov || null; },
     commit() { for (const k of ['position', 'color', 'size', 'alpha']) geo.attributes[k].needsUpdate = true; },
   };
 }

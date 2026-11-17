@@ -19,6 +19,10 @@ import { clamp, ease, FRAME } from './kit.js';
 
 const info = () => window.__sc3dInfo || { width: 720, height: 1280, fps: 24, duration: 10, lines: [], transparent: false };
 
+/** The frame size in pixels (live bindings: set by createStage, so read them after it). */
+export let W = info().width;
+export let H = info().height;
+
 const FinishShader = {
   uniforms: { tDiffuse: { value: null }, uTime: { value: 0 }, uVignette: { value: 0.35 }, uGrain: { value: 0.035 }, uFade: { value: 0 }, uFadeColor: { value: new THREE.Color(0, 0, 0) }, uRes: { value: new THREE.Vector2(720, 1280) } },
   vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
@@ -40,7 +44,7 @@ const FinishShader = {
  */
 export function createStage(opts = {}) {
   const I = info();
-  const W = I.width, H = I.height;
+  W = I.width; H = I.height;
   FRAME.width = W; FRAME.height = H;
   const transparent = !!I.transparent;
   const canvas = document.getElementById('gl');
