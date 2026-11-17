@@ -132,6 +132,8 @@ export function createStage(opts = {}) {
     },
     /** Project a world point to frame fractions {x, y}. */
     project(v) {
+      // update(t) has just moved the camera; refresh its matrices so labels follow this frame, not the last one.
+      camera.updateMatrixWorld(true);
       const p = v.clone().project(camera);
       return { x: (p.x + 1) / 2, y: (1 - p.y) / 2, behind: p.z > 1 };
     },
