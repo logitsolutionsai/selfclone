@@ -298,6 +298,19 @@ export function checkScenes(spec) {
       if (!/^\w+$/.test(cls)) throw new Error(`${at} manim scene must be a class name.`);
       manim = { code: m.code, scene: cls, x: num(`${at} manim x`, m.x, 0.5, 0, 1), y: num(`${at} manim y`, m.y, 0.5, 0, 1), w: num(`${at} manim w`, m.w, 1, 0.1, 1), ...when(`${at} manim`, m) };
     }
+    // A 3D layer drawn by a three.js module (rendered ahead on the GPU, see three.mjs), behind the scene's items.
+    let three = null;
+    if (s.three != null) {
+      const m = typeof s.three === 'string' ? { module: s.three } : s.three;
+      if (!m || typeof m !== 'object' || typeof m.module !== 'string' || !/\.m?js$/i.test(m.module)) throw new Error(`${at} three needs "module": a .js file (relative to the scene file) that exports default { setup, update }.`);
+      if (s.manim != null) throw new Error(`${at} has both "manim" and "three"; give a scene one of them.`);
+      three = {
+        module: m.module,
+        x: num(`${at} three x`, m.x, 0.5, 0, 1), y: num(`${at} three y`, m.y, 0.5, 0, 1),
+        w: num(`${at} three w`, m.w, 1, 0.1, 1), h: num(`${at} three h`, m.h, m.w == null ? 1 : num(`${at} three w`, m.w, 1, 0.1, 1), 0.1, 1),
+        transparent: m.transparent === true,
+      };
+    }
     // A title card: big handwritten words in the middle, underlined by hand.
     if (s.title != null) {
       // Centred with nobody on screen; otherwise on the side away from the first character, near the top.
@@ -313,7 +326,9 @@ export function checkScenes(spec) {
     }
     const transition = oneOf(`${at} transition`, s.transition, 'cut', TRANSITIONS);
     return {
-      say, background, characters, camera, items, transition, manim,
+      say, background, characters, camera, items, transition, manim, three,
+      // "captions": false hides the captions in this scene (e.g. when the scene shows the line as a title).
+      captions: s.captions !== false,
       backdrop, backdropImage,
       particles: oneOf(`${at} particles`, s.particles, 'none', PARTICLES),
       hold: num(`${at} hold`, s.hold, 0, 0, 20),
@@ -516,6 +531,8 @@ export function buildTimeline(spec, timings) {
       // The first character, for older callers.
       character: characters[0] || null,
       manim: s.manim ? { t: abs(s.manim), x: s.manim.x, y: s.manim.y, w: s.manim.w } : null,
+      three: s.three ? { t: t0, x: s.three.x, y: s.three.y, w: s.three.w, h: s.three.h, transparent: s.three.transparent } : null,
+      captions: s.captions,
     };
   });
 }

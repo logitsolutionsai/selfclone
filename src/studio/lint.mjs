@@ -42,8 +42,8 @@ export function lintStoryboard(spec, timeline, { width: W = 1280, height: H = 72
     const dur = s.end - s.start;
     const words = s.lines.reduce((n, l) => n + l.text.split(/\s+/).length, 0);
     if (words / dur > 3.4) out.push(`${at}: ${words} words in ${dur.toFixed(1)} s is fast; split it or add a "hold".`);
-    if (!s.items.length && !s.characters.length && !src.manim && src.backdrop === 'none') out.push(`${at} has nothing to look at: add a host, items, a backdrop or Manim.`);
-    if (dur > 14 && s.items.length + (src.manim ? 1 : 0) < 2) out.push(`${at} runs ${dur.toFixed(0)} s with little on screen; add items or split the scene.`);
+    if (!s.items.length && !s.characters.length && !src.manim && !src.three && src.backdrop === 'none') out.push(`${at} has nothing to look at: add a host, items, a backdrop, Manim or a 3D module.`);
+    if (dur > 14 && s.items.length + (src.manim ? 1 : 0) + (src.three ? 2 : 0) < 2) out.push(`${at} runs ${dur.toFixed(0)} s with little on screen; add items or split the scene.`);
     const boxes = s.items.map((it, k) => ({ k, it, b: itemBox(it, src.items[k], W, H, U), t0: it.t, t1: it.exit ? it.exit.t : s.end }));
     for (const { k, it, b } of boxes) {
       if (it.move) continue;

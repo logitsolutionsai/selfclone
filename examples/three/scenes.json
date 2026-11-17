@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schemas/studio-scenes.v1.schema.json",
+  "title": "A water molecule in 3D",
+  "voice": "kokoro:af_heart",
+  "captions": "words",
+  "sfx": false,
+  "scenes": [
+    {
+      "say": [
+        "This is one water molecule: one oxygen and two hydrogens.",
+        "Heat makes it move faster and faster, until it breaks free as vapor."
+      ],
+      "characters": false,
+      "three": { "module": "molecule.js" },
+      "hold": 1
+    }
+  ]
+}

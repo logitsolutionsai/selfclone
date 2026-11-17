@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+### Added: 3D scenes (three.js)
+
+- `"three": "scene.js"` on a scene adds a 3D layer drawn by a three.js module, behind the scene's items,
+  characters and captions.
+  - The module exports `default { setup(info), update(t, stage) }` and imports helpers from `selfclone/3d`:
+    - a cinematic stage (bloom, vignette, grain, fog, reflections) with labels and counters synced to time, and
+      labels pinned to 3D points;
+    - camera keyframes;
+    - a heat colormap;
+    - GPU particles, water molecules, and server racks / a data hall.
+  - `info.lines` gives the scene's sentence timings, so reveals land on the words.
+- The frames render first, on the GPU, in a separate Chrome. They are cached by the module's code and imports,
+  and `--preview` renders only the frames its stills use. The HTML player gets them as WebM clips.
+  `SELFCLONE_GL=swiftshader` forces software GL, and `SELFCLONE_3D_WORKERS` sets the number of pages.
+- `"captions": false` on a scene hides its captions.
+- Example: `examples/three/` (a water molecule heating up until it escapes as vapor).
+- Dependency: `three` 0.170.0.
+
 ### Added: crowds, networks, pinned items, exact music ducking
 
 - `crowd` items: small townspeople wandering round their spots (`count`, `homes`, `size`, `wander`, `speed`).

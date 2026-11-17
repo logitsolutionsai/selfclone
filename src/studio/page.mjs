@@ -78,7 +78,7 @@ function setBrows(p,pairs){p.brows.forEach((b,k)=>b.el.setAttribute('transform',
 `;
 
 const PAGE_RUNTIME = String.raw`
-const {fps,W,H,U,boxes,scenes,tracks,manim}=DATA;
+const {fps,W,H,U,boxes,scenes,tracks,manim,three}=DATA;
 const wrap=(v,n)=>((v%n)+n)%n;
 const at=(el)=>{const m=/translate\(([-\d.]+),([-\d.]+)\)/.exec(el.getAttribute('transform')||'');return m?[+m[1],+m[2]]:[0,0]};
 const els=scenes.map((s,i)=>{
@@ -152,7 +152,8 @@ const els=scenes.map((s,i)=>{
   }:null;
   const particles=pt?[...pt.querySelectorAll('.p')].map(el=>({el,x:dn(el,'x'),y:dn(el,'y'),vx:dn(el,'vx'),vy:dn(el,'vy'),ph:dn(el,'phase'),tw:dn(el,'tw')})):null;
   const mn=document.getElementById('s'+i+'m');
-  return {root,world:document.getElementById('s'+i+'w'),chars,items,bd,pt,scen,particles,mn,mnFrame:-1};
+  const th=document.getElementById('s'+i+'t');
+  return {root,world:document.getElementById('s'+i+'w'),chars,items,bd,pt,scen,particles,mn,mnFrame:-1,th,thFrame:-1};
 });
 const cap=document.getElementById('cap');
 const boil=document.getElementById('boilT');
@@ -313,6 +314,22 @@ function drawScene(i,t,f){
     if(o.num){const c=it.count, u=outCubic(clamp(dt/c.dur,0,1)), v=lerp(c.from,c.to,u);
       o.num.textContent=it.text.replace('{n}',v.toLocaleString('en-US',{minimumFractionDigits:c.decimals,maximumFractionDigits:c.decimals}))}
   }
+  // 3D: the pre-rendered frame of the scene's three.js layer for this moment.
+  if(e.th){
+    const m=three[i], k=Math.floor((t-m.t)*fps+1e-6);
+    if(k<0){e.th.style.visibility='hidden';return null}
+    e.th.style.visibility='visible';
+    if(e.th.tagName==='VIDEO'){
+      const want=Math.min((m.frames-1)/fps,t-m.t), v=e.th;
+      if(Math.abs(v.currentTime-want)>.2) v.currentTime=want;
+      if(window.__playing&&v.paused&&want<(m.frames-1)/fps) v.play().catch(()=>{});
+      if(!window.__playing&&!v.paused) v.pause();
+      return null;
+    }
+    const idx=Math.min(m.frames-1,k);
+    if(idx!==e.thFrame){e.thFrame=idx;e.th.src='http://studio.local/three/'+i+'/'+idx+'.'+m.ext;return e.th.decode().catch(()=>{})}
+    return null;
+  }
   // Manim: show the frame for this moment (the last one once the animation is over).
   if(e.mn){
     const m=manim[i], k=Math.floor((t-m.t)*fps);
@@ -413,7 +430,7 @@ window.studio={render(f){
     }
   }
   waits.push(drawScene(i,t,f)); s.characters.forEach((c,j)=>drawCharacter(i,j,f,t));
-  const line=s.lines.find(l=>t>=l.start-.05&&t<=l.end+.25);
+  const line=s.captions===false?null:s.lines.find(l=>t>=l.start-.05&&t<=l.end+.25);
   if(DATA.captions==='words'&&line){
     // Karaoke: the word being spoken lights up, timed by its place in the sentence.
     if(cap.__line!==line){cap.__line=line;const ws=line.text.split(/\s+/);let acc=0;const tot=ws.reduce((a,w)=>a+w.length+1,0);
@@ -433,10 +450,10 @@ window.studio={render(f){
  * to its per-frame {mouth, blink, emph}; `media` holds data URLs for image items and backdrops;
  * `manim` holds per scene {t, frames} for scenes with a Manim animation.
  */
-export function explainerHtml({ spec, timeline, cast, tracks, media = {}, manim = {}, fps, width: W, height: H, player = null }) {
+export function explainerHtml({ spec, timeline, cast, tracks, media = {}, manim = {}, three = {}, fps, width: W, height: H, player = null }) {
   // The size unit for characters and text: the height in landscape, less in a tall frame so they fit across.
   const U = Math.min(H, 1.2 * W);
-  const data = { fps, W, H, U, captions: spec.captions, boxes: { bust: CHAR_BOX, full: FULL_BOX }, mouths: MOUTHS, gestures: GESTURES, moodFaces: MOOD_FACES, scenes: timeline, tracks, manim };
+  const data = { fps, W, H, U, captions: spec.captions, boxes: { bust: CHAR_BOX, full: FULL_BOX }, mouths: MOUTHS, gestures: GESTURES, moodFaces: MOOD_FACES, scenes: timeline, tracks, manim, three };
   const sceneHtml = spec.scenes.map((s, i) => {
     const tl = timeline[i];
     const items = s.items.map((it, k) => {
@@ -459,6 +476,8 @@ export function explainerHtml({ spec, timeline, cast, tracks, media = {}, manim 
     const chars = s.characters.map((c, k) => `<div class="char" id="s${i}c${k}">${characterSvg(cast[c.who], { id: `c${i}_${k}`, body: c.body })}</div>`).join('');
     const mnTag = player && player.manim[i] ? `video muted playsinline preload="auto" src="${player.manim[i]}"` : 'img';
     const mn = s.manim ? `<${mnTag} class="mn" id="s${i}m" style="left:${(s.manim.x - s.manim.w / 2) * W}px;top:${(s.manim.y - s.manim.w / 2) * H}px;width:${s.manim.w * W}px;height:${s.manim.w * H}px">${mnTag === 'img' ? '' : '</video>'}` : '';
+    const thTag = player && player.three && player.three[i] ? `video muted playsinline preload="auto" src="${player.three[i]}"` : 'img';
+    const th = s.three ? `<${thTag} class="th" id="s${i}t" style="left:${(s.three.x - s.three.w / 2) * W}px;top:${(s.three.y - s.three.h / 2) * H}px;width:${s.three.w * W}px;height:${s.three.h * H}px">${thTag === 'img' ? '' : '</video>'}` : '';
     let bd = '';
     if (s.backdropImage) bd = `<div class="bd" id="s${i}b"><img src="${media[s.backdropImage.file]}" style="width:100%;height:100%;object-fit:cover;display:block"><div style="position:absolute;inset:0;background:${s.background[0]};opacity:${s.backdropImage.dim}"></div></div>`;
     else {
@@ -467,7 +486,7 @@ export function explainerHtml({ spec, timeline, cast, tracks, media = {}, manim 
     }
     const pt = particlesSvg(s.particles, { width: W, height: H, seed: `${spec.title}:${i}` });
     return `<div class="scene" id="s${i}"><div class="bg" style="background:radial-gradient(ellipse at 50% 42%, ${mix(s.background[0], '#ffffff', 0.18)} 0%, ${s.background[0]} 45%, ${s.background[1]} 100%)"></div>` +
-      bd + `<div class="world" id="s${i}w">${mn}${worldItems}${chars}</div>` + (hud ? `<div class="hud">${hud}</div>` : '') + (pt ? `<div class="pt" id="s${i}p">${pt}</div>` : '') + '</div>';
+      bd + th + `<div class="world" id="s${i}w">${mn}${worldItems}${chars}</div>` + (hud ? `<div class="hud">${hud}</div>` : '') + (pt ? `<div class="pt" id="s${i}p">${pt}</div>` : '') + '</div>';
   }).join('');
   return `<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(spec.title)}</title><style>
 html,body{margin:0;width:${player ? '100%' : W + 'px'};height:${player ? '100%' : H + 'px'};overflow:hidden;background:#000}
@@ -484,6 +503,7 @@ html,body{margin:0;width:${player ? '100%' : W + 'px'};height:${player ? '100%' 
 .item svg{width:100%;height:auto;display:block;overflow:visible}
 .text{white-space:pre;line-height:1.05}
 .mn{position:absolute;visibility:hidden;object-fit:contain}
+.th{position:absolute;visibility:hidden;object-fit:cover;display:block}
 .item.over{z-index:3}
 #cap .w{transition:none}#cap .w.on{color:#f6d94a}
 .tag{background:#2a2346;color:#fffaf0;font-family:${SANS};font-weight:600;padding:.35em .8em;border-radius:.4em;border-left:.35em solid #f2c14b;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.25)}

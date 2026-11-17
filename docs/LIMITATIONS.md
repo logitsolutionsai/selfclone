@@ -33,6 +33,12 @@
 - **Manim is optional and runs your Python.** A scene's Manim code runs as a normal Python program on your
   machine, so only render scene files you trust. LaTeX cannot read paths with spaces, so on Windows profiles with a
   space in the name the frames are rendered under `%ProgramData%\selfclone\manim`.
+- **3D modules run your JavaScript** in a local Chrome page that can only load three.js, the selfclone kit and
+  files from the module's own folder (no network), so only render scene files you trust.
+  - Speed depends on the GPU: an integrated laptop GPU renders a typical 720x1280 scene at about 10 frames a
+    second, and software GL (`SELFCLONE_GL=swiftshader`, or no GPU) is several times slower.
+  - A JSON file loaded with `fetch` is not part of the cache key. Keep data in a `.js` module, or delete the
+    scene's `three-*` cache folder after changing it.
 - **Storyboard warnings are estimates.** Item sizes are guessed from the viewBox and font size, so a warning can
   be a false alarm, and two items on the same centre are assumed to be layered on purpose.
 - **Painted backdrops need an OpenAI key** and send the prompt to OpenAI; everything else runs locally.

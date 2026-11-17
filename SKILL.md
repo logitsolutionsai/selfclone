@@ -370,6 +370,28 @@ field and host mode; read the closest one before writing a new file.
   - Fit the length: let the animation last about as long as the scene's narration. The last frame stays on
     screen after it ends.
   - Setup: Manim must be installed (`pip install manim`, or set `SELFCLONE_MANIM`), with LaTeX for `MathTex`.
+- **3D** (three.js, rendered on the GPU). `"three": "scene.js"` or `{"module": "scene.js", "x": 0.5, "y": 0.5,
+  "w": 1, "h": 1, "transparent": false}` puts a 3D layer behind the scene's items, characters and captions, for the
+  whole scene. Use it for real physical processes: machines, cutaways, molecules, fluids, heat maps, data halls.
+  Example: `examples/three/`.
+  - The module (relative to the scene file) exports `default { setup(info), update(t, stage) }`.
+    - `setup` builds the scene and returns `createStage({...})`.
+    - `info` holds `width`, `height`, `fps`, `duration`, and `lines` (the scene's sentences with scene-local
+      `start`/`end`) to sync reveals to the voice.
+    - `update(t)` poses everything for scene-local second `t`.
+    - It must be a pure function of `t`: no `Math.random()`, `Date.now()` or state carried between frames. Frames
+      render out of order, so use `rng(seed)` and closed-form motion.
+  - Imports: `import * as THREE from 'three'`, addons from `three/addons/...`, and helpers from `selfclone/3d`.
+    The helpers:
+    - `createStage` (bloom, vignette, grain, fog, reflections), with `stage.label` / `stage.counter` /
+      `stage.line` for text synced to `t`. A label can `follow` a 3D point.
+    - `cameraPath`, `shake`, `prog`, `ease`, `rng`.
+    - `thermal` / `THERMAL_GLSL` (heat colours), `makePoints` (particles), `makeMolecules` (H2O),
+      `makeDataHall` / `makeRack`, `softTexture` / `canvasTexture`.
+  - Frames are cached by the module's code, the files it imports and the assets beside it. `--preview` renders
+    only the frames its stills need. `"transparent": true` keeps the scene's background and backdrop visible.
+  - A scene has either `manim` or `three`, not both. `"captions": false` on a scene hides its captions, e.g.
+    when the 3D layer shows the line as a title.
 - **Scenery.** `backdrop` is one of clouds, stars, dots, grass, city, room, grid, waves, chalkboard or notebook, or `{"image":
   "bg.jpg", "dim": 0.2}`. It moves slower than the camera. `particles` (dust, sparkles, bubbles, snow) drift in
   front.

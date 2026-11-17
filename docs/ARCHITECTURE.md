@@ -371,6 +371,17 @@ The encoded file's frames are then counted with ffprobe; a mismatch deletes the 
 - **Manim.** `manim.mjs` finds Manim (`SELFCLONE_MANIM`, selfclone's own venv, or `manim` / `python -m manim`)
   and renders each block to a transparent WebM at the video's frame rate. ffmpeg splits it into PNG frames,
   cached by code and size, and the page shows them frame by frame; the render waits for each image to decode.
+- **3D.** A scene's `three` module draws with three.js 0.170 (a dependency). The main render runs Chrome without
+  the GPU, because SVG filters are faster on the CPU. So `three.mjs` renders the 3D frames first, in a second
+  Chrome with the GPU on: ANGLE on D3D11 or Metal, or SwiftShader with `SELFCLONE_GL=swiftshader`.
+  - The 3D page is served from memory with an import map: `three`, `three/addons/`, and `selfclone/3d` (that is,
+    `src/studio/three/`: `stage.js` for the renderer, post-processing and timed labels; `kit.js` for helpers).
+    The module's own folder is served as `/user/`.
+  - Frames go to `three-<key>/` as JPEG (PNG when transparent). The key hashes the module, the modules it imports,
+    the assets beside it, the kit, the three.js version, the size and the scene's line timings.
+  - A layer runs from its scene's start to its end, plus the next scene's transition.
+  - `--preview` renders only the frames its stills need, and the full render fills in the rest.
+  - The page shows the layer as an image under the world layer, like a Manim clip. The player exports it as WebM.
 - **Parallel rendering.** Every frame is a pure function of its number, so `renderExplainer` splits the frames
   into runs, one page per worker, each encoding its own H.264 segment. ffmpeg joins them without re-encoding and
   adds the sound; the frames of the joined file are then counted.

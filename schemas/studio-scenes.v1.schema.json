@@ -123,6 +123,8 @@
         "camera": { "type": "object", "properties": { "from": { "$ref": "#/$defs/camkey" }, "to": { "$ref": "#/$defs/camkey" }, "keys": { "type": "array", "items": { "$ref": "#/$defs/camkey" } } } },
         "items": { "type": "array", "items": { "$ref": "#/$defs/item" } },
         "manim": { "type": "object", "required": ["code"], "properties": { "code": { "type": "string" }, "scene": { "type": "string" }, "x": { "type": "number" }, "y": { "type": "number" }, "w": { "type": "number" }, "line": { "type": "integer" }, "at": { "type": "number" } } },
+        "three": { "description": "A 3D layer: a three.js module (relative to the scene file) exporting default { setup(info), update(t, stage) }; import helpers from 'selfclone/3d'.", "oneOf": [ { "type": "string", "pattern": "\\.m?js$" }, { "type": "object", "required": ["module"], "properties": { "module": { "type": "string", "pattern": "\\.m?js$" }, "x": { "type": "number", "minimum": 0, "maximum": 1 }, "y": { "type": "number", "minimum": 0, "maximum": 1 }, "w": { "type": "number", "minimum": 0.1, "maximum": 1 }, "h": { "type": "number", "minimum": 0.1, "maximum": 1 }, "transparent": { "type": "boolean" } } } ] },
+        "captions": { "type": "boolean", "description": "false hides the captions in this scene." },
         "transition": { "enum": ["cut", "fade", "wipe", "push", "zoom", "iris"] },
         "hold": { "type": "number", "minimum": 0, "maximum": 20 }
       }

@@ -19,6 +19,7 @@ import { mouthTrack, blinkTrack, emphasisTrack, phonemeSegments } from './tracks
 import { sfxEvents, synthSfx, mixSfx, ambientMusic } from './sfx.mjs';
 import { explainerHtml, sheetHtml, sheetHeight } from './page.mjs';
 import { renderManim } from './manim.mjs';
+import { threeJobs, framesNeeded, renderThreeFrames } from './three.mjs';
 import { lintStoryboard } from './lint.mjs';
 
 export { checkScenes, buildTimeline, sceneLines, mouthTrack, blinkTrack, emphasisTrack, explainerHtml };
@@ -56,8 +57,8 @@ async function withBrowser(fn) {
   }
 }
 
-/** A page with the html served from memory, Manim frames served from their folders, everything else refused. */
-async function openPage(browser, { html, width, height, manimDirs = {} }) {
+/** A page with the html served from memory, Manim and 3D frames served from their folders, everything else refused. */
+async function openPage(browser, { html, width, height, manimDirs = {}, threeDirs = {} }) {
   const context = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 1 });
   const page = await context.newPage();
   const errors = [];
@@ -69,6 +70,11 @@ async function openPage(browser, { html, width, height, manimDirs = {} }) {
     if (m && manimDirs[m[1]]) {
       const f = path.join(manimDirs[m[1]], `${m[2]}.png`);
       if (fs.existsSync(f)) return r.fulfill({ body: fs.readFileSync(f), contentType: 'image/png' });
+    }
+    const t3 = /^http:\/\/studio\.local\/three\/(\d+)\/(\d+)\.(jpg|png)$/.exec(url);
+    if (t3 && threeDirs[t3[1]]) {
+      const f = path.join(threeDirs[t3[1]], `${t3[2]}.${t3[3]}`);
+      if (fs.existsSync(f)) return r.fulfill({ body: fs.readFileSync(f), contentType: t3[3] === 'png' ? 'image/png' : 'image/jpeg' });
     }
     return r.abort();
   });
@@ -249,8 +255,8 @@ export function encodeArgs({ fps, audio, music, musicVolume, seconds, meta, out,
 }
 
 /** Render frames [a, b) with one page into a video-only MP4 segment. */
-async function renderSegment(browser, { html, width, height, manimDirs, fps, a, b, file, onFrame }) {
-  const { page, context, errors } = await openPage(browser, { html, width, height, manimDirs });
+async function renderSegment(browser, { html, width, height, manimDirs, threeDirs, fps, a, b, file, onFrame }) {
+  const { page, context, errors } = await openPage(browser, { html, width, height, manimDirs, threeDirs });
   const enc = spawn('ffmpeg', ['-y', '-v', 'error', '-f', 'image2pipe', '-c:v', 'mjpeg', '-framerate', String(fps), '-i', '-', ...VIDEO_CODEC, '-an', file], { stdio: ['pipe', 'ignore', 'pipe'] });
   let encErr = '';
   enc.stderr.on('data', (d) => (encErr += d));
@@ -322,10 +328,14 @@ async function prepare(o, log) {
     manim[i] = { t: timeline[i].manim.t, frames: r.frames };
     manimDirs[i] = r.dir;
   }
-  const html = explainerHtml({ spec, timeline, cast, tracks, media, manim, fps, width, height });
+  // 3D layers: which frames each needs and where they are cached (rendered by the caller, only the frames it needs).
+  const threes = threeJobs(spec, timeline, { baseDir, fps, width, height, cacheDir: o.cacheDir });
+  const three = Object.fromEntries(threes.map((j) => [j.i, { t: j.start, frames: j.frames, ext: j.ext }]));
+  const threeDirs = Object.fromEntries(threes.map((j) => [j.i, j.dir]));
+  const html = explainerHtml({ spec, timeline, cast, tracks, media, manim, three, fps, width, height });
   const warnings = lintStoryboard(spec, timeline, { width, height });
   for (const w of warnings) log(`  warning: ${w}`);
-  return { warnings, spec, cast, music, fps, width, height, nar, frames, timeline, html, manimDirs, manim, tracks };
+  return { warnings, spec, cast, music, fps, width, height, nar, frames, timeline, html, manimDirs, manim, tracks, threes, three, threeDirs };
 }
 
 /** Stills from every scene (just after it starts, the middle, near the end) as one PNG, in seconds. */
@@ -335,8 +345,10 @@ export async function renderPreview(o, { log = () => {} } = {}) {
   const dir = path.join(o.cacheDir, 'preview');
   fs.rmSync(dir, { recursive: true, force: true });
   fs.mkdirSync(dir, { recursive: true });
+  // Only the 3D frames the stills show (cached, so the full render reuses them).
+  await renderThreeFrames(framesNeeded(P.threes, P.fps, shots), { log });
   await withBrowser(async (browser) => {
-    const { page, context } = await openPage(browser, { html: P.html, width: P.width, height: P.height, manimDirs: P.manimDirs });
+    const { page, context } = await openPage(browser, { html: P.html, width: P.width, height: P.height, manimDirs: P.manimDirs, threeDirs: P.threeDirs });
     for (const [k, f] of shots.entries()) {
       await page.evaluate((n) => window.studio.render(n), f);
       await page.screenshot({ path: path.join(dir, `${String(k).padStart(3, '0')}.png`) });
@@ -359,7 +371,8 @@ export async function renderPreview(o, { log = () => {} } = {}) {
  */
 export async function renderExplainer(o, { log = () => {} } = {}) {
   const P = await prepare(o, log);
-  const { spec, cast, music, fps, width, height, nar, frames, timeline, html, manimDirs } = P;
+  const { spec, cast, music, fps, width, height, nar, frames, timeline, html, manimDirs, threeDirs } = P;
+  await renderThreeFrames(framesNeeded(P.threes, fps), { log });
   // The sound track: the narration, plus effects unless turned off. Lip sync reads the narration alone.
   let audioFile = nar.wav;
   const useSfx = o.sfx !== false && spec.sfx;
@@ -399,7 +412,7 @@ export async function renderExplainer(o, { log = () => {} } = {}) {
         if (a >= b) continue;
         const file = path.join(segDir, `seg-${w}.mp4`);
         segs.push(file);
-        jobs.push(renderSegment(browser, { html, width, height, manimDirs, fps, a, b, file, onFrame }));
+        jobs.push(renderSegment(browser, { html, width, height, manimDirs, threeDirs, fps, a, b, file, onFrame }));
       }
       await Promise.all(jobs);
     });
@@ -453,9 +466,18 @@ export async function exportHtmlPlayer(o, { log = () => {} } = {}) {
     if (r.status !== 0) throw new Error(`ffmpeg could not encode the Manim clip: ${String(r.stderr).trim().split('\n').pop()}`);
     manimVideos[i] = `data:video/webm;base64,${fs.readFileSync(webm).toString('base64')}`;
   }
+  // 3D layers become clips too.
+  await renderThreeFrames(framesNeeded(P.threes, fps), { log });
+  const threeVideos = {};
+  for (const j of P.threes) {
+    const webm = path.join(o.cacheDir, `player-three-${j.i}.webm`);
+    const r = spawnSync('ffmpeg', ['-y', '-v', 'error', '-framerate', String(fps), '-start_number', '0', '-i', path.join(j.dir, `%d.${j.ext}`), '-c:v', 'libvpx-vp9', '-pix_fmt', j.ext === 'png' ? 'yuva420p' : 'yuv420p', '-b:v', '0', '-crf', '34', '-deadline', 'good', '-cpu-used', '4', webm], { encoding: 'utf8' });
+    if (r.status !== 0) throw new Error(`ffmpeg could not encode the 3D clip: ${String(r.stderr).trim().split('\n').pop()}`);
+    threeVideos[j.i] = `data:video/webm;base64,${fs.readFileSync(webm).toString('base64')}`;
+  }
   const { explainerHtml: page } = await import('./page.mjs');
   const media = loadMedia(spec, path.dirname(path.resolve(o.scenesFile)));
-  const html = page({ spec, timeline, cast: P.cast, tracks: P.tracks, media, manim: P.manim, fps, width: P.width, height: P.height, player: { audio: `data:audio/mp4;base64,${fs.readFileSync(m4a).toString('base64')}`, manim: manimVideos } });
+  const html = page({ spec, timeline, cast: P.cast, tracks: P.tracks, media, manim: P.manim, three: P.three, fps, width: P.width, height: P.height, player: { audio: `data:audio/mp4;base64,${fs.readFileSync(m4a).toString('base64')}`, manim: manimVideos, three: threeVideos } });
   const out = o.out.replace(/\.mp4$/i, '') + '.html';
   fs.writeFileSync(out, html);
   return { file: out, bytes: Buffer.byteLength(html), seconds: nar.seconds, scenes: spec.scenes.length };
